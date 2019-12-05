@@ -1,0 +1,25 @@
+samples_filters:
+  - eid not in (select eid from bad_related_samples_2nd_higher_and_high_missrate)
+  - chet_missing_outliers_0_0 = 0
+  - cputative_sex_chromosome_aneuploidy_0_0 = 0
+  - cexcess_relatives_0_0 = 0
+  - eid not in (select eid from withdrawls)
+  - eid > 0
+
+data:
+  height: c12144_0_0
+  bmi: c21001_3_0
+  age_recruitment: c21022_0_0
+  sex: c31_0_0
+  pc1: cpc1_0_0
+  pc2: cpc2_0_0
+  pc3: cpc3_0_0
+  pc4: cpc4_0_0
+  pc5: cpc5_0_0
+  pc6: cpc6_0_0
+  pc7: cpc7_0_0
+  pc8: cpc8_0_0
+  pc9: cpc9_0_0
+  pc10: cpc10_0_0
+  
+

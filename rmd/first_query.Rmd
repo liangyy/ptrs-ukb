@@ -1,0 +1,36 @@
+---
+title: "First query"
+---
+
+```{r setup}
+rm(list = ls())
+library(dplyr)
+source('../code/rlib_doc.R')
+```
+
+# Load data table
+
+```{r load}
+dict = read.csv("http://biobank.ctsu.ox.ac.uk/~bbdatan/Data_Dictionary_Showcase.csv")
+qtrait_sub = read.csv('../external_data/martin_et_al_2019ng_table_s6.csv')
+myextract = dict %>% filter(FieldID %in% qtrait_sub$UKBB.code)
+myextract = myextract %>% inner_join(qtrait_sub, by = c('FieldID' = 'UKBB.code'))
+mydata = meta_info_to_query(myextract$Trait, myextract$FieldID, myextract$Instances, myextract$Array)
+```
+
+# Read in current YAML
+
+```{r ryaml}
+current_yaml = yaml::read_yaml('../misc/first_query.yaml')
+```
+
+# Add the new entries to current YAML
+
+```{r yaml}
+for(n in names(mydata)) {
+  current_yaml$data[[n]] = mydata[[n]]
+}
+yaml::write_yaml(current_yaml, '../output/query_martin_et_al_qtraits.yaml')
+```
+
+
