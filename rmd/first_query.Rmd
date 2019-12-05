@@ -13,8 +13,13 @@ source('../code/rlib_doc.R')
 ```{r load}
 dict = read.csv("http://biobank.ctsu.ox.ac.uk/~bbdatan/Data_Dictionary_Showcase.csv")
 qtrait_sub = read.csv('../external_data/martin_et_al_2019ng_table_s6.csv')
-myextract = dict %>% filter(FieldID %in% qtrait_sub$UKBB.code)
-myextract = myextract %>% inner_join(qtrait_sub, by = c('FieldID' = 'UKBB.code'))
+ethnicityid = 21000
+myextract = dict %>% filter(FieldID %in% c(qtrait_sub$UKBB.code, ethnicityid))
+myextract = myextract %>% left_join(
+  rbind(
+    qtrait_sub %>% select(UKBB.code, Trait),
+    data.frame(UKBB.code = ethnicityid, Trait = 'ethnicity')
+  ), by = c('FieldID' = 'UKBB.code'))
 mydata = meta_info_to_query(myextract$Trait, myextract$FieldID, myextract$Instances, myextract$Array)
 ```
 
@@ -23,6 +28,18 @@ mydata = meta_info_to_query(myextract$Trait, myextract$FieldID, myextract$Instan
 ```{r ryaml}
 current_yaml = yaml::read_yaml('../misc/first_query.yaml')
 ```
+
+# Check whether the field exists in current ukbREST instance
+
+```{r check}
+good_fields = trim_space(read.delim2('../external_data/fields.txt', header = T, sep = '|')$column_name)
+for(n in names(mydata)) {
+  if(! mydata[[n]] %in% good_fields) {
+    mydata[[n]] = NULL
+  }
+}
+```
+
 
 # Add the new entries to current YAML
 
@@ -33,4 +50,10 @@ for(n in names(mydata)) {
 yaml::write_yaml(current_yaml, '../output/query_martin_et_al_qtraits.yaml')
 ```
 
+# Save available fields 
 
+The fields available in current ukbREST instance on `nucleus` is saved into RDS here.
+
+```{r save}
+saveRDS(good_fields, '../output/fields_on_nucleus.rds')
+```

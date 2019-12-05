@@ -427,34 +427,45 @@ div.tocify {
 
 
 <pre class="r"><code>rm(list = ls())
-library(dplyr)</code></pre>
-<pre><code>## 
-## Attaching package: &#39;dplyr&#39;</code></pre>
-<pre><code>## The following objects are masked from &#39;package:stats&#39;:
-## 
-##     filter, lag</code></pre>
-<pre><code>## The following objects are masked from &#39;package:base&#39;:
-## 
-##     intersect, setdiff, setequal, union</code></pre>
-<pre class="r"><code>source(&#39;../code/rlib_doc.R&#39;)</code></pre>
+library(dplyr)
+source(&#39;../code/rlib_doc.R&#39;)</code></pre>
 <div id="load-data-table" class="section level1">
 <h1><span class="header-section-number">1</span> Load data table</h1>
 <pre class="r"><code>dict = read.csv(&quot;http://biobank.ctsu.ox.ac.uk/~bbdatan/Data_Dictionary_Showcase.csv&quot;)
 qtrait_sub = read.csv(&#39;../external_data/martin_et_al_2019ng_table_s6.csv&#39;)
-myextract = dict %&gt;% filter(FieldID %in% qtrait_sub$UKBB.code)
-myextract = myextract %&gt;% inner_join(qtrait_sub, by = c(&#39;FieldID&#39; = &#39;UKBB.code&#39;))
+ethnicityid = 21000
+myextract = dict %&gt;% filter(FieldID %in% c(qtrait_sub$UKBB.code, ethnicityid))
+myextract = myextract %&gt;% left_join(
+  rbind(
+    qtrait_sub %&gt;% select(UKBB.code, Trait),
+    data.frame(UKBB.code = ethnicityid, Trait = &#39;ethnicity&#39;)
+  ), by = c(&#39;FieldID&#39; = &#39;UKBB.code&#39;))
 mydata = meta_info_to_query(myextract$Trait, myextract$FieldID, myextract$Instances, myextract$Array)</code></pre>
 </div>
 <div id="read-in-current-yaml" class="section level1">
 <h1><span class="header-section-number">2</span> Read in current YAML</h1>
 <pre class="r"><code>current_yaml = yaml::read_yaml(&#39;../misc/first_query.yaml&#39;)</code></pre>
 </div>
+<div id="check-whether-the-field-exists-in-current-ukbrest-instance" class="section level1">
+<h1><span class="header-section-number">3</span> Check whether the field exists in current ukbREST instance</h1>
+<pre class="r"><code>good_fields = trim_space(read.delim2(&#39;../external_data/fields.txt&#39;, header = T, sep = &#39;|&#39;)$column_name)
+for(n in names(mydata)) {
+  if(! mydata[[n]] %in% good_fields) {
+    mydata[[n]] = NULL
+  }
+}</code></pre>
+</div>
 <div id="add-the-new-entries-to-current-yaml" class="section level1">
-<h1><span class="header-section-number">3</span> Add the new entries to current YAML</h1>
+<h1><span class="header-section-number">4</span> Add the new entries to current YAML</h1>
 <pre class="r"><code>for(n in names(mydata)) {
   current_yaml$data[[n]] = mydata[[n]]
 }
 yaml::write_yaml(current_yaml, &#39;../output/query_martin_et_al_qtraits.yaml&#39;)</code></pre>
+</div>
+<div id="save-available-fields" class="section level1">
+<h1><span class="header-section-number">5</span> Save available fields</h1>
+<p>The fields available in current ukbREST instance on <code>nucleus</code> is saved into RDS here.</p>
+<pre class="r"><code>saveRDS(good_fields, &#39;../output/fields_on_nucleus.rds&#39;)</code></pre>
 </div>
 
 

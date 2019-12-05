@@ -20,22 +20,63 @@ data:
   pc8: cpc8_0_0
   pc9: cpc9_0_0
   pc10: cpc10_0_0
-  Height-x-instance-3-x-array-0: c50_3_0
-  DBP-x-instance-3-x-array-0: c4079_3_0
-  DBP-x-instance-3-x-array-1: c4079_3_1
-  SBP-x-instance-3-x-array-0: c4080_3_0
-  SBP-x-instance-3-x-array-1: c4080_3_1
-  BMI-x-instance-3-x-array-0: c21001_3_0
+  Height-x-instance-0-x-array-0: c50_0_0
+  Height-x-instance-1-x-array-0: c50_1_0
+  Height-x-instance-2-x-array-0: c50_2_0
+  DBP-x-instance-0-x-array-0: c4079_0_0
+  DBP-x-instance-1-x-array-0: c4079_1_0
+  DBP-x-instance-2-x-array-0: c4079_2_0
+  DBP-x-instance-0-x-array-1: c4079_0_1
+  DBP-x-instance-1-x-array-1: c4079_1_1
+  DBP-x-instance-2-x-array-1: c4079_2_1
+  SBP-x-instance-0-x-array-0: c4080_0_0
+  SBP-x-instance-1-x-array-0: c4080_1_0
+  SBP-x-instance-2-x-array-0: c4080_2_0
+  SBP-x-instance-0-x-array-1: c4080_0_1
+  SBP-x-instance-1-x-array-1: c4080_1_1
+  SBP-x-instance-2-x-array-1: c4080_2_1
+  ethnicity-x-instance-0-x-array-0: c21000_0_0
+  ethnicity-x-instance-1-x-array-0: c21000_1_0
+  ethnicity-x-instance-2-x-array-0: c21000_2_0
+  BMI-x-instance-0-x-array-0: c21001_0_0
+  BMI-x-instance-1-x-array-0: c21001_1_0
+  BMI-x-instance-2-x-array-0: c21001_2_0
+  WBC-x-instance-0-x-array-0: c30000_0_0
+  WBC-x-instance-1-x-array-0: c30000_1_0
   WBC-x-instance-2-x-array-0: c30000_2_0
+  RBC-x-instance-0-x-array-0: c30010_0_0
+  RBC-x-instance-1-x-array-0: c30010_1_0
   RBC-x-instance-2-x-array-0: c30010_2_0
+  Hb-x-instance-0-x-array-0: c30020_0_0
+  Hb-x-instance-1-x-array-0: c30020_1_0
   Hb-x-instance-2-x-array-0: c30020_2_0
+  Ht-x-instance-0-x-array-0: c30030_0_0
+  Ht-x-instance-1-x-array-0: c30030_1_0
   Ht-x-instance-2-x-array-0: c30030_2_0
+  MCV-x-instance-0-x-array-0: c30040_0_0
+  MCV-x-instance-1-x-array-0: c30040_1_0
   MCV-x-instance-2-x-array-0: c30040_2_0
+  MCH-x-instance-0-x-array-0: c30050_0_0
+  MCH-x-instance-1-x-array-0: c30050_1_0
   MCH-x-instance-2-x-array-0: c30050_2_0
+  MCHC-x-instance-0-x-array-0: c30060_0_0
+  MCHC-x-instance-1-x-array-0: c30060_1_0
   MCHC-x-instance-2-x-array-0: c30060_2_0
+  Platelet-x-instance-0-x-array-0: c30080_0_0
+  Platelet-x-instance-1-x-array-0: c30080_1_0
   Platelet-x-instance-2-x-array-0: c30080_2_0
+  Lymphocyte-x-instance-0-x-array-0: c30120_0_0
+  Lymphocyte-x-instance-1-x-array-0: c30120_1_0
   Lymphocyte-x-instance-2-x-array-0: c30120_2_0
+  Monocyte-x-instance-0-x-array-0: c30130_0_0
+  Monocyte-x-instance-1-x-array-0: c30130_1_0
   Monocyte-x-instance-2-x-array-0: c30130_2_0
+  Neutrophil-x-instance-0-x-array-0: c30140_0_0
+  Neutrophil-x-instance-1-x-array-0: c30140_1_0
   Neutrophil-x-instance-2-x-array-0: c30140_2_0
+  Eosinophil-x-instance-0-x-array-0: c30150_0_0
+  Eosinophil-x-instance-1-x-array-0: c30150_1_0
   Eosinophil-x-instance-2-x-array-0: c30150_2_0
+  Basophil-x-instance-0-x-array-0: c30160_0_0
+  Basophil-x-instance-1-x-array-0: c30160_1_0
   Basophil-x-instance-2-x-array-0: c30160_2_0
