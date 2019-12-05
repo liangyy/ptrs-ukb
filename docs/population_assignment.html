@@ -11,7 +11,7 @@
 
 
 
-<title>Home</title>
+<title>Population assignment</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -421,22 +421,197 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Home</h1>
+<h1 class="title toc-ignore">Population assignment</h1>
 
 </div>
 
 
-<div id="query-phenotypes" class="section level1">
-<h1><span class="header-section-number">1</span> Query phenotypes</h1>
-<ul>
-<li>First attempt <a href="first_query.html">link</a></li>
-</ul>
+<pre class="r"><code>rm(list = ls())
+library(dplyr)
+library(data.table)
+library(pander)
+library(ggplot2)
+source(&#39;../code/rlib_doc.R&#39;)</code></pre>
+<div id="about" class="section level1">
+<h1><span class="header-section-number">1</span> About</h1>
+<p>The final query YAML is a bit different from <code>../output/query_martin_et_al_qtraits.yaml</code>. The query input and output is at <code>/vol/bmd/meliao/ukbiobank_query_2.tar</code> on <code>nucleus</code> now.</p>
 </div>
-<div id="quality-control" class="section level1">
-<h1><span class="header-section-number">2</span> Quality control</h1>
-<ul>
-<li>Population QC (based on UKB label and filter out outliers in PC space (10 PC’s)) <a href="population_assignment.html">link</a></li>
-</ul>
+<div id="load-data-table" class="section level1">
+<h1><span class="header-section-number">2</span> Load data table</h1>
+<pre class="r"><code>dat = fread(&#39;~/Desktop/ukbiobank_query_2/query_2_out.csv&#39;, data.table = F)
+data_coding_for_ethnicity = read.delim2(&#39;~/Downloads/coding1001.tsv&#39;)
+target_ethnicity_groups = c(&#39;Chinese&#39;, &#39;British&#39;, &#39;Indian&#39;, &#39;African&#39;)
+data_coding_for_ethnicity = data_coding_for_ethnicity %&gt;% filter(meaning %in% target_ethnicity_groups)
+ethnicity_label = dat %&gt;% select(ethnicity_x_instance_0_x_array_0, ethnicity_x_instance_1_x_array_0, ethnicity_x_instance_2_x_array_0) 
+dat$ethnicity_agg = aggregate_instances(ethnicity_label)
+dat = dat %&gt;% filter(!is.na(ethnicity_agg)) %&gt;% filter(ethnicity_agg %in% data_coding_for_ethnicity$coding)
+dat = dat %&gt;% inner_join(data_coding_for_ethnicity %&gt;% select(coding, meaning), by = c(&#39;ethnicity_agg&#39; = &#39;coding&#39;))
+dat %&gt;% group_by(meaning) %&gt;% summarize(nindiv = n()) %&gt;% pander</code></pre>
+<table style="width:28%;">
+<colgroup>
+<col width="13%" />
+<col width="13%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">meaning</th>
+<th align="center">nindiv</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">African</td>
+<td align="center">3135</td>
+</tr>
+<tr class="even">
+<td align="center">British</td>
+<td align="center">396058</td>
+</tr>
+<tr class="odd">
+<td align="center">Chinese</td>
+<td align="center">1465</td>
+</tr>
+<tr class="even">
+<td align="center">Indian</td>
+<td align="center">5339</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>pc_mat = dat[, colnames(dat) %in% paste0(&#39;pc&#39;, 1:10)]
+rownames(pc_mat) = dat$eid</code></pre>
+</div>
+<div id="simple-visualization" class="section level1">
+<h1><span class="header-section-number">3</span> Simple visualization</h1>
+<pre class="r"><code>vis = dat %&gt;% select(pc1, pc2, pc3, pc4, pc5, pc6, pc7, pc8, pc9, pc10, meaning)
+subsample = subsample_for_vis(vis$meaning, nmax = 1000)
+p = myggpairs(vis[subsample, ] %&gt;% select(-meaning), vis$meaning[subsample], alpha = .4)
+p</code></pre>
+<p><img src="population_assignment_files/figure-html/vis-1.png" width="960" /></p>
+</div>
+<div id="run-kmeans-with-everything" class="section level1">
+<h1><span class="header-section-number">4</span> Run kmeans with everything</h1>
+<pre class="r"><code>kmean_assign = as.character(kmeans(vis %&gt;% select(-meaning), centers = 5)$cluster)
+p = myggpairs(vis[subsample, ] %&gt;% select(-meaning), kmean_assign[subsample], alpha = .4)
+p</code></pre>
+<p><img src="population_assignment_files/figure-html/unnamed-chunk-2-1.png" width="960" /></p>
+</div>
+<div id="do-a-post-filtering-how-to-set-the-cutoff" class="section level1">
+<h1><span class="header-section-number">5</span> Do a post-filtering, how to set the cutoff?</h1>
+<p>Find the center of each cluster and treat it as a multivariate normal and calculate log-likelihood.</p>
+<pre class="r"><code>ll_list = list()
+for(i in unique(vis$meaning)) {
+  sub = vis %&gt;% filter(meaning == i) %&gt;% select(-meaning)
+  mean_hat = colMeans(sub)
+  cov_hat = cov(sub)
+  tmp = data.frame(ll = mvtnorm::dmvnorm(vis %&gt;% select(-meaning), mean = mean_hat, sigma = cov_hat, log = T))
+  colnames(tmp) = paste(i, &#39;dist&#39;)
+  ll_list[[length(ll_list) + 1]] = tmp
+}
+df_ll = do.call(cbind, ll_list)
+df_ll = df_ll %&gt;% mutate(meaning = vis$meaning, eid = dat$eid)
+df_ll %&gt;% filter(subsample) %&gt;% melt(id.vars = c(&#39;meaning&#39;, &#39;eid&#39;)) %&gt;% ggplot() + geom_boxplot(aes(x = variable, y = value, color = meaning))</code></pre>
+<p><img src="population_assignment_files/figure-html/filter-1.png" width="672" /></p>
+<pre class="r"><code>df_ll %&gt;% head %&gt;% pander</code></pre>
+<table>
+<colgroup>
+<col width="18%" />
+<col width="18%" />
+<col width="17%" />
+<col width="18%" />
+<col width="12%" />
+<col width="12%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">British dist</th>
+<th align="center">African dist</th>
+<th align="center">Indian dist</th>
+<th align="center">Chinese dist</th>
+<th align="center">meaning</th>
+<th align="center">eid</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">-22.19</td>
+<td align="center">-179.2</td>
+<td align="center">-116.9</td>
+<td align="center">-154.7</td>
+<td align="center">British</td>
+<td align="center">1e+06</td>
+</tr>
+<tr class="even">
+<td align="center">-22.45</td>
+<td align="center">-170.5</td>
+<td align="center">-110.3</td>
+<td align="center">-133.5</td>
+<td align="center">British</td>
+<td align="center">1e+06</td>
+</tr>
+<tr class="odd">
+<td align="center">-22.86</td>
+<td align="center">-177.2</td>
+<td align="center">-118.1</td>
+<td align="center">-157.1</td>
+<td align="center">British</td>
+<td align="center">1e+06</td>
+</tr>
+<tr class="even">
+<td align="center">-24.8</td>
+<td align="center">-170.7</td>
+<td align="center">-108.1</td>
+<td align="center">-140.8</td>
+<td align="center">British</td>
+<td align="center">1e+06</td>
+</tr>
+<tr class="odd">
+<td align="center">-27.4</td>
+<td align="center">-247.7</td>
+<td align="center">-153.6</td>
+<td align="center">-193.4</td>
+<td align="center">British</td>
+<td align="center">1e+06</td>
+</tr>
+<tr class="even">
+<td align="center">-22.12</td>
+<td align="center">-167.3</td>
+<td align="center">-105.7</td>
+<td align="center">-134.5</td>
+<td align="center">British</td>
+<td align="center">1e+06</td>
+</tr>
+</tbody>
+</table>
+<p>Get loglik in matched and un-match cases and see how loglik distribute.</p>
+<pre class="r"><code>df_ll_flat = df_ll[subsample, ] %&gt;% melt(id.vars = c(&#39;meaning&#39;, &#39;eid&#39;))
+df_ll_flat$meaning = as.character(df_ll_flat$meaning)
+df_ll_flat = df_ll_flat %&gt;% mutate(is_match = meaning == stringr::str_remove(variable, &#39; dist&#39;))
+df_ll_flat %&gt;% ggplot() + geom_jitter(aes(x = variable, y = value, color = is_match, group = is_match), height = 0, width = 0.3, alpha = 0.3) + coord_cartesian(ylim = c(-500, 0))</code></pre>
+<p><img src="population_assignment_files/figure-html/more-1.png" width="672" /></p>
+<p><strong>Note</strong>: the goal is to remove the ’outlier’s which get mixed with un-matched individuals. **From this plot, we hard code the loglik threshold to -50</p>
+</div>
+<div id="perform-filtering" class="section level1">
+<h1><span class="header-section-number">6</span> Perform filtering</h1>
+<pre class="r"><code>ll_cutoff = -50
+eid_pass_cutoff = c()
+for(pop in unique(df_ll$meaning)) {
+  dist = paste(pop, &#39;dist&#39;)
+  sub = df_ll %&gt;% filter(meaning == pop)
+  eid_pass_cutoff = c(eid_pass_cutoff, sub$eid[sub[, dist] &gt; ll_cutoff])
+}
+dat_pass_cutoff = dat %&gt;% filter(eid %in% eid_pass_cutoff)</code></pre>
+</div>
+<div id="plot-indiv-passing-cutoff-in-pc-space" class="section level1">
+<h1><span class="header-section-number">7</span> Plot indiv passing cutoff in PC space</h1>
+<pre class="r"><code>vis = dat_pass_cutoff %&gt;% select(pc1, pc2, pc3, pc4, pc5, pc6, pc7, pc8, pc9, pc10, meaning)
+subsample = subsample_for_vis(vis$meaning, nmax = 1000)
+p = myggpairs(vis[subsample, ] %&gt;% select(-meaning), vis$meaning[subsample], alpha = .4)
+p</code></pre>
+<p><img src="population_assignment_files/figure-html/p-1.png" width="960" /></p>
+</div>
+<div id="save-the-cleaned-up-data" class="section level1">
+<h1><span class="header-section-number">8</span> Save the cleaned-up data</h1>
+<pre class="r"><code>saveRDS(list(dat_pass_pop_qc = dat_pass_cutoff, dat_ll = df_ll), &#39;../output/query_first_attempt_with_population_qc.rds&#39;)</code></pre>
 </div>
 
 

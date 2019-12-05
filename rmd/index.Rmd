@@ -5,3 +5,7 @@ title: "Home"
 # Query phenotypes
 
 * First attempt [link](first_query.html)
+
+# Quality control
+
+* Population QC (based on UKB label and filter out outliers in PC space (10 PC's)) [link](population_assignment.html)
