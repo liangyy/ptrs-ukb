@@ -9,3 +9,4 @@ title: "Home"
 # Quality control
 
 * Population QC (based on UKB label and filter out outliers in PC space (10 PC's)) [link](population_assignment.html)
+* Phenotype QC [link](phenotype_qc.html)

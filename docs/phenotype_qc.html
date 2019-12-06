@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+
+<title>Phenotype QC</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+  padding-left: 25px;
+  text-indent: 0;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">PTRS UKB</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/liangyy/ptrs-ukb">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Phenotype QC</h1>
+
+</div>
+
+
+<pre class="r"><code>rm(list = ls())
+library(dplyr)
+library(pander)
+library(ggplot2)
+panderOptions(&#39;table.split.table&#39;, Inf)
+source(&#39;../code/rlib_doc.R&#39;)</code></pre>
+<div id="about" class="section level1">
+<h1><span class="header-section-number">1</span> About</h1>
+<p>We analyze the quantitative traits analyzed by Martin et al.</p>
+<pre class="r"><code>s6 = read.csv(&#39;../external_data/martin_et_al_2019ng_table_s6.csv&#39;)
+s6 %&gt;% pander</code></pre>
+<table style="width:100%;">
+<colgroup>
+<col width="11%" />
+<col width="12%" />
+<col width="17%" />
+<col width="19%" />
+<col width="10%" />
+<col width="13%" />
+<col width="14%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">Trait</th>
+<th align="center">Ntotal..BBJ.</th>
+<th align="center">NGWAS..BBJ…UKBB.</th>
+<th align="center">Ntarget..BBJ…UKBB.</th>
+<th align="center">UKBB.code</th>
+<th align="center">X..BBJ.clumps</th>
+<th align="center">X..UKBB.clumps</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">Basophil</td>
+<td align="center">87665</td>
+<td align="center">82665</td>
+<td align="center">5000</td>
+<td align="center">30160</td>
+<td align="center">8939</td>
+<td align="center">8690</td>
+</tr>
+<tr class="even">
+<td align="center">BMI</td>
+<td align="center">155426</td>
+<td align="center">150426</td>
+<td align="center">5000</td>
+<td align="center">21001</td>
+<td align="center">19114</td>
+<td align="center">21339</td>
+</tr>
+<tr class="odd">
+<td align="center">DBP</td>
+<td align="center">137991</td>
+<td align="center">132991</td>
+<td align="center">5000</td>
+<td align="center">4079</td>
+<td align="center">9865</td>
+<td align="center">14213</td>
+</tr>
+<tr class="even">
+<td align="center">Eosinophil</td>
+<td align="center">88675</td>
+<td align="center">83675</td>
+<td align="center">5000</td>
+<td align="center">30150</td>
+<td align="center">9266</td>
+<td align="center">13061</td>
+</tr>
+<tr class="odd">
+<td align="center">Hb</td>
+<td align="center">144653</td>
+<td align="center">139653</td>
+<td align="center">5000</td>
+<td align="center">30020</td>
+<td align="center">10483</td>
+<td align="center">16184</td>
+</tr>
+<tr class="even">
+<td align="center">Height</td>
+<td align="center">156569</td>
+<td align="center">151569</td>
+<td align="center">5000</td>
+<td align="center">50</td>
+<td align="center">37216</td>
+<td align="center">31854</td>
+</tr>
+<tr class="odd">
+<td align="center">Ht</td>
+<td align="center">144947</td>
+<td align="center">139947</td>
+<td align="center">5000</td>
+<td align="center">30030</td>
+<td align="center">10554</td>
+<td align="center">15408</td>
+</tr>
+<tr class="even">
+<td align="center">Lymphocyte</td>
+<td align="center">91157</td>
+<td align="center">86157</td>
+<td align="center">5000</td>
+<td align="center">30120</td>
+<td align="center">9400</td>
+<td align="center">13648</td>
+</tr>
+<tr class="odd">
+<td align="center">MCH</td>
+<td align="center">121249</td>
+<td align="center">116249</td>
+<td align="center">5000</td>
+<td align="center">30050</td>
+<td align="center">12598</td>
+<td align="center">15222</td>
+</tr>
+<tr class="even">
+<td align="center">MCHC</td>
+<td align="center">128232</td>
+<td align="center">123232</td>
+<td align="center">5000</td>
+<td align="center">30060</td>
+<td align="center">10272</td>
+<td align="center">10074</td>
+</tr>
+<tr class="odd">
+<td align="center">MCV</td>
+<td align="center">122912</td>
+<td align="center">117912</td>
+<td align="center">5000</td>
+<td align="center">30040</td>
+<td align="center">13169</td>
+<td align="center">16354</td>
+</tr>
+<tr class="even">
+<td align="center">Monocyte</td>
+<td align="center">90593</td>
+<td align="center">85593</td>
+<td align="center">5000</td>
+<td align="center">30130</td>
+<td align="center">10886</td>
+<td align="center">13452</td>
+</tr>
+<tr class="odd">
+<td align="center">Neutrophil</td>
+<td align="center">79287</td>
+<td align="center">74287</td>
+<td align="center">5000</td>
+<td align="center">30140</td>
+<td align="center">9150</td>
+<td align="center">12211</td>
+</tr>
+<tr class="even">
+<td align="center">Platelet</td>
+<td align="center">140610</td>
+<td align="center">135610</td>
+<td align="center">5000</td>
+<td align="center">30080</td>
+<td align="center">14843</td>
+<td align="center">19259</td>
+</tr>
+<tr class="odd">
+<td align="center">RBC</td>
+<td align="center">145426</td>
+<td align="center">140426</td>
+<td align="center">5000</td>
+<td align="center">30010</td>
+<td align="center">12467</td>
+<td align="center">18069</td>
+</tr>
+<tr class="even">
+<td align="center">SBP</td>
+<td align="center">137981</td>
+<td align="center">132981</td>
+<td align="center">5000</td>
+<td align="center">4080</td>
+<td align="center">11231</td>
+<td align="center">14562</td>
+</tr>
+<tr class="odd">
+<td align="center">WBC</td>
+<td align="center">146158</td>
+<td align="center">141158</td>
+<td align="center">5000</td>
+<td align="center">30000</td>
+<td align="center">12664</td>
+<td align="center">17581</td>
+</tr>
+</tbody>
+</table>
+<p>I queried these traits by UKB code where I queried all instances and arrays <a href="first_query.html">see details here</a>. So, I need to aggregate the phenotypes (from multiple instances and arrays in some way).</p>
+</div>
+<div id="load-data" class="section level1">
+<h1><span class="header-section-number">2</span> Load data</h1>
+<p>Here I load the data passing population QC <a href="./population_assignment.html">see details here</a>.</p>
+<pre class="r"><code>dat = readRDS(&#39;../output/query_first_attempt_with_population_qc.rds&#39;)
+dat = dat$dat_pass_pop_qc %&gt;% select(-bmi, -height)  # remove the two test traits which are duplicated from the Martin et al phenotypes </code></pre>
+</div>
+<div id="clean-up-steps" class="section level1">
+<h1><span class="header-section-number">3</span> Clean up steps</h1>
+<p>First of all, let’s see how many instances and how many arraies each trait has.</p>
+<pre class="r"><code>trait_meta = list()
+cols_relavant = colnames(dat)
+cols_relavant = cols_relavant[!is.na(stringr::str_match(cols_relavant, &#39;_x_&#39;))]
+parsed_col = as.data.frame(do.call(rbind, strsplit(cols_relavant, &#39;_x_&#39;)))
+colnames(parsed_col) = c(&#39;trait&#39;, &#39;instance&#39;, &#39;array&#39;)
+parsed_col = parsed_col %&gt;% mutate(instance = stringr::str_remove(instance, &#39;instance_&#39;), array = stringr::str_remove(array, &#39;array_&#39;))
+parsed_col = parsed_col %&gt;% filter(trait != &#39;ethnicity&#39;)  # remove ethnicity since this part is taken care of in population_assignment.Rmd
+parsed_col %&gt;% group_by(trait) %&gt;% summarize(ninstance = length(unique(instance))) %&gt;% pander(caption = &#39;number of instances&#39;)</code></pre>
+<table style="width:36%;">
+<caption>number of instances</caption>
+<colgroup>
+<col width="18%" />
+<col width="18%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">trait</th>
+<th align="center">ninstance</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">basophil</td>
+<td align="center">3</td>
+</tr>
+<tr class="even">
+<td align="center">bmi</td>
+<td align="center">3</td>
+</tr>
+<tr class="odd">
+<td align="center">dbp</td>
+<td align="center">3</td>
+</tr>
+<tr class="even">
+<td align="center">eosinophil</td>
+<td align="center">3</td>
+</tr>
+<tr class="odd">
+<td align="center">hb</td>
+<td align="center">3</td>
+</tr>
+<tr class="even">
+<td align="center">height</td>
+<td align="center">3</td>
+</tr>
+<tr class="odd">
+<td align="center">ht</td>
+<td align="center">3</td>
+</tr>
+<tr class="even">
+<td align="center">lymphocyte</td>
+<td align="center">3</td>
+</tr>
+<tr class="odd">
+<td align="center">mch</td>
+<td align="center">3</td>
+</tr>
+<tr class="even">
+<td align="center">mchc</td>
+<td align="center">3</td>
+</tr>
+<tr class="odd">
+<td align="center">mcv</td>
+<td align="center">3</td>
+</tr>
+<tr class="even">
+<td align="center">monocyte</td>
+<td align="center">3</td>
+</tr>
+<tr class="odd">
+<td align="center">neutrophil</td>
+<td align="center">3</td>
+</tr>
+<tr class="even">
+<td align="center">platelet</td>
+<td align="center">3</td>
+</tr>
+<tr class="odd">
+<td align="center">rbc</td>
+<td align="center">3</td>
+</tr>
+<tr class="even">
+<td align="center">sbp</td>
+<td align="center">3</td>
+</tr>
+<tr class="odd">
+<td align="center">wbc</td>
+<td align="center">3</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>trait_instance_with_multi_array = parsed_col %&gt;% group_by(trait, instance) %&gt;% summarize(number_of_array = length(unique(array))) %&gt;% ungroup() %&gt;% filter(number_of_array &gt; 1) 
+trait_instance_with_multi_array %&gt;% pander(caption = &#39;trait/instance pair with more than one array&#39;)</code></pre>
+<table style="width:51%;">
+<caption>trait/instance pair with more than one array</caption>
+<colgroup>
+<col width="11%" />
+<col width="15%" />
+<col width="25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">trait</th>
+<th align="center">instance</th>
+<th align="center">number_of_array</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">dbp</td>
+<td align="center">0</td>
+<td align="center">2</td>
+</tr>
+<tr class="even">
+<td align="center">dbp</td>
+<td align="center">1</td>
+<td align="center">2</td>
+</tr>
+<tr class="odd">
+<td align="center">dbp</td>
+<td align="center">2</td>
+<td align="center">2</td>
+</tr>
+<tr class="even">
+<td align="center">sbp</td>
+<td align="center">0</td>
+<td align="center">2</td>
+</tr>
+<tr class="odd">
+<td align="center">sbp</td>
+<td align="center">1</td>
+<td align="center">2</td>
+</tr>
+<tr class="even">
+<td align="center">sbp</td>
+<td align="center">2</td>
+<td align="center">2</td>
+</tr>
+</tbody>
+</table>
+<p>OK, let’s first see how the two array varies.</p>
+<pre class="r"><code>subsample = subsample_for_vis(group = dat$meaning, nmax = 1500)
+for(i in 1 : nrow(trait_instance_with_multi_array)) {
+  this = trait_instance_with_multi_array[i, ]
+  prefix = paste0(this$trait, &#39;_x_&#39;, &#39;instance_&#39;, this$instance, &#39;_x_&#39;, &#39;array_&#39;)
+  cols = paste0(prefix, 0 : (this$number_of_array - 1))
+  sub = dat[subsample, c(&#39;meaning&#39;, cols)] 
+  sub = sub[rowSums(!is.na(sub)) &gt; 0, ]
+  print(myggpairs(sub %&gt;% select(-meaning), sub$meaning) + geom_abline(intercept = 0, slope = 1))
+}</code></pre>
+<pre><code>## Warning: Removed 343 rows containing missing values (geom_point).</code></pre>
+<p><img src="phenotype_qc_files/figure-html/marray-1.png" width="672" /></p>
+<pre><code>## Warning: Removed 5792 rows containing missing values (geom_point).</code></pre>
+<p><img src="phenotype_qc_files/figure-html/marray-2.png" width="672" /></p>
+<pre><code>## Warning: Removed 5690 rows containing missing values (geom_point).</code></pre>
+<p><img src="phenotype_qc_files/figure-html/marray-3.png" width="672" /></p>
+<pre><code>## Warning: Removed 343 rows containing missing values (geom_point).</code></pre>
+<p><img src="phenotype_qc_files/figure-html/marray-4.png" width="672" /></p>
+<pre><code>## Warning: Removed 5792 rows containing missing values (geom_point).</code></pre>
+<p><img src="phenotype_qc_files/figure-html/marray-5.png" width="672" /></p>
+<pre><code>## Warning: Removed 5690 rows containing missing values (geom_point).</code></pre>
+<p><img src="phenotype_qc_files/figure-html/marray-6.png" width="672" /></p>
+<p>It seems that taking the values from multiple arraies are quite consistent so that we aggregate array by taking the average.</p>
+<pre class="r"><code>dat_old = dat
+for(i in 1 : nrow(trait_instance_with_multi_array)) {
+  this = trait_instance_with_multi_array[i, ]
+  prefix = paste0(this$trait, &#39;_x_&#39;, &#39;instance_&#39;, this$instance, &#39;_x_&#39;, &#39;array_&#39;)
+  cols = paste0(prefix, 0 : (this$number_of_array - 1))
+  newcol = data.frame(x = aggregate_instances(dat[, cols], aggregate_instances))
+  colnames(newcol) = paste0(prefix, &#39;agg&#39;)
+  dat = cbind(dat, newcol)
+  dat[, cols] = NULL
+}</code></pre>
+<p>Then, we proceed to aggregate across multiple instances. And here we use the first non-NA value as the value of the phenotype for that individual.</p>
+<pre class="r"><code>for(i in unique(parsed_col$trait)) {
+  this = parsed_col %&gt;% filter(trait == i)
+  suffix = &#39;_x_array_0&#39;
+  if(i %in% trait_instance_with_multi_array$trait) {
+    suffix = &#39;_x_array_agg&#39;
+  }
+  prefix = paste0(i, &#39;_x_&#39;, &#39;instance_&#39;)
+  cols = paste0(prefix, unique(this$instance), suffix)
+  newcol = data.frame(x = aggregate_instances(dat[, cols], first_non_na))
+  colnames(newcol) = i
+  dat = cbind(dat, newcol)
+  dat[, cols] = NULL
+}
+martin_traits = as.character(unique(parsed_col$trait))
+summary(dat[, martin_traits])</code></pre>
+<pre><code>##      height           dbp              sbp             bmi       
+##  Min.   : 75.0   Min.   : 32.00   Min.   : 62.0   Min.   :12.12  
+##  1st Qu.:162.0   1st Qu.: 75.00   1st Qu.:126.0   1st Qu.:24.14  
+##  Median :168.0   Median : 82.00   Median :139.0   Median :26.73  
+##  Mean   :168.7   Mean   : 82.29   Mean   :140.1   Mean   :27.41  
+##  3rd Qu.:175.0   3rd Qu.: 89.00   3rd Qu.:152.0   3rd Qu.:29.86  
+##  Max.   :209.0   Max.   :148.00   Max.   :264.0   Max.   :74.68  
+##  NA&#39;s   :992     NA&#39;s   :21354    NA&#39;s   :21357   NA&#39;s   :1388   
+##       wbc               rbc              hb              ht       
+##  Min.   :  0.000   Min.   :0.006   Min.   : 0.12   Min.   : 0.05  
+##  1st Qu.:  5.640   1st Qu.:4.238   1st Qu.:13.37   1st Qu.:38.74  
+##  Median :  6.650   Median :4.504   Median :14.19   Median :41.10  
+##  Mean   :  6.883   Mean   :4.516   Mean   :14.20   Mean   :41.13  
+##  3rd Qu.:  7.840   3rd Qu.:4.789   3rd Qu.:15.06   3rd Qu.:43.52  
+##  Max.   :189.500   Max.   :7.911   Max.   :22.27   Max.   :72.48  
+##  NA&#39;s   :11031     NA&#39;s   :11027   NA&#39;s   :11028   NA&#39;s   :11027  
+##       mcv              mch             mchc          platelet     
+##  Min.   : 53.17   Min.   : 0.00   Min.   :16.10   Min.   :   0.3  
+##  1st Qu.: 88.66   1st Qu.:30.53   1st Qu.:33.90   1st Qu.: 213.3  
+##  Median : 91.30   Median :31.52   Median :34.49   Median : 248.0  
+##  Mean   : 91.23   Mean   :31.51   Mean   :34.53   Mean   : 253.1  
+##  3rd Qu.: 93.92   3rd Qu.:32.52   3rd Qu.:35.10   3rd Qu.: 287.0  
+##  Max.   :143.00   Max.   :95.67   Max.   :97.30   Max.   :1821.0  
+##  NA&#39;s   :11028    NA&#39;s   :11031   NA&#39;s   :11033   NA&#39;s   :11031   
+##    lymphocyte         monocyte        neutrophil       eosinophil   
+##  Min.   :  0.000   Min.   : 0.000   Min.   : 0.000   Min.   :0.000  
+##  1st Qu.:  1.500   1st Qu.: 0.370   1st Qu.: 3.290   1st Qu.:0.100  
+##  Median :  1.870   Median : 0.450   Median : 4.030   Median :0.140  
+##  Mean   :  1.955   Mean   : 0.477   Mean   : 4.236   Mean   :0.174  
+##  3rd Qu.:  2.280   3rd Qu.: 0.570   3rd Qu.: 4.980   3rd Qu.:0.210  
+##  Max.   :177.000   Max.   :34.260   Max.   :52.020   Max.   :9.600  
+##  NA&#39;s   :11704     NA&#39;s   :11704    NA&#39;s   :11704    NA&#39;s   :11704  
+##     basophil    
+##  Min.   :0.000  
+##  1st Qu.:0.000  
+##  Median :0.020  
+##  Mean   :0.034  
+##  3rd Qu.:0.040  
+##  Max.   :2.600  
+##  NA&#39;s   :11704</code></pre>
+<p>To make the analysis easier to work with, let’s try to limit to individual with all phenotypes being non-missing.</p>
+<pre class="r"><code>all_none_missing = rowSums(is.na(dat[, martin_traits])) == 0
+dat %&gt;% filter(all_none_missing) %&gt;% group_by(meaning) %&gt;% summarize(nindiv = n()) %&gt;% pander(caption = &#39;Number of individuals after limiting to ones with all phenotypes non-missing&#39;)</code></pre>
+<table style="width:28%;">
+<caption>Number of individuals after limiting to ones with all phenotypes non-missing</caption>
+<colgroup>
+<col width="13%" />
+<col width="13%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">meaning</th>
+<th align="center">nindiv</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">African</td>
+<td align="center">2835</td>
+</tr>
+<tr class="even">
+<td align="center">British</td>
+<td align="center">356476</td>
+</tr>
+<tr class="odd">
+<td align="center">Chinese</td>
+<td align="center">1326</td>
+</tr>
+<tr class="even">
+<td align="center">Indian</td>
+<td align="center">4789</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>dat_cleaned = dat %&gt;% filter(all_none_missing) %&gt;% select(-ethnicity_x_instance_0_x_array_0, -ethnicity_x_instance_1_x_array_0, -ethnicity_x_instance_2_x_array_0)</code></pre>
+</div>
+<div id="take-a-quick-look-at-phenotypes" class="section level1">
+<h1><span class="header-section-number">4</span> Take a quick look at phenotypes</h1>
+<p>The breif summary of the cleaned-up data is as follow and we save it as CSV file before proceeding.</p>
+<pre class="r"><code>dat_cleaned %&gt;% summary</code></pre>
+<pre><code>##       eid          age_recruitment      sex              pc1        
+##  Min.   :1000020   Min.   :39.00   Min.   :0.0000   Min.   :-19.27  
+##  1st Qu.:2256438   1st Qu.:51.00   1st Qu.:0.0000   1st Qu.:-13.37  
+##  Median :3512290   Median :58.00   Median :0.0000   Median :-12.27  
+##  Mean   :3512858   Mean   :56.82   Mean   :0.4649   Mean   : -7.26  
+##  3rd Qu.:4768155   3rd Qu.:63.00   3rd Qu.:1.0000   3rd Qu.:-11.08  
+##  Max.   :6026402   Max.   :73.00   Max.   :1.0000   Max.   :418.38  
+##                                                                     
+##       pc2                pc3                 pc4          
+##  Min.   :-282.317   Min.   :-143.2580   Min.   :-70.6994  
+##  1st Qu.:   2.656   1st Qu.:  -2.6521   1st Qu.: -0.8197  
+##  Median :   3.741   Median :  -1.5475   Median :  1.0735  
+##  Mean   :   1.702   Mean   :  -0.9098   Mean   :  1.0362  
+##  3rd Qu.:   4.788   3rd Qu.:  -0.4021   3rd Qu.:  3.1504  
+##  Max.   :  86.112   Max.   :  98.8226   Max.   : 37.1031  
+##                                                           
+##       pc5                pc6                pc7          
+##  Min.   :-17.7238   Min.   :-20.8499   Min.   :-21.1385  
+##  1st Qu.: -5.6678   1st Qu.: -1.5241   1st Qu.: -1.0023  
+##  Median : -2.4843   Median : -0.3892   Median :  0.2852  
+##  Mean   : -0.9078   Mean   : -0.3847   Mean   :  0.2188  
+##  3rd Qu.:  2.3834   3rd Qu.:  0.7492   3rd Qu.:  1.5514  
+##  Max.   : 34.5769   Max.   : 12.6545   Max.   : 55.2278  
+##                                                          
+##       pc8                pc9                 pc10          ethnicity_agg 
+##  Min.   :-20.0411   Min.   :-33.79720   Min.   :-54.1515   Min.   :   5  
+##  1st Qu.: -1.8267   1st Qu.: -1.62195   1st Qu.: -1.4029   1st Qu.:1001  
+##  Median : -0.4840   Median :  0.64032   Median :  0.1147   Median :1001  
+##  Mean   : -0.4346   Mean   : -0.08772   Mean   :  0.2047   Mean   :1047  
+##  3rd Qu.:  0.8573   3rd Qu.:  2.63460   3rd Qu.:  1.7167   3rd Qu.:1001  
+##  Max.   : 19.1440   Max.   : 12.61250   Max.   : 35.9669   Max.   :4002  
+##                                                                          
+##                        meaning           height           dbp        
+##  British                   :356476   Min.   :121.0   Min.   : 35.00  
+##  Indian                    :  4789   1st Qu.:162.0   1st Qu.: 75.00  
+##  African                   :  2835   Median :168.0   Median : 82.00  
+##  Chinese                   :  1326   Mean   :168.7   Mean   : 82.28  
+##  Any other Asian background:     0   3rd Qu.:175.5   3rd Qu.: 89.00  
+##  Any other Black background:     0   Max.   :209.0   Max.   :148.00  
+##  (Other)                   :     0                                   
+##       sbp             bmi             wbc               rbc       
+##  Min.   : 62.0   Min.   :12.12   Min.   :  0.000   Min.   :0.006  
+##  1st Qu.:126.0   1st Qu.:24.13   1st Qu.:  5.640   1st Qu.:4.240  
+##  Median :139.0   Median :26.71   Median :  6.650   Median :4.507  
+##  Mean   :140.1   Mean   :27.38   Mean   :  6.882   Mean   :4.518  
+##  3rd Qu.:152.0   3rd Qu.:29.83   3rd Qu.:  7.840   3rd Qu.:4.790  
+##  Max.   :264.0   Max.   :74.68   Max.   :181.400   Max.   :7.911  
+##                                                                   
+##        hb              ht             mcv              mch       
+##  Min.   : 0.12   Min.   : 0.05   Min.   : 53.17   Min.   : 0.00  
+##  1st Qu.:13.37   1st Qu.:38.76   1st Qu.: 88.65   1st Qu.:30.52  
+##  Median :14.19   Median :41.10   Median : 91.30   Median :31.50  
+##  Mean   :14.20   Mean   :41.15   Mean   : 91.22   Mean   :31.49  
+##  3rd Qu.:15.05   3rd Qu.:43.53   3rd Qu.: 93.90   3rd Qu.:32.50  
+##  Max.   :22.27   Max.   :72.48   Max.   :143.00   Max.   :95.67  
+##                                                                  
+##       mchc          platelet        lymphocyte         monocyte      
+##  Min.   :16.10   Min.   :   0.3   Min.   :  0.000   Min.   : 0.0000  
+##  1st Qu.:33.90   1st Qu.: 213.0   1st Qu.:  1.500   1st Qu.: 0.3700  
+##  Median :34.47   Median : 247.6   Median :  1.870   Median : 0.4500  
+##  Mean   :34.52   Mean   : 252.6   Mean   :  1.955   Mean   : 0.4773  
+##  3rd Qu.:35.10   3rd Qu.: 286.6   3rd Qu.:  2.280   3rd Qu.: 0.5700  
+##  Max.   :94.78   Max.   :1583.0   Max.   :147.500   Max.   :34.2600  
+##                                                                      
+##    neutrophil       eosinophil        basophil      
+##  Min.   : 0.000   Min.   :0.0000   Min.   :0.00000  
+##  1st Qu.: 3.290   1st Qu.:0.1000   1st Qu.:0.00000  
+##  Median : 4.030   Median :0.1400   Median :0.02000  
+##  Mean   : 4.236   Mean   :0.1744   Mean   :0.03425  
+##  3rd Qu.: 4.970   3rd Qu.:0.2100   3rd Qu.:0.04000  
+##  Max.   :52.020   Max.   :9.6000   Max.   :2.60000  
+## </code></pre>
+<pre class="r"><code>write.csv(dat_cleaned, &#39;../output/query_first_attempt_with_qc.csv&#39;, quote = F, row.names = F)</code></pre>
+<p>Here, for categorical variable, we show the prevalence.</p>
+<pre class="r"><code># cat_var = c(&#39;sex&#39;, &#39;meaning&#39;)
+prev = dat_cleaned[, c(&#39;sex&#39;, &#39;meaning&#39;)] %&gt;% group_by(meaning) %&gt;% summarize(fraction_of_male = mean(sex))
+prev %&gt;% ggplot() + geom_bar(aes(x = meaning, y = fraction_of_male, fill = meaning), stat = &#39;identity&#39;) + ggtitle(&#39;Fraction of male&#39;)</code></pre>
+<p><img src="phenotype_qc_files/figure-html/pre-1.png" width="672" /></p>
+<p>Here, for each of the quantitative variable, we plot the distribution stratified by population.</p>
+<pre class="r"><code>quant_var = colnames(dat_cleaned %&gt;% select(-eid, -sex, -ethnicity_agg, -meaning))
+subsample = subsample_for_vis(dat_cleaned$meaning, nmax = 5000)
+for(i in quant_var) {
+  sub = dat_cleaned %&gt;% filter(subsample) 
+  sub = sub[, c(&#39;meaning&#39;, i)]
+  colnames(sub)[2] = &#39;x&#39;
+  range = quantile(sub$x, probs = c(0.01, 0.99))
+  p = sub %&gt;% ggplot() + geom_density(aes(x = x, fill = meaning), alpha = .5) + coord_cartesian(xlim = range) + ggtitle(i)
+  print(p)
+}</code></pre>
+<p><img src="phenotype_qc_files/figure-html/plot-1.png" width="672" /><img src="phenotype_qc_files/figure-html/plot-2.png" width="672" /><img src="phenotype_qc_files/figure-html/plot-3.png" width="672" /><img src="phenotype_qc_files/figure-html/plot-4.png" width="672" /><img src="phenotype_qc_files/figure-html/plot-5.png" width="672" /><img src="phenotype_qc_files/figure-html/plot-6.png" width="672" /><img src="phenotype_qc_files/figure-html/plot-7.png" width="672" /><img src="phenotype_qc_files/figure-html/plot-8.png" width="672" /><img src="phenotype_qc_files/figure-html/plot-9.png" width="672" /><img src="phenotype_qc_files/figure-html/plot-10.png" width="672" /><img src="phenotype_qc_files/figure-html/plot-11.png" width="672" /><img src="phenotype_qc_files/figure-html/plot-12.png" width="672" /><img src="phenotype_qc_files/figure-html/plot-13.png" width="672" /><img src="phenotype_qc_files/figure-html/plot-14.png" width="672" /><img src="phenotype_qc_files/figure-html/plot-15.png" width="672" /><img src="phenotype_qc_files/figure-html/plot-16.png" width="672" /><img src="phenotype_qc_files/figure-html/plot-17.png" width="672" /><img src="phenotype_qc_files/figure-html/plot-18.png" width="672" /><img src="phenotype_qc_files/figure-html/plot-19.png" width="672" /><img src="phenotype_qc_files/figure-html/plot-20.png" width="672" /><img src="phenotype_qc_files/figure-html/plot-21.png" width="672" /><img src="phenotype_qc_files/figure-html/plot-22.png" width="672" /><img src="phenotype_qc_files/figure-html/plot-23.png" width="672" /><img src="phenotype_qc_files/figure-html/plot-24.png" width="672" /><img src="phenotype_qc_files/figure-html/plot-25.png" width="672" /><img src="phenotype_qc_files/figure-html/plot-26.png" width="672" /><img src="phenotype_qc_files/figure-html/plot-27.png" width="672" /><img src="phenotype_qc_files/figure-html/plot-28.png" width="672" /></p>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

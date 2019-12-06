@@ -24,6 +24,14 @@ first_non_na = function(vec) {
   out
 }
 
+take_average = function(vec) {
+  out = NA
+  if(sum(!is.na(vec)) > 0) {
+    out = mean(vec, na.rm = T)
+  }
+  out
+}
+
 aggregate_instances = function(df, method = first_non_na) {
   apply(df, 1, first_non_na)
 }

@@ -4,4 +4,5 @@
 .Ruserdata
 *.rds
 *.csv
+.DS_Store
 

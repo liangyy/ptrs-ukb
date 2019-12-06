@@ -1,0 +1,141 @@
+---
+title: "Phenotype QC"
+---
+
+```{r setup}
+rm(list = ls())
+library(dplyr)
+library(pander)
+library(ggplot2)
+panderOptions('table.split.table', Inf)
+source('../code/rlib_doc.R')
+```
+
+# About 
+
+We analyze the quantitative traits analyzed by Martin et al. 
+
+```{r martin}
+s6 = read.csv('../external_data/martin_et_al_2019ng_table_s6.csv')
+s6 %>% pander
+```
+
+I queried these traits by UKB code where I queried all instances and arrays [see details here](first_query.html).
+So, I need to aggregate the phenotypes (from multiple instances and arrays in some way).
+
+# Load data
+
+Here I load the data passing population QC [see details here](./population_assignment.html).
+
+```{r load}
+dat = readRDS('../output/query_first_attempt_with_population_qc.rds')
+dat = dat$dat_pass_pop_qc %>% select(-bmi, -height)  # remove the two test traits which are duplicated from the Martin et al phenotypes 
+```
+
+# Clean up steps
+
+First of all, let's see how many instances and how many arraies each trait has.
+
+```{r count}
+trait_meta = list()
+cols_relavant = colnames(dat)
+cols_relavant = cols_relavant[!is.na(stringr::str_match(cols_relavant, '_x_'))]
+parsed_col = as.data.frame(do.call(rbind, strsplit(cols_relavant, '_x_')))
+colnames(parsed_col) = c('trait', 'instance', 'array')
+parsed_col = parsed_col %>% mutate(instance = stringr::str_remove(instance, 'instance_'), array = stringr::str_remove(array, 'array_'))
+parsed_col = parsed_col %>% filter(trait != 'ethnicity')  # remove ethnicity since this part is taken care of in population_assignment.Rmd
+parsed_col %>% group_by(trait) %>% summarize(ninstance = length(unique(instance))) %>% pander(caption = 'number of instances')
+trait_instance_with_multi_array = parsed_col %>% group_by(trait, instance) %>% summarize(number_of_array = length(unique(array))) %>% ungroup() %>% filter(number_of_array > 1) 
+trait_instance_with_multi_array %>% pander(caption = 'trait/instance pair with more than one array')
+```
+
+OK, let's first see how the two array varies.
+
+```{r marray}
+subsample = subsample_for_vis(group = dat$meaning, nmax = 1500)
+for(i in 1 : nrow(trait_instance_with_multi_array)) {
+  this = trait_instance_with_multi_array[i, ]
+  prefix = paste0(this$trait, '_x_', 'instance_', this$instance, '_x_', 'array_')
+  cols = paste0(prefix, 0 : (this$number_of_array - 1))
+  sub = dat[subsample, c('meaning', cols)] 
+  sub = sub[rowSums(!is.na(sub)) > 0, ]
+  print(myggpairs(sub %>% select(-meaning), sub$meaning) + geom_abline(intercept = 0, slope = 1))
+}
+```
+
+It seems that taking the values from multiple arraies are quite consistent so that we aggregate array by taking the average.
+
+```{r agg array}
+dat_old = dat
+for(i in 1 : nrow(trait_instance_with_multi_array)) {
+  this = trait_instance_with_multi_array[i, ]
+  prefix = paste0(this$trait, '_x_', 'instance_', this$instance, '_x_', 'array_')
+  cols = paste0(prefix, 0 : (this$number_of_array - 1))
+  newcol = data.frame(x = aggregate_instances(dat[, cols], aggregate_instances))
+  colnames(newcol) = paste0(prefix, 'agg')
+  dat = cbind(dat, newcol)
+  dat[, cols] = NULL
+}
+```
+
+Then, we proceed to aggregate across multiple instances.
+And here we use the first non-NA value as the value of the phenotype for that individual.
+
+```{r agg instance}
+for(i in unique(parsed_col$trait)) {
+  this = parsed_col %>% filter(trait == i)
+  suffix = '_x_array_0'
+  if(i %in% trait_instance_with_multi_array$trait) {
+    suffix = '_x_array_agg'
+  }
+  prefix = paste0(i, '_x_', 'instance_')
+  cols = paste0(prefix, unique(this$instance), suffix)
+  newcol = data.frame(x = aggregate_instances(dat[, cols], first_non_na))
+  colnames(newcol) = i
+  dat = cbind(dat, newcol)
+  dat[, cols] = NULL
+}
+martin_traits = as.character(unique(parsed_col$trait))
+summary(dat[, martin_traits])
+```
+
+To make the analysis easier to work with, let's try to limit to individual with all phenotypes being non-missing.
+
+```{r filter}
+all_none_missing = rowSums(is.na(dat[, martin_traits])) == 0
+dat %>% filter(all_none_missing) %>% group_by(meaning) %>% summarize(nindiv = n()) %>% pander(caption = 'Number of individuals after limiting to ones with all phenotypes non-missing')
+dat_cleaned = dat %>% filter(all_none_missing) %>% select(-ethnicity_x_instance_0_x_array_0, -ethnicity_x_instance_1_x_array_0, -ethnicity_x_instance_2_x_array_0)
+```
+
+# Take a quick look at phenotypes
+
+The breif summary of the cleaned-up data is as follow and we save it as CSV file before proceeding.
+
+```{r sum}
+dat_cleaned %>% summary
+write.csv(dat_cleaned, '../output/query_first_attempt_with_qc.csv', quote = F, row.names = F)
+```
+
+Here, for categorical variable, we show the prevalence.
+
+```{r pre}
+# cat_var = c('sex', 'meaning')
+prev = dat_cleaned[, c('sex', 'meaning')] %>% group_by(meaning) %>% summarize(fraction_of_male = mean(sex))
+prev %>% ggplot() + geom_bar(aes(x = meaning, y = fraction_of_male, fill = meaning), stat = 'identity') + ggtitle('Fraction of male')
+```
+
+Here, for each of the quantitative variable, we plot the distribution stratified by population.
+
+```{r plot}
+quant_var = colnames(dat_cleaned %>% select(-eid, -sex, -ethnicity_agg, -meaning))
+subsample = subsample_for_vis(dat_cleaned$meaning, nmax = 5000)
+for(i in quant_var) {
+  sub = dat_cleaned %>% filter(subsample) 
+  sub = sub[, c('meaning', i)]
+  colnames(sub)[2] = 'x'
+  range = quantile(sub$x, probs = c(0.01, 0.99))
+  p = sub %>% ggplot() + geom_density(aes(x = x, fill = meaning), alpha = .5) + coord_cartesian(xlim = range) + ggtitle(i)
+  print(p)
+}
+```
+
