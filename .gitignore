@@ -5,4 +5,10 @@
 *.rds
 *.csv
 .DS_Store
-
+*.log
+.ipynb_checkpoints/
+*.idx2
+*.gz
+*.ht
+*.crc
+*.mt
