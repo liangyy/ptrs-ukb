@@ -1,0 +1,21 @@
+samples_filters:
+- eid not in (select eid from bad_related_samples_2nd_higher_and_high_missrate)
+- chet_missing_outliers_0_0 = 0
+- cputative_sex_chromosome_aneuploidy_0_0 = 0
+- cexcess_relatives_0_0 = 0
+- eid not in (select eid from withdrawals)
+- eid > 0
+data:
+  monocyte_x_instance_0_x_array_0: c30130_0_0
+  monocyte_x_instance_1_x_array_0: c30130_1_0
+  monocyte_x_instance_2_x_array_0: c30130_2_0
+  freeze_cycle_x_instance_0_x_array_0: c30131_0_0
+  acquisition_time_x_instance_0_x_array_0: c30132_0_0
+  acquisition_time_x_instance_1_x_array_0: c30132_1_0
+  acquisition_time_x_instance_2_x_array_0: c30132_2_0
+  device_id_x_instance_0_x_array_0: c30133_0_0
+  device_id_x_instance_1_x_array_0: c30133_1_0
+  device_id_x_instance_2_x_array_0: c30133_2_0
+  acquisition_route_x_instance_0_x_array_0: c30134_0_0
+  acquisition_route_x_instance_1_x_array_0: c30134_1_0
+  acquisition_route_x_instance_2_x_array_0: c30134_2_0

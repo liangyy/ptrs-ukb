@@ -10,3 +10,8 @@ title: "Home"
 
 * Population QC (based on UKB label and filter out outliers in PC space (10 PC's)) [link](population_assignment.html)
 * Phenotype QC [link](phenotype_qc.html)
+* Monocyte technical covariates and multiple modes in monocyte count [link](query_monocyte_covar.html)
+
+# GWAS tries
+
+* First attempt [link](first_gwas_compare.html)

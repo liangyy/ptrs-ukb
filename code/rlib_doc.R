@@ -4,7 +4,7 @@ meta_info_to_query = function(trait_id, field_id, ninstance, narray) {
     for(j in 1 : narray[i]) {
       for(n in 1 : ninstance[i]) {
         str = paste0('c', paste(field_id[i], n - 1, j - 1, sep = '_'))  # ninstance[i] - 1
-        trait_name = paste0(trait_id[i], '-x-instance-', n - 1, '-x-array-', j - 1)  # ninstance[i] - 1
+        trait_name = paste0(trait_id[i], '_x_instance_', n - 1, '_x_array_', j - 1)  # ninstance[i] - 1
         out[[trait_name]] = str
       }
     }
@@ -73,3 +73,6 @@ myggpairs = function(df, col, ...) {
   p
 }
 
+parse_neale_snp = function(str) {
+  unlist(lapply(strsplit(str, ':'), function(x) { paste0(x[1], ':', x[2]) }))
+}
