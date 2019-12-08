@@ -15,3 +15,7 @@ title: "Home"
 # GWAS tries
 
 * First attempt [link](first_gwas_compare.html)
+
+# Misc analysis
+
+* Splitting data into training, validation, and test sets [link](split_individuals.html)

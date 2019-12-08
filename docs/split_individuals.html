@@ -11,7 +11,7 @@
 
 
 
-<title>Home</title>
+<title>Split individuals into training and test/validation sets</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -421,36 +421,90 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Home</h1>
+<h1 class="title toc-ignore">Split individuals into training and test/validation sets</h1>
 
 </div>
 
 
-<div id="query-phenotypes" class="section level1">
-<h1><span class="header-section-number">1</span> Query phenotypes</h1>
-<ul>
-<li>First attempt <a href="first_query.html">link</a></li>
-</ul>
+<pre class="r"><code>rm(list = ls())
+library(dplyr)
+library(pander)
+library(ggplot2)
+library(data.table)
+panderOptions(&#39;table.split.table&#39;, Inf)
+source(&#39;../code/rlib_doc.R&#39;)</code></pre>
+<div id="load-phenotype-file" class="section level1">
+<h1><span class="header-section-number">1</span> Load phenotype file</h1>
+<p>We need to split the data K times where K equals to the number of traits we are interested in.</p>
+<pre class="r"><code>df = fread(&#39;../output/query_first_attempt_with_qc.csv&#39;, sep = &#39;,&#39;, header = T, data.table = F)
+df_paper = read.csv(&#39;../external_data/martin_et_al_2019ng_table_s6.csv&#39;)
+traits = tolower(df_paper$Trait)
+nsplits = length(traits)</code></pre>
+<p>OK, we have 17 traits.</p>
 </div>
-<div id="quality-control" class="section level1">
-<h1><span class="header-section-number">2</span> Quality control</h1>
-<ul>
-<li>Population QC (based on UKB label and filter out outliers in PC space (10 PC’s)) <a href="population_assignment.html">link</a></li>
-<li>Phenotype QC <a href="phenotype_qc.html">link</a></li>
-<li>Monocyte technical covariates and multiple modes in monocyte count <a href="query_monocyte_covar.html">link</a></li>
-</ul>
-</div>
-<div id="gwas-tries" class="section level1">
-<h1><span class="header-section-number">3</span> GWAS tries</h1>
-<ul>
-<li>First attempt <a href="first_gwas_compare.html">link</a></li>
-</ul>
-</div>
-<div id="misc-analysis" class="section level1">
-<h1><span class="header-section-number">4</span> Misc analysis</h1>
-<ul>
-<li>Splitting data into training, validation, and test sets <a href="split_individuals.html">link</a></li>
-</ul>
+<div id="split" class="section level1">
+<h1><span class="header-section-number">2</span> Split</h1>
+<p>Before splitting, let’s take a look at the number of individuals in each population.</p>
+<pre class="r"><code>df %&gt;% group_by(meaning) %&gt;% summarize(nindiv = n()) %&gt;% pander</code></pre>
+<table style="width:28%;">
+<colgroup>
+<col width="13%" />
+<col width="13%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">meaning</th>
+<th align="center">nindiv</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">African</td>
+<td align="center">2835</td>
+</tr>
+<tr class="even">
+<td align="center">British</td>
+<td align="center">356476</td>
+</tr>
+<tr class="odd">
+<td align="center">Chinese</td>
+<td align="center">1326</td>
+</tr>
+<tr class="even">
+<td align="center">Indian</td>
+<td align="center">4789</td>
+</tr>
+</tbody>
+</table>
+<p>Let’s keep 5000 British as validation set and 5000 British as test set. For each split file, we keep a three lists called: <code>c.N.txt</code>, <code>british-validation.N.txt</code>, and <code>british-test.N.txt</code> along with 3 lists for other 3 populations.</p>
+<pre class="r"><code>set.seed(2019)
+ntest = 5000
+nvalid = 5000
+outdir = &#39;../output/data_split/&#39;
+if(!dir.exists(outdir)) {
+  dir.create(outdir)
+}
+for(i in 1 : nsplits) {
+  df_b = df %&gt;% filter(meaning == &#39;British&#39;)
+  df_b = data.frame(FID = df_b$eid, IID = df_b$eid)
+  testvalididx = sample(1 : nrow(df_b), size = ntest + nvalid, replace = F)
+  train = df_b[!testvalididx %in% (1 : nrow(df_b))]
+  sub = df_b[testvalididx, ]
+  testidx = sample(1 : (ntest + nvalid), size = ntest, replace = F)
+  test = sub[testidx %in% (1 : nrow(sub)), ]
+  valid = sub[! testidx %in% (1 : nrow(sub)), ]
+  write.table(train, paste0(outdir, &#39;British-training-&#39;, i, &#39;.txt&#39;), col = T, row = F, quo = F)
+  write.table(test, paste0(outdir, &#39;British-test-&#39;, i, &#39;.txt&#39;), col = T, row = F, quo = F)
+  write.table(valid, paste0(outdir, &#39;British-validation-&#39;, i, &#39;.txt&#39;), col = T, row = F, quo = F)
+}
+for(p in unique(df$meaning)) {
+  if(p == &#39;British&#39;) {
+    next
+  }
+  sub = df %&gt;% filter(meaning == p)
+  sub = data.frame(FID = sub$eid, IID = sub$eid)
+  write.table(sub, paste0(outdir, p, &#39;.txt&#39;), col = T, row = F, quo = F)
+}</code></pre>
 </div>
 
 
