@@ -48,11 +48,11 @@ for(i in 1 : nsplits) {
   df_b = df %>% filter(meaning == 'British')
   df_b = data.frame(FID = df_b$eid, IID = df_b$eid)
   testvalididx = sample(1 : nrow(df_b), size = ntest + nvalid, replace = F)
-  train = df_b[!testvalididx %in% (1 : nrow(df_b))]
+  train = df_b[! (1 : nrow(df_b)) %in% testvalididx, ]
   sub = df_b[testvalididx, ]
   testidx = sample(1 : (ntest + nvalid), size = ntest, replace = F)
-  test = sub[testidx %in% (1 : nrow(sub)), ]
-  valid = sub[! testidx %in% (1 : nrow(sub)), ]
+  test = sub[ (1 : nrow(sub)) %in% testidx, ]
+  valid = sub[! (1 : nrow(sub)) %in% testidx, ]
   write.table(train, paste0(outdir, 'British-training-', i, '.txt'), col = T, row = F, quo = F)
   write.table(test, paste0(outdir, 'British-test-', i, '.txt'), col = T, row = F, quo = F)
   write.table(valid, paste0(outdir, 'British-validation-', i, '.txt'), col = T, row = F, quo = F)

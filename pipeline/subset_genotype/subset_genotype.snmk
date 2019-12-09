@@ -1,0 +1,39 @@
+if 'outdir' not in config:
+    config['outdir'] = 'output'
+
+def get_indiv_lists(config):
+    pop = config['indiv_names'].split(',')
+    tag = '_n_'.join(pop)
+    lists = [ config['indiv_path'].format(population = i) for i in pop ]
+    return lists, tag
+
+pop_lists, pop_tag = get_indiv_lists(config)
+
+# output
+rule all:
+    input:
+        [ '{outdir}/{subsetname}_in_{genoname}.chr{i}.bgen'.format(outdir = config['outdir'], subsetname = pop_tag, genoname = config['genotype']['name'], i = i) for i in range(1, 23) ]
+# END
+
+
+# subset bgen genotype
+rule subset_bgen:
+    input:
+        indiv = pop_lists,
+        bgen = config['genotype']['bgen'],
+        sample = config['genotype']['sample']
+    params:
+        out = '{outdir}/{subsetname}_in_{genoname}.chr{i}'
+    output:
+        '{outdir}/{subsetname}_in_{genoname}.chr{i}.bgen',
+        '{outdir}/{subsetname}_in_{genoname}.chr{i}.sample'
+    shell:
+        '{config[plink_cmd]} \
+          --bgen {input.bgen} \
+          --sample {input.sample} \
+          --keep {input.indiv} \
+          --out {params.out} \
+          --export bgen-1.2 \
+          --memory {config[plink_memory_in_mb]} \
+          --threads {config[plink_threads]}'
+# END 

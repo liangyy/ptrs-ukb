@@ -22,28 +22,7 @@ rule predictdb_var:
           --output {output[0]}'
 # END
 
-# subset bgen genotype
-rule subset_bgen:
-    input:
-        indiv = config['indiv_path'],
-        var = '{outdir}/var_list_{predictdb}.txt',
-        bgen = config['genotype']['bgen'],
-        sample = config['genotype']['sample']
-    params:
-        out = '{outdir}/subsetted_{predictdb}_x_{population}.chr{i}'
-    output:
-        temp('{outdir}/subsetted_{predictdb}_x_{population}.chr{i}.gen')
-    shell:
-        '{config[plink_cmd]} \
-          --bgen {input.bgen} \
-          --sample {input.sample} \
-          --keep {input.indiv} \
-          --extract {input.var} \
-          --out {params.out} \
-          --export oxford \
-          --memory {config[plink_memory_in_mb]} \
-          --threads 1'
-# END 
+
 
 # rename subsetted genotype
 rule format_geno:

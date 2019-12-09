@@ -50,4 +50,5 @@ vis %>% ggplot() + geom_point(aes(x = p_value.height, y = V11), alpha = 0.5) + s
 hist(join$V11)
 hist(join$p_value.height)
 hist(join$p_value.bmi)
+plot(join$beta.height[-101187], join$V8[-101187])
 ```
