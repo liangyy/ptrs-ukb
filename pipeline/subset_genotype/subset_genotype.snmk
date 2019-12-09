@@ -7,12 +7,25 @@ def get_indiv_lists(config):
     lists = [ config['indiv_path'].format(population = i) for i in pop ]
     return lists, tag
 
+# print(config['chromosomes'])
+def get_chr(config):
+    if 'chromosomes' in config:
+        if len(config['chromosomes']) > 1:
+            return config['chromosomes']
+        else:
+            return config['chromosomes'].split(',')
+    else:
+        return range(1, 23)
+
+
 pop_lists, pop_tag = get_indiv_lists(config)
+chr_list = get_chr(config)
 
 # output
 rule all:
     input:
-        [ '{outdir}/{subsetname}_in_{genoname}.chr{i}.bgen'.format(outdir = config['outdir'], subsetname = pop_tag, genoname = config['genotype']['name'], i = i) for i in range(1, 23) ]
+        [ '{outdir}/{subsetname}_in_{genoname}.chr{i}.bgen'.format(outdir = config['outdir'], subsetname = pop_tag, genoname = config['genotype']['name'], i = i) for i in chr_list ],
+        [ '{outdir}/{subsetname}_in_{genoname}.chr{i}.sample'.format(outdir = config['outdir'], subsetname = pop_tag, genoname = config['genotype']['name'], i = i) for i in chr_list ]
 # END
 
 
