@@ -13,3 +13,4 @@
 *.crc
 *.mt
 *.txt
+.snakemake
