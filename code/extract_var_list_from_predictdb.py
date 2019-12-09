@@ -15,13 +15,12 @@ parser.add_argument('--output', help='''
 ''')
 args = parser.parse_args()
 
-import sqlite3, pprint 
+import sqlite3 
 import logging, time, sys
 from tabulate import tabulate
 
 
 # configing util
-pp = pprint.PrettyPrinter(width = 1000, compact = True)
 logging.basicConfig(level = logging.INFO, stream = sys.stderr)
 
 conn = sqlite3.connect(args.predictdb)
@@ -30,13 +29,13 @@ cur = conn.cursor()
 logging.info('Showing tables')
 cur.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;")
 tab_nested = cur.fetchall()
-tab = [ j[0] for i in tab_nested ]
+tab = [ i[0] for i in tab_nested ]
 weight_header = None
 for i in tab:
     sql = 'PRAGMA table_info({})'.format(i)
     print('schema for {}'.format(i))
     tmp = cur.execute(sql).fetchall()
-    pp.pprint(tmp)
+    print(tabulate(tmp), file = sys.stderr)
     if i == 'weights':
         weight_header = [ i[1] for i in tmp ]
 
@@ -59,21 +58,21 @@ elif args.varcol not in weight_header:
     logging.info('Wrong --varcol is specified! Exit')
     sys.exit()
 else:
-    sql_weights = 'select distinct({}) from weights limit 3'.format(args.varcol)
+    sql_weights = 'select distinct({}) from weights'.format(args.varcol)
     
     logging.info('Start to query --varcol from weights using SQL:')
     print(sql_weights, file = sys.stderr)
     tstart = time.time()
     content = cur.execute(sql_weights).fetchall()
     tend = time.time()
-    logging.info('Query finished! {} seconds elapsed'.format(tstart - tend))
+    logging.info('Query finished! {} seconds elapsed'.format(tend - tstart))
     
     logging.info('Start to write to disk')
     tstart = time.time()
     f = open(args.output, 'w')
     for i in content:
-        f.write(i + '\n')
+        f.write(i[0] + '\n')
     tend = time.time()
-    logging.info('Query finished! {} seconds elapsed'.format(tstart - tend))
+    logging.info('Query finished! {} seconds elapsed'.format(tend - tstart))
             
     

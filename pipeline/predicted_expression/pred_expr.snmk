@@ -4,7 +4,7 @@ if 'outdir' not in config:
 # output
 rule all_format:
     input:
-        [ '{outdir}/subsetted_{predictdb}_x_{population}.chr{i}.dosage.gz'.format(outdir = config['outdir'], predictdb = config['predictdb']['name'], population = config['indiv-list']['name'], i = i) for i in range(1, 23) ]
+        [ '{outdir}/subsetted_{predictdb}_x_{population}.chr{i}.dosage.gz'.format(outdir = config['outdir'], predictdb = config['predictdb']['name'], population = config['indiv-name'], i = i) for i in range(1, 23) ]
 # END
 
 # extract variant list from predictdb
@@ -25,7 +25,7 @@ rule predictdb_var:
 # subset bgen genotype
 rule subset_bgen:
     input:
-        indiv = config['indiv-list']['path'],
+        indiv = config['indiv-path'],
         var = '{outdir}/var_list_{predictdb}.txt',
         bgen = config['genotype']['bgen'],
         sample = config['genotype']['sample']
@@ -34,7 +34,7 @@ rule subset_bgen:
     output:
         '{outdir}/subsetted_{predictdb}_x_{population}.chr{i}.gen'
     shell:
-        'config[plink-cmd] \
+        '{config[plink-cmd]} \
           --bgen {input.bgen} \
           --sample {input.var} \
           --keep {input.indiv} \
