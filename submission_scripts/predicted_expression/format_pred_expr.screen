@@ -1,0 +1,11 @@
+# ARGS1: population name
+# ARGS2: outdir
+
+# environment setup
+conda activate /vol/bmd/yanyul/softwares/conda_envs/hail
+source /vol/bmd/yanyul/GitHub/ptrs-ukb/scripts/source_snakemake_on_nucleus.sh
+
+WORKDIR=/vol/bmd/yanyul/GitHub/ptrs-ukb/pipeline/predicted_expression
+
+cd $WORKDIR
+$MYSNMK -s pred_expr.snmk --configfile ../../submission_scripts/predicted_expression/config.yaml all_format -p --config indiv-name=$1 outdir=$2/$1 > logs/format-$1.log 2>&1

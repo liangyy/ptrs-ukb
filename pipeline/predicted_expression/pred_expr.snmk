@@ -32,7 +32,7 @@ rule subset_bgen:
     params:
         out = '{outdir}/subsetted_{predictdb}_x_{population}.chr{i}'
     output:
-        '{outdir}/subsetted_{predictdb}_x_{population}.chr{i}.gen'
+        temp('{outdir}/subsetted_{predictdb}_x_{population}.chr{i}.gen')
     shell:
         '{config[plink-cmd]} \
           --bgen {input.bgen} \
