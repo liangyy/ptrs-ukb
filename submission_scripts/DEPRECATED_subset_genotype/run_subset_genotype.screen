@@ -1,0 +1,18 @@
+# ARGS1: population names separated by ','
+# ARGS2: outdir
+
+# environment setup
+source /vol/bmd/yanyul/miniconda3/etc/profile.d/conda.sh
+conda activate /vol/bmd/yanyul/softwares/conda_envs/hail
+source /vol/bmd/yanyul/GitHub/ptrs-ukb/scripts/source_snakemake_on_nucleus.sh
+
+WORKDIR=/vol/bmd/yanyul/GitHub/ptrs-ukb/pipeline/predicted_expression
+SUBDIR=/vol/bmd/yanyul/GitHub/ptrs-ukb/submission_scripts/predicted_expression
+
+cd $WORKDIR
+
+if [[ ! -d $SUBDIR/logs ]]; then
+  mkdir -p $SUBDIR/logs
+fi
+which python > $SUBDIR/logs/format-$1.log
+$MYSNMK -s pred_expr.snmk --configfile $SUBDIR/config.yaml all_format -p --config indiv_name=$1 outdir=$2/$1 >> $SUBDIR/logs/format-$1.log 2>&1
