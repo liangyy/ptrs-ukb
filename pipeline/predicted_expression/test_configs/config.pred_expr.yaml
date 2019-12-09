@@ -1,0 +1,8 @@
+predictdb:
+  path: '/vol/bmd/yanyul/data/predictdb_models/ctimp_Whole_Blood.db'
+  name: 'ctimp_Whole_Blood'
+  varcol: 'rsid'
+indiv-list:
+  path: '/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese.txt'
+
+  
