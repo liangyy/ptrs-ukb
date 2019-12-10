@@ -29,3 +29,9 @@ $ screen -dmS local_to_nucleus bash transfer_pred_models_from_local_to_nucleus.s
 * Construct phenotype table used in the analysis
 
 See `construct_phenotype_table/`.
+
+* Do variant QC
+
+```
+$ screen -dmS variant_qc bash run_
+```
