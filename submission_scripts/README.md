@@ -36,7 +36,7 @@ screen -X kill
 Open a new terminal and
 
 ```
-$ screen -S job_name bash script_name.screen
+$ screen -dmS job_name bash script_name.screen
 ```
 
 **To monitor screen**:
