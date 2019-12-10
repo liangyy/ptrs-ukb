@@ -7,3 +7,4 @@ predictdb_name: 'ctimp_Whole_Blood'
 bgens_cache_nvar: 250
 bgens_writing_cache_in_mb: 500
 script_dir: '/homes/yanyul/labshare/softwares/from_github/predixcan_prediction'
+bgenix_dir: '/vol/bmd/yanyul/softwares/from_bitbucket/gavinband-bgen-4e33223a8dc4/build/apps'

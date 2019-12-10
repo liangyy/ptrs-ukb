@@ -5,13 +5,24 @@ import os
 def parse_bgen_filename(config):
     dirname = os.path.dirname(config['genotype']['bgen'])
     prefix = os.path.basename(config['genotype']['bgen']).split('{i}')[0]
-    return prefix, dirname
+    return prefix, bgen_name, dirname
 
-bgen_prefix, bgen_dirname = parse_bgen_filename(config)
+bgen_prefix, bgen_name, bgen_dirname = parse_bgen_filename(config)
 
 rule all:
     input:
         '{outdir}/predicted_expression.{genoname}_x_{model}.h5'.format(outdir = config['outdir'], genoname = config['genotype']['name'], model = config['predictdb_name'])
+
+rule idx_bgen:
+    input:
+        config['genotype']['bgen']
+    output:
+        '{outdir}/' + bgen_name + '.bgi'
+    shell:
+        'bgenix \
+          -index \
+          -g {input[0]} \
+          -i {output[0]}'
 
 rule pred_expr:
     input:
@@ -23,6 +34,7 @@ rule pred_expr:
     shell:
         'python {config[script_dir]}/predict.py \
           --bgens-dir {bgen_dirname} \
+          --bgens-bgi-dir {bgen_dirname} \
           --bgens-prefix {bgen_prefix} \
           --bgens-sample-file {input.sample} \
           --weights-file {input.db} \
