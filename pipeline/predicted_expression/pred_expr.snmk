@@ -30,7 +30,7 @@ rule pred_expr:
         bgen = [ config['genotype']['bgen'].format(i = i) for i in range(1, 23) ],
         sample = config['genotype']['sample'],
         db = config['predictdb'],
-        bgi = [ '{{outdir}}/' + bgen_name.format(i = i) + '.bgi' for i in range(1, 23) ]
+        bgi = [ '{outdir}/' + bgen_name.format(i = i) + '.bgi' for i in range(1, 23) ]
     params:
         bgidir = '{outdir}'
     output:
