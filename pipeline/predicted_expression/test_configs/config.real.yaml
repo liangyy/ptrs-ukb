@@ -1,7 +1,7 @@
 predictdb: '/vol/bmd/yanyul/data/predictdb_models/{model}.db'
 genotype:
-  bgen: '/homes/yanyul/test3.bgen'  # '/vol/bmd/data/ukbiobank/genotypes/v3/ukb_imp_chr{i}_v3.bgen'
-  sample: '/homes/yanyul/test3.sample'  # '/vol/bmd/data/ukbiobank/genotypes/v3/ukb19526_imp_chr1_v3_s487395.sample'
+  bgen: '/vol/bmd/data/ukbiobank/genotypes/v3/ukb_imp_chr{i}_v3.bgen'
+  sample: '/vol/bmd/data/ukbiobank/genotypes/v3/ukb19526_imp_chr1_v3_s487395.sample'
   name: 'ukb_imp'
 predictdb_name: 'ctimp_Whole_Blood'  
 bgens_cache_nvar: 250

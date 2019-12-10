@@ -4,6 +4,7 @@ if 'outdir' not in config:
 import os
 def parse_bgen_filename(config):
     dirname = os.path.dirname(config['genotype']['bgen'])
+    bgen_name = os.path.basename(config['genotype']['bgen'])
     prefix = os.path.basename(config['genotype']['bgen']).split('{i}')[0]
     return prefix, bgen_name, dirname
 
@@ -19,22 +20,25 @@ rule idx_bgen:
     output:
         '{outdir}/' + bgen_name + '.bgi'
     shell:
-        'bgenix \
+        '{config[bgenix_dir]}/bgenix \
           -index \
           -g {input[0]} \
           -i {output[0]}'
 
 rule pred_expr:
     input:
-        bgen = config['genotype']['bgen'],
+        bgen = [ config['genotype']['bgen'].format(i = i) for i in range(1, 23) ],
         sample = config['genotype']['sample'],
-        db = config['predictdb']
+        db = config['predictdb'],
+        bgi = [ '{{outdir}}/' + bgen_name.format(i = i) + '.bgi' for i in range(1, 23) ]
+    params:
+        bgidir = '{outdir}'
     output:
         '{outdir}/predicted_expression.{genoname}_x_{model}.h5'
     shell:
         'python {config[script_dir]}/predict.py \
           --bgens-dir {bgen_dirname} \
-          --bgens-bgi-dir {bgen_dirname} \
+          --bgens-bgi-dir {params.bgidir} \
           --bgens-prefix {bgen_prefix} \
           --bgens-sample-file {input.sample} \
           --weights-file {input.db} \
