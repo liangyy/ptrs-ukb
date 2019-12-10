@@ -4,7 +4,7 @@ if 'outdir' not in config:
 import os
 def parse_bgen_filename(config):
     dirname = os.path.dirname(config['genotype']['bgen'])
-    prefix = os.path.basename(e).split('{i}')[0]
+    prefix = os.path.basename(config['genotype']['bgen']).split('{i}')[0]
     return prefix, dirname
 
 bgen_prefix, bgen_dirname = parse_bgen_filename(config)
