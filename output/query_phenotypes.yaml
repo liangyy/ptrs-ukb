@@ -1,0 +1,90 @@
+samples_filters:
+- eid not in (select eid from bad_related_samples_2nd_higher_and_high_missrate)
+- chet_missing_outliers_0_0 = 0
+- cputative_sex_chromosome_aneuploidy_0_0 = 0
+- cexcess_relatives_0_0 = 0
+- eid not in (select eid from withdrawals)
+- eid > 0
+data:
+  age_recruitment: c21022_0_0
+  sex: c31_0_0
+  pc1: cpc1_0_0
+  pc2: cpc2_0_0
+  pc3: cpc3_0_0
+  pc4: cpc4_0_0
+  pc5: cpc5_0_0
+  pc6: cpc6_0_0
+  pc7: cpc7_0_0
+  pc8: cpc8_0_0
+  pc9: cpc9_0_0
+  pc10: cpc10_0_0
+  pc11: cpc11_0_0
+  pc12: cpc12_0_0
+  pc13: cpc13_0_0
+  pc14: cpc14_0_0
+  pc15: cpc15_0_0
+  pc16: cpc16_0_0
+  pc17: cpc17_0_0
+  pc18: cpc18_0_0
+  pc19: cpc19_0_0
+  pc20: cpc20_0_0
+  Height_x_instance_0_x_array_0: c50_0_0
+  Height_x_instance_1_x_array_0: c50_1_0
+  Height_x_instance_2_x_array_0: c50_2_0
+  DBP_x_instance_0_x_array_0: c4079_0_0
+  DBP_x_instance_1_x_array_0: c4079_1_0
+  DBP_x_instance_2_x_array_0: c4079_2_0
+  DBP_x_instance_0_x_array_1: c4079_0_1
+  DBP_x_instance_1_x_array_1: c4079_1_1
+  DBP_x_instance_2_x_array_1: c4079_2_1
+  SBP_x_instance_0_x_array_0: c4080_0_0
+  SBP_x_instance_1_x_array_0: c4080_1_0
+  SBP_x_instance_2_x_array_0: c4080_2_0
+  SBP_x_instance_0_x_array_1: c4080_0_1
+  SBP_x_instance_1_x_array_1: c4080_1_1
+  SBP_x_instance_2_x_array_1: c4080_2_1
+  ethnicity_x_instance_0_x_array_0: c21000_0_0
+  ethnicity_x_instance_1_x_array_0: c21000_1_0
+  ethnicity_x_instance_2_x_array_0: c21000_2_0
+  BMI_x_instance_0_x_array_0: c21001_0_0
+  BMI_x_instance_1_x_array_0: c21001_1_0
+  BMI_x_instance_2_x_array_0: c21001_2_0
+  WBC_x_instance_0_x_array_0: c30000_0_0
+  WBC_x_instance_1_x_array_0: c30000_1_0
+  WBC_x_instance_2_x_array_0: c30000_2_0
+  RBC_x_instance_0_x_array_0: c30010_0_0
+  RBC_x_instance_1_x_array_0: c30010_1_0
+  RBC_x_instance_2_x_array_0: c30010_2_0
+  Hb_x_instance_0_x_array_0: c30020_0_0
+  Hb_x_instance_1_x_array_0: c30020_1_0
+  Hb_x_instance_2_x_array_0: c30020_2_0
+  Ht_x_instance_0_x_array_0: c30030_0_0
+  Ht_x_instance_1_x_array_0: c30030_1_0
+  Ht_x_instance_2_x_array_0: c30030_2_0
+  MCV_x_instance_0_x_array_0: c30040_0_0
+  MCV_x_instance_1_x_array_0: c30040_1_0
+  MCV_x_instance_2_x_array_0: c30040_2_0
+  MCH_x_instance_0_x_array_0: c30050_0_0
+  MCH_x_instance_1_x_array_0: c30050_1_0
+  MCH_x_instance_2_x_array_0: c30050_2_0
+  MCHC_x_instance_0_x_array_0: c30060_0_0
+  MCHC_x_instance_1_x_array_0: c30060_1_0
+  MCHC_x_instance_2_x_array_0: c30060_2_0
+  Platelet_x_instance_0_x_array_0: c30080_0_0
+  Platelet_x_instance_1_x_array_0: c30080_1_0
+  Platelet_x_instance_2_x_array_0: c30080_2_0
+  Lymphocyte_x_instance_0_x_array_0: c30120_0_0
+  Lymphocyte_x_instance_1_x_array_0: c30120_1_0
+  Lymphocyte_x_instance_2_x_array_0: c30120_2_0
+  Monocyte_x_instance_0_x_array_0: c30130_0_0
+  Monocyte_x_instance_1_x_array_0: c30130_1_0
+  Monocyte_x_instance_2_x_array_0: c30130_2_0
+  Neutrophil_x_instance_0_x_array_0: c30140_0_0
+  Neutrophil_x_instance_1_x_array_0: c30140_1_0
+  Neutrophil_x_instance_2_x_array_0: c30140_2_0
+  Eosinophil_x_instance_0_x_array_0: c30150_0_0
+  Eosinophil_x_instance_1_x_array_0: c30150_1_0
+  Eosinophil_x_instance_2_x_array_0: c30150_2_0
+  Basophil_x_instance_0_x_array_0: c30160_0_0
+  Basophil_x_instance_1_x_array_0: c30160_1_0
+  Basophil_x_instance_2_x_array_0: c30160_2_0
