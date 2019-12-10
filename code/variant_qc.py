@@ -20,8 +20,8 @@ parser.add_argument('--bgen-index', default=None, help='''
     and same name as bgen files.
     Otherwise, specify with {chr_num} as well
 ''')
-parser.add_argument('--hail-min-block-size', type=int, default=128, help='''
-    The min_block_size in hail.init
+parser.add_argument('--hail-block-size', type=int, default=128, help='''
+    The block_size in hail.import_bgen
 ''')
 parser.add_argument('--output-filename', required=True, help='''
     Filename of output. 
@@ -48,14 +48,22 @@ if '{chr_num}' not in args.bgen_index:
     logging.info('Wrong --bgen-index! It should contain {chr_num}! Exit')
     sys.exit()
 
+# more on args
+if args.bgen_index is None:
+    args.bgen_index = args.bgen_path + '.idx2'
+
+# init export pyspark setup
+logging.info('Echo $PYSPARK_SUBMIT_ARGS')
+os.system('echo $PYSPARK_SUBMIT_ARGS')
+
 # init hail
-logging.info('Initialize hail with min_block_size = {}'.format(args.hail_min_block_size))
-hl.init(min_block_size = args.hail_min_block_size)
+logging.info('Initialize hail')
+hl.init()
 
 # load genotype files
-logging.info('Start to load genotype files'.format(args.hail_min_block_size))
+logging.info('Start to load genotype files with block_size = {}'.format(args.hail_block_size))
 bgen_path = args.bgen_path.format(
-    chr_num = '{' + ','.join([ str(i) for i in range(1, 23)]) + '}'
+    chr_num = '{' + args.chrs + '}'
 )
 bgen_sample = args.bgen_sample
 bgen_idx_dict = {}
@@ -69,10 +77,14 @@ mt = hl.import_bgen(
     sample_file = bgen_sample, 
     n_partitions = None, 
     index_file_map = bgen_idx_dict, 
-    entry_fields = ['GT']  # to make variant QC work, I can only use GT here 
+    entry_fields = ['GT'],  # to make variant QC work, I can only use GT here 
+    block_size = args.hail_block_size
 )
 tend = time.time()
 logging.info('Loading genotype finished! {} seconds elapsed'.format(tend - tstart))
+
+# show n_partitions
+logging.info('n_partitions of the loaded data is {}'.format(mt.n_partitions()))
 
 # do variant QC
 logging.info('Perform variant QC')
@@ -84,11 +96,11 @@ logging.info('hail.variant_qc finished! {} seconds elapsed'.format(tend - tstart
 # and write it to disk
 logging.info('Export variant QC')
 target_folder = os.path.dirname(args.output_filename)
-if not os.path.exists(target_folder):
+if not os.path.exists(target_folder) and target_folder is not '':
     os.makedirs(target_folder)
 filename = args.output_filename + '.mt'
 tstart = time.time()
-mt.variant_qc.export(filename)
-mt = hl.variant_qc(mt)
+# mt.variant_qc.export(filename)
 tend = time.time()
 logging.info('hail.export finished! {} seconds elapsed'.format(tend - tstart))
+
