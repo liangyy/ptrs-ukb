@@ -1,35 +1,45 @@
 if 'outdir' not in config:
     config['outdir'] = 'output'
 
-# output
-rule all_format:
-    input:
-        [ '{outdir}/subsetted_{predictdb}_x_{population}.chr{i}.dosage.gz'.format(outdir = config['outdir'], predictdb = config['predictdb']['name'], population = config['indiv_name'], i = i) for i in range(1, 23) ]
-# END
+import os
+def parse_bgen_filename(config):
+    dirname = os.path.dirname(config['genotype']['bgen'])
+    prefix = os.path.basename(e).split('{i}')[0]
+    return prefix, dirname
 
-# extract variant list from predictdb
-rule predictdb_var:
+bgen_prefix, bgen_dirname = parse_bgen_filename(config)
+
+rule all:
     input:
-        config['predictdb']['path']
-    params:
-        config['predictdb']['varcol']
+        '{outdir}/predicted_expression.{genoname}_x_{model}.h5'.format(outdir = config['outdir'], genoname = config['genotype']['name'], model = config['predictdb_name'])
+
+rule pred_expr:
+    input:
+        bgen = config['genotype']['bgen'],
+        sample = config['genotype']['sample'],
+        db = config['predictdb']
     output:
-        '{outdir}/var_list_{predictdb}.txt'
+        '{outdir}/predicted_expression.{genoname}_x_{model}.h5'
     shell:
-        'python ../../code/extract_var_list_from_predictdb.py \
-          --predictdb {input[0]} \
-          --varcol {params[0]} \
-          --output {output[0]}'
-# END
+        'python {config[script_dir]}/predict.py \
+          --bgens-dir {bgen_dirname} \
+          --bgens-prefix {bgen_prefix} \
+          --bgens-sample-file {input.sample} \
+          --weights-file {input.db} \
+          --output-file {output[0]} \
+          --bgens-n-cache {config[bgens_cache_nvar]} \
+          --bgens-writing-cache-size {config[bgens_writing_cache_in_mb]}'
 
-
-
-# rename subsetted genotype
-rule format_geno:
-    input:
-        '{outdir}/subsetted_{predictdb}_x_{population}.chr{i}.gen'
-    output:
-        '{outdir}/subsetted_{predictdb}_x_{population}.chr{i}.dosage.gz'
-    shell:
-        'cat {input[0]} | gzip > {output[0]}'
-# END
+# SCRIPTDIR=/homes/yanyul/labshare/softwares/from_github/predixcan_prediction
+# DBTAG=ctimp_Whole_Blood
+# OUTDIR=
+# 
+# python $SCRIPTDIR/predict.py \
+#   --bgens-dir /mnt/ukb_v3/imp/ \
+#   --bgens-prefix ukb_imp_chr \
+#   --bgens-sample-file /mnt/ukb_v3/link_files/ukb19526_imp_chr1_v3_s487395.sample \
+#   --weights-file {} \
+#   --output-file prediction_output/Whold_Blood.h5 \
+#   --bgens-n-cache 250 \
+#   --bgens-writing-cache-size 500' \
+#   /vol/bmd/yanyul/data/predictdb_models/$DBTAG.db
