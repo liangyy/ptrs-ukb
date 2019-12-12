@@ -90,6 +90,7 @@ logging.info('n_partitions of the loaded data is {}'.format(mt.n_partitions()))
 logging.info('Perform variant QC')
 tstart = time.time()
 mt = hl.variant_qc(mt)
+var_table = mt.rows()
 tend = time.time()
 logging.info('hail.variant_qc finished! {} seconds elapsed'.format(tend - tstart))
 
@@ -100,7 +101,7 @@ if not os.path.exists(target_folder) and target_folder is not '':
     os.makedirs(target_folder)
 filename = args.output_filename + '.mt'
 tstart = time.time()
-# mt.variant_qc.export(filename)
+var_table.write(filename)
 tend = time.time()
 logging.info('hail.export finished! {} seconds elapsed'.format(tend - tstart))
 

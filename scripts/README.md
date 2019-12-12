@@ -33,5 +33,6 @@ See `construct_phenotype_table/`.
 * Do variant QC
 
 ```
-$ screen -dmS variant_qc bash run_
+$ screen -dmS variant_qc bash run_variant_qc.screen
 ```
+

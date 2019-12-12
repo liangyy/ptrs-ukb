@@ -1,4 +1,4 @@
-predictdb: '/vol/bmd/yanyul/data/predictdb_models/{model}.db'
+predictdb: '/vol/bmd/yanyul/data/gtex_v8_pred_models/eqtl/ctimp/{model}.db'
 genotype:
   bgen: '/vol/bmd/data/ukbiobank/genotypes/v3/ukb_imp_chr{i}_v3.bgen'
   sample: '/vol/bmd/data/ukbiobank/genotypes/v3/ukb19526_imp_chr1_v3_s487395.sample'

@@ -5,7 +5,7 @@ import os
 def parse_bgen_filename(config):
     dirname = os.path.dirname(config['genotype']['bgen'])
     bgen_name = os.path.basename(config['genotype']['bgen'])
-    prefix = os.path.basename(config['genotype']['bgen']).split('{i}')[0]
+    prefix = os.path.basename(config['genotype']['bgen']).split('{i}')[0] + '{chr_num}'
     return prefix, bgen_name, dirname
 
 bgen_prefix, bgen_name, bgen_dirname = parse_bgen_filename(config)
@@ -44,7 +44,8 @@ rule pred_expr:
           --weights-file {input.db} \
           --output-file {output[0]} \
           --bgens-n-cache {config[bgens_cache_nvar]} \
-          --bgens-writing-cache-size {config[bgens_writing_cache_in_mb]}'
+          --bgens-writing-cache-size {config[bgens_writing_cache_in_mb]} \
+          --autosomes'
 
 # SCRIPTDIR=/homes/yanyul/labshare/softwares/from_github/predixcan_prediction
 # DBTAG=ctimp_Whole_Blood

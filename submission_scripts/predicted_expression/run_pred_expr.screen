@@ -17,3 +17,6 @@ fi
 
 $MYSNMK -s pred_expr.snmk --configfile $SUBDIR/config.yaml -pn --config predictdb_name=$1 outdir=$2 > $SUBDIR/logs/$1.log 2>&1
 $MYSNMK -s pred_expr.snmk --configfile $SUBDIR/config.yaml -p --config predictdb_name=$1 outdir=$2 >> $SUBDIR/logs/$1.log 2>&1
+
+screen -X kill
+
