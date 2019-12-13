@@ -36,3 +36,8 @@ See `construct_phenotype_table/`.
 $ screen -dmS variant_qc bash run_variant_qc.screen
 ```
 
+* Synchronize `../output` at local and nucleus
+
+```
+$ bash sync_output_on_nucleus.sh
+``` 

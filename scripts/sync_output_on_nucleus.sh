@@ -1,0 +1,1 @@
+rsync -avc /Users/yanyul/Documents/repo/github/ptrs-ukb/output/ nucleus:/vol/bmd/yanyul/GitHub/ptrs-ukb/output

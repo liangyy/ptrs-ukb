@@ -34,4 +34,39 @@ def df_to_ht(df, key, repartition = 40):
     df = hl.Table.from_pandas(df, key = key)
     df = df.repartition(repartition)
     return df
-
+def gwas_formater_from_neale_lab(gwas_out, outer_i, inner_j):
+    # format to GWAS sum stats format from Neale's lab
+    # code source: https://github.com/Nealelab/UK_Biobank_GWAS/blob/95ac260a5d4cf9c40effff13fa33fb95ed825e2a/0.2/export_results.biomarkers.py
+    i = outer_i
+    j = inner_j
+    ht_export = gwas_out.annotate(
+        n_complete_samples = gwas_out['n'][i],
+        AC = gwas_out['sum_x'][i],
+        ytx = gwas_out['y_transpose_x'][i][j],
+        beta = gwas_out['beta'][i][j],
+        se = gwas_out['standard_error'][i][j],
+        tstat = gwas_out['t_stat'][i][j],
+        pval = gwas_out['p_value'][i][j])
+    ht_export = ht_export.annotate(
+        AF = ht_export['AC'] / (2 * ht_export['n_complete_samples'])
+    )
+    ht_export = ht_export.annotate(
+        minor_AF = hl.cond(ht_export['AF'] <= 0.5, ht_export['AF'], 1.0 - ht_export['AF']),
+        minor_allele = hl.cond(ht_export['AF'] <= 0.5, ht_export['alleles'][1], ht_export['alleles'][0])
+    )
+    ht_export = ht_export.annotate(
+        low_confidence_variant = ht_export['minor_AF'] < 0.001
+    )
+    ht_export = ht_export.select(
+        'minor_allele',
+        'minor_AF',
+        'low_confidence_variant',
+        'n_complete_samples',
+        'AC',
+        'ytx',
+        'beta',
+        'se',
+        'tstat',
+        'pval'
+    )
+    return ht_export
