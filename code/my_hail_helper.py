@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-
+import hail as hl
 def names_to_list(names):
     return names.split(',')
 def get_dtype_dic(int_names, str_names, all_names):
@@ -30,4 +30,8 @@ def read_indiv_list(file_path):
     return indiv_list.iloc[:,0].to_list()
 def subset_by_col(df, colname, target_list):
     return df[df[colname].isin(target_list)]
-    
+def df_to_ht(df, key, repartition = 40):
+    df = hl.Table.from_pandas(df, key = key)
+    df = df.repartition(repartition)
+    return df
+
