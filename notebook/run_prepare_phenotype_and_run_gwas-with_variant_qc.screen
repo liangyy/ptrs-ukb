@@ -1,0 +1,11 @@
+export PYSPARK_SUBMIT_ARGS="--driver-memory 50G --executor-memory 10g pyspark-shell"
+source /vol/bmd/yanyul/miniconda3/etc/profile.d/conda.sh
+conda activate /vol/bmd/yanyul/softwares/conda_envs/hail
+
+WORKDIR=/vol/bmd/yanyul/GitHub/ptrs-ukb/notebook
+cd $WORKDIR
+
+jupyter nbconvert --ExecutePreprocessor.timeout=None --to notebook --execute prepare_phenotype_and_run_gwas-with_variant_qc.ipynb --inplace > test_output/run_prepare_phenotype_and_run_gwas-with_variant_qc.log 2>&1 
+
+screen -X kill
+

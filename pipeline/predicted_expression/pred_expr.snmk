@@ -45,7 +45,9 @@ rule pred_expr:
           --output-file {output[0]} \
           --bgens-n-cache {config[bgens_cache_nvar]} \
           --bgens-writing-cache-size {config[bgens_writing_cache_in_mb]} \
-          --autosomes'
+          --autosomes \
+          --max-sample-chunk-size {config[max_sample_chunk_size]} \
+          --max-gene-chunk-size {config[max_gene_chunk_size]}'
 
 # SCRIPTDIR=/homes/yanyul/labshare/softwares/from_github/predixcan_prediction
 # DBTAG=ctimp_Whole_Blood

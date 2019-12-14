@@ -8,4 +8,7 @@ bgens_cache_nvar: 250
 bgens_writing_cache_in_mb: 500
 script_dir: '/vol/bmd/yanyul/GitHub/predixcan_prediction'  # '/homes/yanyul/labshare/softwares/from_github/predixcan_prediction'
 bgenix_dir: '/vol/bmd/yanyul/softwares/from_bitbucket/gavinband-bgen-4e33223a8dc4/build/apps'
+max_sample_chunk_size: 10000
+max_gene_chunk_size: 10
 # script_env: '/vol/bmd/yanyul/miniconda3/envs/predixcan_prediction/bin'
+
