@@ -2,7 +2,12 @@ import pandas as pd
 import numpy as np
 import hail as hl
 def names_to_list(names):
-    return names.split(',')
+    if names is None:
+        return []
+    elif isinstance(names, str):
+        return names.split(',')
+    else:
+        return []
 def get_dtype_dic(int_names, str_names, all_names):
     out_dic = { a : np.float for a in all_names }
     for i in int_names:
@@ -19,9 +24,9 @@ def read_and_split_phenotype_csv(csv_path, pheno_names, covar_names, indiv_id, i
     pheno_list = names_to_list(pheno_names)
     all_colnames = covar_list + pheno_list + names_to_list(indiv_id)
     type_dic = get_dtype_dic(names_to_list(int_names), names_to_list(str_names), all_colnames)
-    pheno = pd.read_csv(csv_path, dtype = type_dic, usecols = list(type_dic.keys())).rename(columns = {indiv_id : 's'})
-    covar_table = pheno[covar_list + ['s']]
-    trait_table = pheno[pheno_list + ['s']]
+    pheno = pd.read_csv(csv_path, dtype = type_dic, usecols = list(type_dic.keys())).rename(columns = {indiv_id : 'eid'})
+    covar_table = pheno[covar_list + ['eid']]
+    trait_table = pheno[pheno_list + ['eid']]
     return covar_table, trait_table
 def read_indiv_list(file_path):
     # read in the file from file_path
