@@ -1,0 +1,5 @@
+covar_names: age_recruitment,sex,pc1,pc2
+pheno_names: ht,mcv,mch
+indiv_id: eid
+int_names: age_recruitment,sex
+str_names: eid

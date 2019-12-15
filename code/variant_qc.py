@@ -99,9 +99,9 @@ logging.info('Export variant QC')
 target_folder = os.path.dirname(args.output_filename)
 if not os.path.exists(target_folder) and target_folder is not '':
     os.makedirs(target_folder)
-filename = args.output_filename + '.mt'
+filename = args.output_filename + '.ht'
 tstart = time.time()
-var_table.write(filename)
+var_table.write(filename, overwrite = True)
 tend = time.time()
 logging.info('hail.export finished! {} seconds elapsed'.format(tend - tstart))
 

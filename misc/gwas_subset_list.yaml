@@ -1,0 +1,3 @@
+# the list of individual subsets
+subset1: '/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-training-1.txt'
+subset2: '/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-training-2.txt'
