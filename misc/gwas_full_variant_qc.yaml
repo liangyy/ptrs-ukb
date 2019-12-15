@@ -1,0 +1,3 @@
+# variant qc yaml
+maf: 0.001
+hwe_pval: 1e-10

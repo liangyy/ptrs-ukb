@@ -57,7 +57,17 @@ all_none_missing = rowSums(is.na(dat[, martin_traits])) == 0
 dat %>% filter(all_none_missing) %>% group_by(meaning) %>% summarize(nindiv = n()) %>% pander(caption = 'Number of individuals after limiting to ones with all phenotypes non-missing')
 dat_cleaned = dat %>% filter(all_none_missing) %>% select(-ethnicity_x_instance_0_x_array_0, -ethnicity_x_instance_1_x_array_0, -ethnicity_x_instance_2_x_array_0)
 
-# save the cleaned-up data (after filtering)
+# show the cleaned-up data (after filtering)
 message('quick summary before save')
+dat_cleaned %>% summary
+
+# add more covariates:
+# 1. age_squared
+# 2. age_times_sex
+# 3. age_squared_times_sex
+message('adding more covariates: age x sex ...')
+dat_cleaned = dat_cleaned %>% mutate(age_squared = age_recruitment ^ 2, age_times_sex = age_recruitment * sex, age_squared_times_sex = (age_recruitment ^ 2) * sex)
+
+message('quick summary and save results')
 dat_cleaned %>% summary
 write.csv(dat_cleaned, args[2], quote = F, row.names = F)
