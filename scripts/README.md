@@ -41,3 +41,9 @@ $ screen -dmS variant_qc bash run_variant_qc.screen
 ```
 $ bash sync_output_on_nucleus.sh
 ``` 
+
+* Test run of `../code/gwas_on_subset.py` 
+
+```
+$ screen -dmS test_gwas bash test_run_gwas_on_subset.screen
+```

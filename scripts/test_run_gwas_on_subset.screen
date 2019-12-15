@@ -3,9 +3,13 @@ source /vol/bmd/yanyul/miniconda3/etc/profile.d/conda.sh
 conda activate /vol/bmd/yanyul/softwares/conda_envs/hail
 
 WORKDIR=/vol/bmd/yanyul/GitHub/ptrs-ukb/
-OUTPREF=/vol/bmd/yanyul/UKB/test_run/test_run_gwas_on_subset
+OUTDIR=/vol/bmd/yanyul/UKB/test_run
 cd $WORKDIR
 
+if [[ ! -d $OUTDIR ]]
+then
+  mkdir -p $OUTDIR
+fi
 
 python code/gwas_on_subset.py \
   --bgen-path /vol/bmd/data/ukbiobank/genotypes/v3/ukb_imp_chr{chr_num}_v3.bgen \
@@ -13,13 +17,13 @@ python code/gwas_on_subset.py \
   --bgen-index /vol/bmd/yanyul/UKB/bgen_idx/ukb_imp_chr{chr_num}_v3.bgen.idx2 \
   --chrs 22 \
   --hail-block-size 512 \
-  --output-filename $OUTPREF \
+  --output-filename $OUTDIR/test_run_gwas_on_subset \
   --variant-ht /vol/bmd/yanyul/UKB/variant_qc/imp_all.ht \
   --variant-qc-yaml misc/gwas_variant_qc.yaml \
   --pheno-covar-csv output/query_phenotypes_cleaned_up.csv \
   --pheno-covar-yaml misc/gwas_pheno_covar.yaml \
   --subset-yaml misc/gwas_subset_list.yaml \
-  > $OUTPREF.log 2>&1
+  > $OUTDIR/test_run_gwas_on_subset.log 2>&1
   
 screen -X kill
 

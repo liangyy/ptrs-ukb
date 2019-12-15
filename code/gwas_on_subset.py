@@ -105,9 +105,7 @@ logging.info('--> Read variant QC Table FINISHED. {} seconds elapsed'.format(ten
 for i in list(variant_qc_dic.keys()):
     logging.info('--> Apply filter {}'.format(i))
     tstart = time.time()
-    filter_list = get_variant_qc_filter(variant_qc_all_ht.variant_qc, i, variant_qc_dic[i])
-    for j in filter_list:
-        variant_qc_all_ht = variant_qc_all_ht.filter(j)
+    variant_qc_all_ht = helper.apply_variant_qc_filter(variant_qc_all_ht, i, variant_qc_dic[i])
     tend = time.time()
     logging.info('--> Apply filter {} FINISHED! {} seconds elapsed'.format(i, tend - tstart))
 logging.info('Varint QC FINISHED.')
@@ -230,7 +228,7 @@ if not os.path.exists(target_folder) and target_folder is not '':
     os.makedirs(target_folder)
 ## check if extension of output file is .ht, if not add it
 filename, file_extension = os.path.splitext(args.output_filename)
-if file_extension is not 'ht':
+if file_extension != 'ht':
     filename = filename + '.ht'
 gwas_out.write(filename, overwrite = True)
 tend = time.time()
