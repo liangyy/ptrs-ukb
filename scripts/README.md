@@ -47,3 +47,9 @@ $ bash sync_output_on_nucleus.sh
 ```
 $ screen -dmS test_gwas bash test_run_gwas_on_subset.screen
 ```
+
+* Run GWAS
+
+```
+$ screen -dmS gwas bash run-submit-and-loop_gwas_on_all_subsets.screen  # screen -dmS run_gwas bash run_gwas_on_all_subsets.screen
+```

@@ -19,3 +19,4 @@ def apply_variant_qc_filter(qc_ht, name, value):
         value = float(value)
         qc_ht = qc_ht.filter(qc_ht.variant_qc.p_value_hwe > value)
         return qc_ht
+    return qc_ht

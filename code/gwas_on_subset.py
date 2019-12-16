@@ -134,14 +134,22 @@ mt = hl.import_bgen(
 tend = time.time()
 logging.info('Loading genotype FINISHED! {} seconds elapsed'.format(tend - tstart))
 
+# count the number of variants being loaded
+logging.info('Start to count the number of variants being loaded')
+tstart = time.time()
+nvariant = mt.count_rows()
+tend = time.time()
+logging.info('Counting the the number of variants FINISHED! nvariant = {} and {} seconds elapsed'.format(nvariant, tend - tstart))
+
+
 # load phenotypes and covariates
 logging.info('Start loading phenotypes and covariates (the full table)')
-covar_names = 'age_recruitment,sex,pc1,pc2'
-pheno_names = 'ht,mcv,mch'
-indiv_id = 'eid'
-int_names = 'age_recruitment,sex'
-str_names = 'eid'
 pheno_covar_dic = helper.read_yaml(args.pheno_covar_yaml)
+covar_names = pheno_covar_dic['covar_names']  # 'age_recruitment,sex,pc1,pc2'
+pheno_names = pheno_covar_dic['pheno_names']  # 'ht,mcv,mch'
+indiv_id = pheno_covar_dic['indiv_id']  # 'eid'
+int_names = pheno_covar_dic['int_names']  # 'age_recruitment,sex'
+str_names = pheno_covar_dic['str_names']  # 'eid'
 logging.info('--> Read in CSV file as data.frame')
 tstart = time.time()
 covar, trait = hail_helper.read_and_split_phenotype_csv(
@@ -217,7 +225,7 @@ gwas_out = hl.linear_regression_rows(
 )
 gwas_out = gwas_out.annotate_globals(phenotypes = pheno_list_of_names)
 tend = time.time()
-logging.info('Running GWAS FINISHED! {} seconds elapsed'.format('covariates', tend - tstart))
+logging.info('Running GWAS FINISHED! {} seconds elapsed'.format(tend - tstart))
 
 # write GWAS results onto disk
 logging.info('Start writing GWAS result to disk')
@@ -232,4 +240,4 @@ if file_extension != 'ht':
     filename = filename + '.ht'
 gwas_out.write(filename, overwrite = True)
 tend = time.time()
-logging.info('Writing GWAS result to disk FINISHED! {} seconds elapsed'.format('covariates', tend - tstart))
+logging.info('Writing GWAS result to disk FINISHED! {} seconds elapsed'.format(tend - tstart))
