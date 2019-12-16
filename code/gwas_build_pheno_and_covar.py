@@ -45,18 +45,6 @@ logging.basicConfig(
     datefmt = '%Y-%m-%d %I:%M:%S %p'
 )
 
-# input sanity check
-if '{chr_num}' not in args.bgen_path:
-    logging.info('Wrong --bgen-path! It should contain {chr_num}! Exit')
-    sys.exit()
-if '{chr_num}' not in args.bgen_index:
-    logging.info('Wrong --bgen-index! It should contain {chr_num}! Exit')
-    sys.exit()
-
-# more on args
-if args.bgen_index is None:
-    args.bgen_index = args.bgen_path + '.idx2'
-
 # some hail environment logging before run
 logging.info('echo $PYSPARK_SUBMIT_ARGS')
 os.system('echo $PYSPARK_SUBMIT_ARGS')
