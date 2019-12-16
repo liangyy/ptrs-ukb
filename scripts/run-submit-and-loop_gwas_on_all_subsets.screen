@@ -1,0 +1,41 @@
+# export PYSPARK_SUBMIT_ARGS="--driver-memory 64G --executor-memory 4g pyspark-shell"
+export LD_PRELOAD=/vol/bmd/yanyul/softwares/conda_envs/hail/lib/libopenblas.so
+source /vol/bmd/yanyul/miniconda3/etc/profile.d/conda.sh
+conda activate /vol/bmd/yanyul/softwares/conda_envs/hail
+
+WORKDIR=/vol/bmd/yanyul/GitHub/ptrs-ukb/
+OUTDIR=/vol/bmd/yanyul/UKB/gwas_on_subset/by_chromosome
+cd $WORKDIR
+
+if [[ ! -d $OUTDIR ]]
+then
+  mkdir -p $OUTDIR
+fi
+
+HAIL_HOME=$(pip show hail | grep Location | awk -F' ' '{print $2 "/hail"}')
+for i in `seq 1 22`
+do
+  spark-submit \
+    --jars $HAIL_HOME/hail-all-spark.jar \
+    --conf spark.driver.extraClassPath=$HAIL_HOME/hail-all-spark.jar \
+    --conf spark.executor.extraClassPath=./hail-all-spark.jar \
+    --conf spark.serializer=org.apache.spark.serializer.KryoSerializer \
+    --conf spark.kryo.registrator=is.hail.kryo.HailKryoRegistrator \
+    --driver-memory 50g \
+    --executor-memory 10g \
+    code/gwas_on_subset.py \
+      --bgen-path /vol/bmd/data/ukbiobank/genotypes/v3/ukb_imp_chr{chr_num}_v3.bgen \
+      --bgen-sample /vol/bmd/data/ukbiobank/genotypes/v3/ukb19526_imp_chr1_v3_s487395.sample \
+      --bgen-index /vol/bmd/yanyul/UKB/bgen_idx/ukb_imp_chr{chr_num}_v3.bgen.idx2 \
+      --hail-block-size 512 \
+      --chrs $i \
+      --output-filename $OUTDIR/gwas_on_all_subsets.chr$i \
+      --variant-ht /vol/bmd/yanyul/UKB/variant_qc/imp_all.ht \
+      --variant-qc-yaml misc/gwas_full_variant_qc.yaml \
+      --pheno-covar-csv output/query_phenotypes_cleaned_up.csv \
+      --pheno-covar-yaml misc/gwas_full_pheno_covar.yaml \
+      --subset-yaml misc/gwas_full_subset_list.yaml \
+      > $OUTDIR/gwas_on_all_subsets.chr$i.log 2>&1
+done  
+screen -X kill
+
