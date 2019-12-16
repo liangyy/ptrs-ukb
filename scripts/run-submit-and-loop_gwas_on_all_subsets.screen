@@ -29,7 +29,7 @@ do
       --bgen-index /vol/bmd/yanyul/UKB/bgen_idx/ukb_imp_chr{chr_num}_v3.bgen.idx2 \
       --hail-block-size 512 \
       --chrs $i \
-      --output-filename $OUTDIR/gwas_on_all_subsets.chr$i \
+      --output-filename $OUTDIR/gwas_on_all_subsets_chr$i \
       --variant-ht /vol/bmd/yanyul/UKB/variant_qc/imp_all.ht \
       --variant-qc-yaml misc/gwas_full_variant_qc.yaml \
       --pheno-covar-csv output/query_phenotypes_cleaned_up.csv \
