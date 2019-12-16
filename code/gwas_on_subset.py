@@ -1,5 +1,5 @@
 import argparse
-parser = argparse.ArgumentParser(prog='run_gwas_on_subset.py', description='''
+parser = argparse.ArgumentParser(prog='gwas_on_subset.py', description='''
     Run GWAS (use dosage) given a list of phenotypes 
     and a list of individual subsets.
     Output the hail Table containing GWAS results. 

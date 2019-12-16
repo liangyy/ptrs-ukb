@@ -1,0 +1,33 @@
+# export PYSPARK_SUBMIT_ARGS="--driver-memory 64G --executor-memory 4g pyspark-shell"
+export LD_PRELOAD=/vol/bmd/yanyul/softwares/conda_envs/hail/lib/libopenblas.so
+source /vol/bmd/yanyul/miniconda3/etc/profile.d/conda.sh
+conda activate /vol/bmd/yanyul/softwares/conda_envs/hail
+
+WORKDIR=/vol/bmd/yanyul/GitHub/ptrs-ukb/
+OUTDIR=/vol/bmd/yanyul/UKB/gwas_on_subset/pheno_and_covar
+cd $WORKDIR
+
+if [[ ! -d $OUTDIR ]]
+then
+  mkdir -p $OUTDIR
+fi
+
+HAIL_HOME=$(pip show hail | grep Location | awk -F' ' '{print $2 "/hail"}')
+
+spark-submit \
+  --jars $HAIL_HOME/hail-all-spark.jar \
+  --conf spark.driver.extraClassPath=$HAIL_HOME/hail-all-spark.jar \
+  --conf spark.executor.extraClassPath=./hail-all-spark.jar \
+  --conf spark.serializer=org.apache.spark.serializer.KryoSerializer \
+  --conf spark.kryo.registrator=is.hail.kryo.HailKryoRegistrator \
+  --driver-memory 50g \
+  --executor-memory 10g \
+  code/gwas_build_pheno_and_covar.py \
+    --output-prefix $OUTDIR/all_subsets \
+    --pheno-covar-csv output/query_phenotypes_cleaned_up.csv \
+    --pheno-covar-yaml misc/gwas_full_pheno_covar.yaml \
+    --subset-yaml misc/gwas_full_subset_list.yaml \
+    > $OUTDIR/all_subsets.log 2>&1
+  
+screen -X kill
+
