@@ -1,9 +1,16 @@
-import yaml
+import yaml, re, gcsfs
 
-def read_yaml(filename):
-    with open(filename, 'r') as f:
-        mydic = yaml.safe_load(f)
+def read_yaml(filename, gcp_project = None):
+    if gcp_project is None:
+        with open(filename, 'r') as f:
+            mydic = yaml.safe_load(f)
+    else:
+        fs = gcsfs.GCSFileSystem(project = gcp_project)
+        filename = re.sub('gs://', '', filename)
+        with fs.open(filename, 'r') as f:
+            mydic = yaml.safe_load(f)
     return mydic
+
 def get_variant_qc_filter(qc_table, name, value):
     if name == 'maf':
         return [qc_table['AF'][0] > value, qc_table['AF'][1] > value]

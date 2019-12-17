@@ -7,6 +7,9 @@ parser = argparse.ArgumentParser(prog='gwas_on_subset.py', description='''
     The post-processing/formatting is done separately.
 ''')
 
+## If using Google Cloud 
+parser.add_argument('--google-cloud-project', default=None, help="Add project name if using Google Cloud (default: None)")
+
 ## Genotype inputs
 parser.add_argument('--bgen-path', required=True, help='''
     Template of bgen file, need to contain {chr_num} in place of chromosome number
@@ -51,6 +54,10 @@ parser.add_argument('--subset-yaml', help='''
     A YAML file specifying the name and path of individual ID lists.
 ''')
 
+## Set hail log path
+parser.add_argument('--hail-log', help='''
+    Path of hail log
+''')
 
 args = parser.parse_args()
 
@@ -91,11 +98,11 @@ os.system('echo $PYSPARK_SUBMIT_ARGS')
 
 # initialize hail
 logging.info('Initialize hail')
-hl.init()
+hl.init(log = args.hail_log)
 
 # load variant QC file and apply filter
 logging.info('Start variant QC')
-variant_qc_dic = helper.read_yaml(args.variant_qc_yaml)
+variant_qc_dic = helper.read_yaml(args.variant_qc_yaml, args.google_cloud_project)
 logging.info('--> Read variant QC Table')
 tstart = time.time()
 variant_qc_all_ht = hl.read_table(args.variant_ht)
@@ -143,7 +150,7 @@ logging.info('Counting the the number of variants FINISHED! nvariant = {} and {}
 
 # load the list of hail Tables as nested phenotypes and covariates 
 logging.info('Start loading hail Table by individual subset')
-subset_list_dic = helper.read_yaml(args.subset_yaml)
+subset_list_dic = helper.read_yaml(args.subset_yaml, args.google_cloud_project)
 subset_ht_dic = {}
 for subset_name in list(subset_list_dic.keys()):
     logging.info('--> Loading {}'.format(subset_name))

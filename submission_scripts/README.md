@@ -3,6 +3,8 @@
 Different from `scripts/`, here we keep submission scripts using pipelines built at `pipeline`. 
 The main difference is that the jobs here contain multiple steps.
 
+And here contains the submission scripts for GCP.
+
 ## How do you mean by submission?
 
 This repo is mainly used for running jobs on `nucleus` where no cluster scheduler is in use. 
