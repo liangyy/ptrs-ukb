@@ -54,6 +54,11 @@ parser.add_argument('--subset-yaml', help='''
     A YAML file specifying the name and path of individual ID lists.
 ''')
 
+## Set hail log path
+parser.add_argument('--hail-log', help='''
+    Path of hail log
+''')
+
 args = parser.parse_args()
 
 import hail as hl
@@ -93,7 +98,7 @@ os.system('echo $PYSPARK_SUBMIT_ARGS')
 
 # initialize hail
 logging.info('Initialize hail')
-hl.init(tmp_dir='gs://ukb_data/tmp/', min_block_size=1024)
+hl.init(log = args.hail_log)
 
 # load variant QC file and apply filter
 logging.info('Start variant QC')

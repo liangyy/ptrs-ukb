@@ -1,9 +1,8 @@
-NAME=test1
-SUBSET=1
-hailctl dataproc start $NAME-chr22 --master-boot-disk-size 60 -p 80 --preemptible-worker-boot-disk-size 16 > $NAME\_chr22.log 2>&1 
+NAME=test3
+SUBSET=1st
+hailctl dataproc start $NAME-chr22 --master-boot-disk-size 60 -p 40 --preemptible-worker-boot-disk-size 16 > $NAME\_chr22.log 2>&1 
 
 hailctl dataproc submit $NAME-chr22 \
-  --properties spark.driver.memory=50g,spark.executor.memory=10g \
   --pyfiles ../../code/my_hail_helper.py,../../code/gwas_helper.py \
   ../../code/gwas_on_subset_ht.py \
     --bgen-path gs://ukb_data/genotypes/v3/ukb_imp_chr{chr_num}_v3.bgen \
@@ -16,8 +15,9 @@ hailctl dataproc submit $NAME-chr22 \
     --variant-qc-yaml gs://ptrs-ukb/results/misc/gwas_full_variant_qc.yaml \
     --pheno-covar-path gs://ptrs-ukb/results/pheno_and_covar/all_subsets.{subset_name}.ht \
     --subset-yaml gs://ptrs-ukb/results/misc/gwas_full_subset_list_$SUBSET.yaml \
-    --google-cloud-project ukb-im >> $NAME\_chr22.log 2>&1 
+    --google-cloud-project ukb-im \
+    --hail-log /home/yanyu018/$NAME\_chr22.log >> $NAME\_chr22.log 2>&1 
 
-hailctl dataproc stop $NAME-chr22
+# hailctl dataproc stop $NAME-chr22
 
 screen -X kill
