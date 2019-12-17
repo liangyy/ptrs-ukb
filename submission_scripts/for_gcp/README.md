@@ -1,7 +1,7 @@
 Run example:
 
 ```
-$ screen -dmS gwas_up bash run_all_chrs.sh up
+$ screen -dmS gwas_up bash run_all_chrs.sh up middle bottom
 ```
 
 Others are test scripts. 
