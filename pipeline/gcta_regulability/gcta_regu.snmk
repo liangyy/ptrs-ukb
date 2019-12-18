@@ -11,7 +11,12 @@ phenotypes = get_pheno(config)
 
 rule all_gcta:
     input:
-        [ '{outdir}/reml_from_gcta_{table_name}_x_{gene_model}_x_{pop_name}_x_{pheno}.log'.format() ]
+        [ '{outdir}/reml_from_gcta_{table_name}_x_{gene_model}_x_{pop_name}_x_{pheno}.log'.format(outdir = config['outdir'],
+                                                                                                  table_name = config['table_name'],
+                                                                                                  gene_model = config['gene_model'],
+                                                                                                  pop_name = config['pop_name'],
+                                                                                                  pheno = p
+                                                                                                 ) for p in phenotypes ]
 
 rule subset_pred_expr_by_indiv:
     input:
@@ -27,7 +32,7 @@ rule subset_pred_expr_by_indiv:
 
 rule subset_pheno_covar_by_indiv:
     input:
-        pheno_covar_table = config['pheno_covar']['table'],  # with {table_name} as key (here we only have one table actually so it is a bit redundent)
+        pheno_covar_csv = config['pheno_covar']['table'],  # with {table_name} as key (here we only have one table actually so it is a bit redundent)
         indiv_list = config['indiv_list'],  # with pop_name as key
         pheno_covar_yaml = config['pheno_covar']['yaml']  # specifying which column is used as phenotype or covariates (the same as the one used for GWAS runs)
     output:
@@ -50,7 +55,7 @@ rule prepare_gcta_inputs:
         '{outdir}/gcta_{table_name}_x_{gene_model}_x_{pop_name}.',
         '{outdir}/gcta_{table_name}_x_{gene_model}_x_{pop_name}_x_'
     output:
-        grm1 = '{outdir}/gcta_{table_name}_x_{gene_model}_x_{pop_name}.grm.gz'
+        grm1 = '{outdir}/gcta_{table_name}_x_{gene_model}_x_{pop_name}.grm.gz',
         grm2 = '{outdir}/gcta_{table_name}_x_{gene_model}_x_{pop_name}.grm.id',
         phenos = [ '{{outdir}}/gcta_{{table_name}}_x_{{gene_model}}_x_{{pop_name}}_x_{pheno}.pheno'.format(pheno = i) for i in phenotypes  ],
         covar = '{outdir}/gcta_{table_name}_x_{gene_model}_x_{pop_name}.covar'
@@ -67,7 +72,7 @@ rule run_gcta:
     input:
         grm1 = '{outdir}/gcta_{table_name}_x_{gene_model}_x_{pop_name}.grm.gz',
         grm2 = '{outdir}/gcta_{table_name}_x_{gene_model}_x_{pop_name}.grm.id',
-        pheno = '{outdir}/gcta_{table_name}_x_{gene_model}_x_{pop_name}_x_{pheno}.pheno'
+        pheno = '{outdir}/gcta_{table_name}_x_{gene_model}_x_{pop_name}_x_{pheno}.pheno',
         covar = '{outdir}/gcta_{table_name}_x_{gene_model}_x_{pop_name}.covar'
     output:
         '{outdir}/reml_from_gcta_{table_name}_x_{gene_model}_x_{pop_name}_x_{pheno}.log'
@@ -75,7 +80,7 @@ rule run_gcta:
         grmpref = '{outdir}/gcta_{table_name}_x_{gene_model}_x_{pop_name}',
         outpref = '{outdir}/reml_from_gcta_{table_name}_x_{gene_model}_x_{pop_name}_x_{pheno}'
     shell:
-        'config[gcta_path] \
+        '{config[gcta_path]} \
           --reml \
           --grm-gz {params.grmpref} \
           --pheno {input.pheno} \
