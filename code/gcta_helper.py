@@ -10,7 +10,7 @@ def remove_constant_row(mat, row_names):
     row_names = np.array(row_names)
     std = np.std(mat, axis = (1))
     return mat[std != 0, :], row_names[std != 0]
-def inv_norm_col(mat):
+def inv_norm_row(mat):
     return np.apply_along_axis(standardize_vec, 1, mat)
 def standardize_vec(vec, offset = 1):
     rank = myrank(vec)
