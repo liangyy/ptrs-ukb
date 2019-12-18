@@ -1,6 +1,11 @@
 if 'outdir' not in config:
     config['outdir'] = 'output'
+
+def get_pheno(config):
+    return config['pheno_covar']['yaml'].split(',')
     
+phenotypes = get_pheno(config)
+
 rule subset_pred_expr_by_indiv:
     input:
         pred_expr = config['pred_expr'],  # with gene_model as key
@@ -29,4 +34,24 @@ rule subset_pheno_covar_by_indiv:
            --output-pheno {output[0]} \
            --output-covar {output[1]}'
 
-
+rule prepare_gcta_inputs:
+    input:
+        '{outdir}/pheno_{table_name}_x_{pop_name}.tsv',
+        '{outdir}/covar_{table_name}_x_{pop_name}.tsv',
+        '{outdir}/pred_expr_{gene_model}_x_{pop_name}.tsv'
+    params: 
+        '{output}/gcta_{table_name}_x_{gene_model}_x_{pop_name}.',
+        '{output}/gcta_{table_name}_x_{gene_model}_x_{pop_name}_x_'
+    output:
+        grm1 = '{output}/gcta_{table_name}_x_{gene_model}_x_{pop_name}.grm.gz'
+        grm2 = '{output}/gcta_{table_name}_x_{gene_model}_x_{pop_name}.grm.id',
+        phenos = [ '{{output}}/gcta_{{table_name}}_x_{{gene_model}}_x_{{pop_name}}_x_{pheno}.pheno'.format(pheno = i) for i in phenotypes  ],
+        covar = '{output}/gcta_{table_name}_x_{gene_model}_x_{pop_name}.covar'
+    shell:
+        'python ../code/prepare_gcta_inputs.py \
+           --pred-expr {input[2]} \
+           --pheno {input[0]} \
+           --covar {input[1]} \
+           --output-grm-prefix {params[0]} \
+           --output-pheno-prefix {params[1]} \
+           --output-covar {output.covar}'

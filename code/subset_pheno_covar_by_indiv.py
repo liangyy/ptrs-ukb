@@ -22,6 +22,9 @@ parser.add_argument('--output-pheno', required=True, help='''
 parser.add_argument('--output-covar', required=True, help='''
     Covariate table for subset individuals
 ''')
+parser.add_argument('--indiv-colname', default='eid', help='''
+    Column name of individual ID in input
+''')
 
 args = parser.parse_args()
 
@@ -67,8 +70,8 @@ logging.info('Read individual list')
 indiv_list = hail_helper.read_indiv_list(args.indiv_list)
 
 # subsetting
-trait_sub = hail_helper.subset_by_col(trait, 'eid', indiv_list)
-covar_sub = hail_helper.subset_by_col(covar, 'eid', indiv_list)
+trait_sub = hail_helper.subset_by_col(trait, args.indiv_colname, indiv_list)
+covar_sub = hail_helper.subset_by_col(covar, args.indiv_colname, indiv_list)
 
 # save as TSV
 trait_sub.to_csv(args.output_pheno, header = True, index = None, sep = '\t')
