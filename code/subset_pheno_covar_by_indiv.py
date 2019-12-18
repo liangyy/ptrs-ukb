@@ -30,7 +30,7 @@ import numpy as np
 import h5py
 import logging, os, time, sys
 import my_hail_helper as hail_helper
-import gcta_helper as ghelper
+import gwas_helper
 
 
 # configing util
@@ -43,7 +43,7 @@ logging.basicConfig(
 
 # load phenotypes and covariates (Exactly the same as gwas_build_pheno_and_covar.py)
 logging.info('Start loading phenotypes and covariates (the full table)')
-pheno_covar_dic = helper.read_yaml(args.pheno_covar_yaml)
+pheno_covar_dic = gwas_helper.read_yaml(args.pheno_covar_yaml)
 covar_names = pheno_covar_dic['covar_names']  # 'age_recruitment,sex,pc1,pc2'
 pheno_names = pheno_covar_dic['pheno_names']  # 'ht,mcv,mch'
 indiv_id = pheno_covar_dic['indiv_id']  # 'eid'
@@ -64,11 +64,11 @@ logging.info('--> Read in CSV file as data.frame FINISHED! {} seconds elapsed'.f
 
 # read individual list
 logging.info('Read individual list')
-indiv_list = myhelper.read_indiv_list(args.indiv_list)
+indiv_list = hail_helper.read_indiv_list(args.indiv_list)
 
 # subsetting
-trait_sub = myhelper.subset_by_col(trait, 'eid', indiv_list)
-covar_sub = myhelper.subset_by_col(covar, 'eid', indiv_list)
+trait_sub = hail_helper.subset_by_col(trait, 'eid', indiv_list)
+covar_sub = hail_helper.subset_by_col(covar, 'eid', indiv_list)
 
 # save as TSV
 trait_sub.to_csv(args.output_pheno, header = True, index = None, sep = '\t')

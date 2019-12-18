@@ -1,4 +1,6 @@
 from scipy.stats import norm
+import numpy as np
+import pandas as pd
 def extract_cols(h5mat, col_names, target_names):
     col_names = np.array(col_names)
     target_names = np.array(target_names)
