@@ -1,8 +1,12 @@
 if 'outdir' not in config:
     config['outdir'] = 'output'
 
+sys.path.insert(0, '../code/')
+from gwas_helper import read_yaml
+
 def get_pheno(config):
-    return config['pheno_covar']['yaml'].split(',')
+    mydic = read_yaml(config['pheno_covar']['yaml'])
+    return mydic['pheno_names'].split(',')
     
 phenotypes = get_pheno(config)
 
