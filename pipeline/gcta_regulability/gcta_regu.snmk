@@ -1,7 +1,7 @@
 if 'outdir' not in config:
     config['outdir'] = 'output'
 
-sys.path.insert(0, '../code/')
+sys.path.insert(0, '../../code/')
 from gwas_helper import read_yaml
 
 def get_pheno(config):
@@ -29,7 +29,7 @@ rule subset_pred_expr_by_indiv:
     output:
         '{outdir}/pred_expr_{gene_model}_x_{pop_name}.tsv'
     shell:
-        'python ../code/subset_pred_expr_by_indiv.py \
+        'python ../../code/subset_pred_expr_by_indiv.py \
            --pred-expr {input.pred_expr} \
            --indiv-list {input.indiv_list} \
            --output {output[0]}'
@@ -43,7 +43,7 @@ rule subset_pheno_covar_by_indiv:
         '{outdir}/pheno_{table_name}_x_{pop_name}.tsv',
         '{outdir}/covar_{table_name}_x_{pop_name}.tsv'
     shell:
-        'python ../code/subset_pheno_covar_by_indiv.py \
+        'python ../../code/subset_pheno_covar_by_indiv.py \
            --pheno-covar-csv {input.pheno_covar_csv} \
            --indiv-list {input.indiv_list} \
            --pheno-covar-yaml {input.pheno_covar_yaml} \
@@ -56,7 +56,7 @@ rule prepare_gcta_inputs:
         '{outdir}/covar_{table_name}_x_{pop_name}.tsv',
         '{outdir}/pred_expr_{gene_model}_x_{pop_name}.tsv'
     params: 
-        '{outdir}/gcta_{table_name}_x_{gene_model}_x_{pop_name}.',
+        '{outdir}/gcta_{table_name}_x_{gene_model}_x_{pop_name}',
         '{outdir}/gcta_{table_name}_x_{gene_model}_x_{pop_name}_x_'
     output:
         grm1 = '{outdir}/gcta_{table_name}_x_{gene_model}_x_{pop_name}.grm.gz',
@@ -64,7 +64,7 @@ rule prepare_gcta_inputs:
         phenos = [ '{{outdir}}/gcta_{{table_name}}_x_{{gene_model}}_x_{{pop_name}}_x_{pheno}.pheno'.format(pheno = i) for i in phenotypes  ],
         covar = '{outdir}/gcta_{table_name}_x_{gene_model}_x_{pop_name}.covar'
     shell:
-        'python ../code/prepare_gcta_inputs.py \
+        'python ../../code/prepare_gcta_inputs.py \
            --pred-expr {input[2]} \
            --pheno {input[0]} \
            --covar {input[1]} \
