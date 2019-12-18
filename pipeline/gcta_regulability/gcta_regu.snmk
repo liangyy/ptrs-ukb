@@ -21,7 +21,7 @@ rule all_format:
 
 rule all_gcta:
     input:
-        [ '{outdir}/reml_from_gcta_{table_name}_x_{gene_model}_x_{pop_name}_x_{pheno}.log'.format(
+        [ '{outdir}/reml_from_gcta_{table_name}_x_{gene_model}_x_{pop_name}_x_{pheno}.hsq'.format(
             outdir = config['outdir'],
             table_name = config['table_name'],
             gene_model = config['gene_model'],
@@ -86,7 +86,7 @@ rule run_gcta:
         pheno = '{outdir}/gcta_{table_name}_x_{gene_model}_x_{pop_name}_x_{pheno}.pheno',
         covar = '{outdir}/gcta_{table_name}_x_{gene_model}_x_{pop_name}.covar'
     output:
-        '{outdir}/reml_from_gcta_{table_name}_x_{gene_model}_x_{pop_name}_x_{pheno}.log'
+        '{outdir}/reml_from_gcta_{table_name}_x_{gene_model}_x_{pop_name}_x_{pheno}.hsq'
     params:
         grmpref = '{outdir}/gcta_{table_name}_x_{gene_model}_x_{pop_name}',
         outpref = '{outdir}/reml_from_gcta_{table_name}_x_{gene_model}_x_{pop_name}_x_{pheno}'

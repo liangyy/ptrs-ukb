@@ -73,7 +73,7 @@ for c in colnames:
         pheno[[args.indiv_colname, args.indiv_colname, c]].to_csv(args.output_pheno_prefix + c + '.pheno', header = None, index = None, sep = '\t')
 
 logging.info('Read covariates')
-covar = pd.read_csv(args.pheno, header = 0, sep = '\t')
+covar = pd.read_csv(args.covar, header = 0, sep = '\t')
 colnames = covar.columns
 colnames = [ c for c in colnames if c != args.indiv_colname ]  # remove all columns with name args.indiv_colname
 covar[[args.indiv_colname, args.indiv_colname] + colnames].to_csv(args.output_covar, header = None, index = None, sep = '\t')
