@@ -26,3 +26,25 @@ Then, do gcta
 ```
 screen -dmS format-$POPNAME bash run_gcta.screen $POPNAME $OUTDIR
 ```
+
+## Loop over all lists
+
+Formatting.
+
+```
+mylist=('African' 'British-test-1' 'Indian' 'Chinese')
+for i in "${mylist[@]}"
+do 
+  screen -dmS format-$i bash run_format.screen $i $OUTDIR
+done
+```
+
+Run `gcta`
+
+```
+mylist=('African' 'British-test-1' 'Indian' 'Chinese')
+for i in "${mylist[@]}"
+do 
+  screen -dmS gcta-$i bash run_gcta.screen $i $OUTDIR
+done
+```
