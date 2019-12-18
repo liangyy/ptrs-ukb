@@ -13,14 +13,21 @@ phenotypes = get_pheno(config)
 ## Important note:
 ## when I say with *** as key, it is not required but optional
 
+rule all_format:
+    input:
+        '{outdir}/pheno_{table_name}_x_{pop_name}.tsv'.format(outdir = config['outdir'], table_name = config['table_name'], pop_name = config['pop_name']),
+        '{outdir}/covar_{table_name}_x_{pop_name}.tsv'.format(outdir = config['outdir'], table_name = config['table_name'], pop_name = config['pop_name']),
+        '{outdir}/pred_expr_{gene_model}_x_{pop_name}.tsv'.format(outdir = config['outdir'], gene_model = config['gene_model'], pop_name = config['pop_name'])
+
 rule all_gcta:
     input:
-        [ '{outdir}/reml_from_gcta_{table_name}_x_{gene_model}_x_{pop_name}_x_{pheno}.log'.format(outdir = config['outdir'],
-                                                                                                  table_name = config['table_name'],
-                                                                                                  gene_model = config['gene_model'],
-                                                                                                  pop_name = config['pop_name'],
-                                                                                                  pheno = p
-                                                                                                 ) for p in phenotypes ]
+        [ '{outdir}/reml_from_gcta_{table_name}_x_{gene_model}_x_{pop_name}_x_{pheno}.log'.format(
+            outdir = config['outdir'],
+            table_name = config['table_name'],
+            gene_model = config['gene_model'],
+            pop_name = config['pop_name'],
+            pheno = p
+            ) for p in phenotypes ]
 
 rule subset_pred_expr_by_indiv:
     input:
