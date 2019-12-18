@@ -6,6 +6,13 @@ def get_pheno(config):
     
 phenotypes = get_pheno(config)
 
+## Important note:
+## when I say with *** as key, it is not required but optional
+
+rule all_gcta:
+    input:
+        [ '{outdir}/reml_from_gcta_{table_name}_x_{gene_model}_x_{pop_name}_x_{pheno}.log'.format() ]
+
 rule subset_pred_expr_by_indiv:
     input:
         pred_expr = config['pred_expr'],  # with gene_model as key
