@@ -11,3 +11,4 @@ See this [thread](https://hail.zulipchat.com/#narrow/stream/128581-Cloud-support
 
  For more information on the computing resource setup for UKB data, see this [thread](https://hail.zulipchat.com/#narrow/stream/128581-Cloud-support/topic/cluster.20config.20for.20UKB.20GWAS/near/179199054).
  
+Regarding the subsets and phenotype table, I archived the one uploaded to GCP in `nucleus`: `/vol/bmd/yanyul/UKB/output-archived-for-ukb-run-on-121719.tar.gz` for a backup copy.
