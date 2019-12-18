@@ -40,13 +40,13 @@ rule prepare_gcta_inputs:
         '{outdir}/covar_{table_name}_x_{pop_name}.tsv',
         '{outdir}/pred_expr_{gene_model}_x_{pop_name}.tsv'
     params: 
-        '{output}/gcta_{table_name}_x_{gene_model}_x_{pop_name}.',
-        '{output}/gcta_{table_name}_x_{gene_model}_x_{pop_name}_x_'
+        '{outdir}/gcta_{table_name}_x_{gene_model}_x_{pop_name}.',
+        '{outdir}/gcta_{table_name}_x_{gene_model}_x_{pop_name}_x_'
     output:
-        grm1 = '{output}/gcta_{table_name}_x_{gene_model}_x_{pop_name}.grm.gz'
-        grm2 = '{output}/gcta_{table_name}_x_{gene_model}_x_{pop_name}.grm.id',
-        phenos = [ '{{output}}/gcta_{{table_name}}_x_{{gene_model}}_x_{{pop_name}}_x_{pheno}.pheno'.format(pheno = i) for i in phenotypes  ],
-        covar = '{output}/gcta_{table_name}_x_{gene_model}_x_{pop_name}.covar'
+        grm1 = '{outdir}/gcta_{table_name}_x_{gene_model}_x_{pop_name}.grm.gz'
+        grm2 = '{outdir}/gcta_{table_name}_x_{gene_model}_x_{pop_name}.grm.id',
+        phenos = [ '{{outdir}}/gcta_{{table_name}}_x_{{gene_model}}_x_{{pop_name}}_x_{pheno}.pheno'.format(pheno = i) for i in phenotypes  ],
+        covar = '{outdir}/gcta_{table_name}_x_{gene_model}_x_{pop_name}.covar'
     shell:
         'python ../code/prepare_gcta_inputs.py \
            --pred-expr {input[2]} \
@@ -55,3 +55,33 @@ rule prepare_gcta_inputs:
            --output-grm-prefix {params[0]} \
            --output-pheno-prefix {params[1]} \
            --output-covar {output.covar}'
+
+rule run_gcta:
+    input:
+        grm1 = '{outdir}/gcta_{table_name}_x_{gene_model}_x_{pop_name}.grm.gz',
+        grm2 = '{outdir}/gcta_{table_name}_x_{gene_model}_x_{pop_name}.grm.id',
+        pheno = '{outdir}/gcta_{table_name}_x_{gene_model}_x_{pop_name}_x_{pheno}.pheno'
+        covar = '{outdir}/gcta_{table_name}_x_{gene_model}_x_{pop_name}.covar'
+    output:
+        '{outdir}/reml_from_gcta_{table_name}_x_{gene_model}_x_{pop_name}_x_{pheno}.log'
+    params:
+        grmpref = '{outdir}/gcta_{table_name}_x_{gene_model}_x_{pop_name}',
+        outpref = '{outdir}/reml_from_gcta_{table_name}_x_{gene_model}_x_{pop_name}_x_{pheno}'
+    shell:
+        'config[gcta_path] \
+          --reml \
+          --grm-gz {params.grmpref} \
+          --pheno {input.pheno} \
+          --qcovar {input.covar} \
+          --out {params.outpref}'
+
+# TODO
+rule run_hail:
+    input:
+        mat = '{outdir}/pred_expr_{gene_model}_x_{pop_name}.tsv',
+        pheno = '{outdir}/pheno_{table_name}_x_{pop_name}.tsv',
+        covar = '{outdir}/covar_{table_name}_x_{pop_name}.tsv'
+    output:
+        ''
+        
+# gcta --reml --pheno test_output/test.pheno --grm-gz test_output/test --out gctatest
