@@ -29,6 +29,7 @@ parser.add_argument('--indiv-colname', default='eid', help='''
 args = parser.parse_args()
 
 import pandas as pd
+import logging, sys
 import gcta_helper as ghelper
 
 # configing util
@@ -45,18 +46,18 @@ gene_in_pred_expr = pred_expr['gene'].to_list()
 pred_expr_mat = pred_expr.drop(columns = ['gene'])
 
 logging.info('Inverse normalize')
-inv_norm_pred_expr_mat = inv_norm_row(pred_expr_mat)
+inv_norm_pred_expr_mat = ghelper.inv_norm_row(pred_expr_mat)
 
 logging.info('Build GRM')
-grm = format_to_gcta_grm(inv_norm_pred_expr_mat)
+grm = ghelper.format_to_gcta_grm(inv_norm_pred_expr_mat)
 
 logging.info('Output GRM GZ')
 grm.to_csv(args.output_grm_prefix + '.grm.gz', header = None, index = None, sep = '\t', compression = 'gzip')
 grm_indiv = pred_expr_mat.columns.to_list()
 logging.info('Output GRM sample ID')
 pd.DataFrame({
-    1 : sub_indivs.astype('str'), 
-    2 : sub_indivs.astype('str')
+    1 : grm_indiv, 
+    2 : grm_indiv
 }).to_csv(
     args.output_grm_prefix + '.grm.id', 
     header = None, 
@@ -75,4 +76,4 @@ logging.info('Read covariates')
 covar = pd.read_csv(args.pheno, header = 0, sep = '\t')
 colnames = covar.columns
 colnames = [ c for c in colnames if c != args.indiv_colname ]  # remove all columns with name args.indiv_colname
-covar[[args.indiv_colname, args.indiv_colname, colnames]].to_csv(args.output_covar, header = None, index = None, sep = '\t')
+covar[[args.indiv_colname, args.indiv_colname] + colnames].to_csv(args.output_covar, header = None, index = None, sep = '\t')
