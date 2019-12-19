@@ -19,3 +19,4 @@ title: "Home"
 # Misc analysis
 
 * Splitting data into training, validation, and test sets [link](split_individuals.html)
+* REML [link](regulability_gcta.html)
