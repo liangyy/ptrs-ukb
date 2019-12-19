@@ -29,6 +29,15 @@ rule all_gcta:
             pheno = p
             ) for p in phenotypes ]
 
+rule all_hail:
+    input:
+        '{outdir}/reml_from_hail_{table_name}_x_{gene_model}_x_{pop_name}.tsv'.format(
+            outdir = config['outdir'],
+            table_name = config['table_name'],
+            gene_model = config['gene_model'],
+            pop_name = config['pop_name']
+        )
+
 rule subset_pred_expr_by_indiv:
     input:
         pred_expr = config['pred_expr'],  # with gene_model as key
@@ -98,13 +107,18 @@ rule run_gcta:
           --qcovar {input.covar} \
           --out {params.outpref}'
 
-# TODO
 rule run_hail:
     input:
         mat = '{outdir}/pred_expr_{gene_model}_x_{pop_name}.tsv',
         pheno = '{outdir}/pheno_{table_name}_x_{pop_name}.tsv',
         covar = '{outdir}/covar_{table_name}_x_{pop_name}.tsv'
     output:
-        ''
-        
-# gcta --reml --pheno test_output/test.pheno --grm-gz test_output/test --out gctatest
+        '{outdir}/reml_from_hail_{table_name}_x_{gene_model}_x_{pop_name}.tsv'
+    shell:
+        'python ../../code/estimate_hsq.py \
+          --trait-table {input.pheno}::eid \
+          --covar-table {input.covar}::eid \
+          --predictor-table {input.mat}::gene \
+          --output {output[0]} \
+          --inv-norm-predictor \
+          --with-intercept'
