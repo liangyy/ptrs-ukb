@@ -11,7 +11,7 @@
 
 
 
-<title>Regulability based on predicted expression (GCTA runs)</title>
+<title>Regulability based on predicted expression (GCTA runs and HAIL runs)</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -421,7 +421,7 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Regulability based on predicted expression (GCTA runs)</h1>
+<h1 class="title toc-ignore">Regulability based on predicted expression (GCTA runs and HAIL runs)</h1>
 
 </div>
 
@@ -467,8 +467,21 @@ lrt = do.call(rbind, lrt_list)
 est = est %&gt;% inner_join(df_trait %&gt;% select(trait, long), by = &#39;trait&#39;)
 lrt = lrt %&gt;% inner_join(df_trait %&gt;% select(trait, long), by = &#39;trait&#39;)</code></pre>
 </div>
+<div id="load-hail-runs" class="section level2">
+<h2><span class="header-section-number">2.2</span> Load hail runs</h2>
+<pre class="r"><code>hail_list = list()
+for(p in pops) {
+  filename = paste0(result_dir, &#39;/&#39;, &#39;reml_from_hail_martin_et_al_traits_x_ctimp_Whole_Blood_x_&#39;, p, &#39;.tsv&#39;) 
+  df = read.delim2(filename)
+  hail_list[[length(hail_list) + 1]] = df %&gt;% mutate(population = p)
+}
+hail = do.call(rbind, hail_list)
+class(hail$h_sq_se) = &#39;numeric&#39;
+class(hail$h_sq) = &#39;numeric&#39;
+hail = hail %&gt;% inner_join(df_trait %&gt;% select(trait, long), by = &#39;trait&#39;)</code></pre>
+</div>
 <div id="heritability-from-ldsc-regression-by-neales-lab" class="section level2">
-<h2><span class="header-section-number">2.2</span> Heritability from LDSC regression by Neale’s lab</h2>
+<h2><span class="header-section-number">2.3</span> Heritability from LDSC regression by Neale’s lab</h2>
 <pre class="r"><code>df_ldsc = read.delim2(&#39;~/Downloads/ukb31063_h2_topline.02Oct2019.tsv.gz&#39;) %&gt;% mutate(ukbb_code = unlist(lapply(strsplit(phenotype, &#39;_&#39;), function(x){x[1]}))) %&gt;% filter(ukbb_code %in% df_info$UKBB.code)
 class(df_ldsc$h2_observed) = &#39;numeric&#39;
 class(df_ldsc$h2_observed_se) = &#39;numeric&#39;
@@ -538,11 +551,40 @@ est %&gt;% filter(Source == &#39;V(G)/Vp&#39;) %&gt;%
   geom_bar(aes(x = trait, y = Variance, fill = population), stat = &#39;identity&#39;, , position = position_dodge(d)) + 
   geom_errorbar(aes(x = trait, group = population, ymax = Variance + 1.95 * SE, ymin = Variance - 1.96 * SE), position = position_dodge(d), width = .2) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) + 
-  theme(legend.position = &#39;bottom&#39;)</code></pre>
-<p><img src="regulability_gcta_files/figure-html/pve-1.png" width="576" /></p>
+  theme(legend.position = &#39;bottom&#39;) + 
+  ggtitle(&#39;GCTA runs&#39;)</code></pre>
+<p><img src="regulability_gcta_files/figure-html/pve-1.png" width="624" /></p>
+<pre class="r"><code>d = .8
+hail %&gt;% 
+  ggplot() + th + 
+  geom_bar(aes(x = trait, y = h_sq, fill = population), stat = &#39;identity&#39;, position = position_dodge(d)) + 
+  geom_errorbar(aes(x = trait, group = population, ymax = h_sq + 1.95 * h_sq_se, ymin = h_sq - 1.96 * h_sq_se), position = position_dodge(d), width = .2) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) + 
+  theme(legend.position = &#39;bottom&#39;) + 
+  ggtitle(&#39;Hail runs&#39;)</code></pre>
+<pre><code>## Warning: Removed 8 rows containing missing values (geom_bar).</code></pre>
+<pre><code>## Warning: Removed 8 rows containing missing values (geom_errorbar).</code></pre>
+<p><img src="regulability_gcta_files/figure-html/pve2-1.png" width="624" /></p>
+</div>
+<div id="regulability-gcta-vs-hail-runs" class="section level2">
+<h2><span class="header-section-number">3.5</span> Regulability: GCTA vs hail runs</h2>
+<pre class="r"><code>hail$hail = hail$h_sq
+hail$hail[is.na(hail$hail)] = -0.1
+est %&gt;% filter(Source == &#39;V(G)/Vp&#39;) %&gt;% rename(gcta = Variance) %&gt;% inner_join(hail, by = c(&#39;trait&#39;, &#39;population&#39;)) %&gt;% 
+  ggplot() + th +
+  geom_abline(slope = c(1), intercept = 0, linetype = 2, color = &#39;gray&#39;) +
+  geom_hline(yintercept = 0, linetype = 2, color = &#39;gray&#39;) + 
+  geom_vline(xintercept = 0, linetype = 2, color = &#39;gray&#39;) +
+  geom_point(aes(y = gcta, x = hail), alpha = .5, size = 2) + 
+  geom_errorbarh(aes(y = gcta, xmin = hail - h_sq_se * 1.96,  xmax = hail + h_sq_se * 1.96), alpha = .5) +
+  geom_errorbar(aes(ymin = gcta - SE * 1.96, ymax = gcta + SE * 1.96, x = hail), alpha = .5) + 
+  coord_equal(ratio = 1) + 
+  facet_wrap(~population, ncol = 2)</code></pre>
+<pre><code>## Warning: Removed 8 rows containing missing values (geom_errorbarh).</code></pre>
+<p><img src="regulability_gcta_files/figure-html/g%20vs%20h-1.png" width="576" /></p>
 </div>
 <div id="heritability-from-ldsc" class="section level2">
-<h2><span class="header-section-number">3.5</span> Heritability from LDSC</h2>
+<h2><span class="header-section-number">3.6</span> Heritability from LDSC</h2>
 <pre class="r"><code>df_ldsc %&gt;% 
   ggplot() + th +
   geom_bar(aes(x = trait, y = h2_observed), stat = &#39;identity&#39;) +
@@ -551,7 +593,7 @@ est %&gt;% filter(Source == &#39;V(G)/Vp&#39;) %&gt;%
 <p><img src="regulability_gcta_files/figure-html/ldsc-1.png" width="576" /></p>
 </div>
 <div id="heritability-vs-regulability" class="section level2">
-<h2><span class="header-section-number">3.6</span> Heritability vs regulability</h2>
+<h2><span class="header-section-number">3.7</span> Heritability vs regulability</h2>
 <pre class="r"><code>est %&gt;% filter(Source == &#39;V(G)/Vp&#39;) %&gt;% rename(regu = Variance) %&gt;% inner_join(df_ldsc, by = &#39;trait&#39;) %&gt;% 
   ggplot() + th +
   geom_abline(slope = c(.2, 1), intercept = 0, linetype = 2, color = &#39;gray&#39;) + 

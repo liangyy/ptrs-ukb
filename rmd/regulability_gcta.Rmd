@@ -1,5 +1,5 @@
 ---
-title: "Regulability based on predicted expression (GCTA runs)"
+title: "Regulability based on predicted expression (GCTA runs and HAIL runs)"
 ---
 
 ```{r setup}
@@ -53,6 +53,21 @@ est = est %>% inner_join(df_trait %>% select(trait, long), by = 'trait')
 lrt = lrt %>% inner_join(df_trait %>% select(trait, long), by = 'trait')
 ```
 
+## Load hail runs
+
+```{r load hail}
+hail_list = list()
+for(p in pops) {
+  filename = paste0(result_dir, '/', 'reml_from_hail_martin_et_al_traits_x_ctimp_Whole_Blood_x_', p, '.tsv') 
+  df = read.delim2(filename)
+  hail_list[[length(hail_list) + 1]] = df %>% mutate(population = p)
+}
+hail = do.call(rbind, hail_list)
+class(hail$h_sq_se) = 'numeric'
+class(hail$h_sq) = 'numeric'
+hail = hail %>% inner_join(df_trait %>% select(trait, long), by = 'trait')
+```
+
 ## Heritability from LDSC regression by Neale's lab
 
 ```{r}
@@ -97,14 +112,43 @@ est %>% filter(Source == 'V(G)') %>% ggplot() + th + geom_point(aes(x = populati
 
 Proportion of phenotypic variation explained by predicted expression.
 
-```{r pve, fig.height=2.5, fig.width=6}
+```{r pve, fig.height=2.5, fig.width=6.5}
 d = .8
 est %>% filter(Source == 'V(G)/Vp') %>% 
   ggplot() + th + 
   geom_bar(aes(x = trait, y = Variance, fill = population), stat = 'identity', , position = position_dodge(d)) + 
   geom_errorbar(aes(x = trait, group = population, ymax = Variance + 1.95 * SE, ymin = Variance - 1.96 * SE), position = position_dodge(d), width = .2) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) + 
-  theme(legend.position = 'bottom')
+  theme(legend.position = 'bottom') + 
+  ggtitle('GCTA runs')
+```
+
+```{r pve2, fig.height=2.5, fig.width=6.5}
+d = .8
+hail %>% 
+  ggplot() + th + 
+  geom_bar(aes(x = trait, y = h_sq, fill = population), stat = 'identity', position = position_dodge(d)) + 
+  geom_errorbar(aes(x = trait, group = population, ymax = h_sq + 1.95 * h_sq_se, ymin = h_sq - 1.96 * h_sq_se), position = position_dodge(d), width = .2) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) + 
+  theme(legend.position = 'bottom') + 
+  ggtitle('Hail runs')
+```
+
+## Regulability: GCTA vs hail runs
+
+```{r g vs h, fig.height=6, fig.width=6}
+hail$hail = hail$h_sq
+hail$hail[is.na(hail$hail)] = -0.1
+est %>% filter(Source == 'V(G)/Vp') %>% rename(gcta = Variance) %>% inner_join(hail, by = c('trait', 'population')) %>% 
+  ggplot() + th +
+  geom_abline(slope = c(1), intercept = 0, linetype = 2, color = 'gray') +
+  geom_hline(yintercept = 0, linetype = 2, color = 'gray') + 
+  geom_vline(xintercept = 0, linetype = 2, color = 'gray') +
+  geom_point(aes(y = gcta, x = hail), alpha = .5, size = 2) + 
+  geom_errorbarh(aes(y = gcta, xmin = hail - h_sq_se * 1.96,  xmax = hail + h_sq_se * 1.96), alpha = .5) +
+  geom_errorbar(aes(ymin = gcta - SE * 1.96, ymax = gcta + SE * 1.96, x = hail), alpha = .5) + 
+  coord_equal(ratio = 1) + 
+  facet_wrap(~population, ncol = 2)
 ```
 
 ## Heritability from LDSC
