@@ -11,7 +11,7 @@
 
 
 
-<title>Home</title>
+<title>Comparing GWAS results with GWAS from Neale’s lab</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -421,38 +421,109 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Home</h1>
+<h1 class="title toc-ignore">Comparing GWAS results with GWAS from Neale’s lab</h1>
 
 </div>
 
 
-<div id="query-phenotypes" class="section level1">
-<h1><span class="header-section-number">1</span> Query phenotypes</h1>
-<ul>
-<li>First attempt <a href="first_query.html">link</a></li>
-</ul>
+<pre class="r"><code>rm(list = ls())
+library(dplyr)
+library(data.table)
+library(ggplot2)
+library(pander)
+source(&#39;../code/rlib_doc.R&#39;)
+tmp_dir = &#39;~/Desktop/tmp/gwas_check&#39;
+if(!dir.exists(tmp_dir)) {
+  dir.create(tmp_dir)
+}</code></pre>
+<div id="traits-to-look-at" class="section level1">
+<h1><span class="header-section-number">1</span> Traits to look at</h1>
+<pre class="r"><code>mytraits = data.frame(
+  trait = c(&#39;height&#39;, &#39;monocyte&#39;, &#39;dbp&#39;, &#39;hb&#39;, &#39;bmi&#39;, &#39;mcv&#39;)
+)
+table_martin = read.csv(&#39;../external_data/martin_et_al_2019ng_table_s6.csv&#39;)
+mytraits = inner_join(mytraits, table_martin %&gt;% mutate(trait = tolower(Trait)) %&gt;% select(trait, UKBB.code), by = &#39;trait&#39;)</code></pre>
+<pre><code>## Warning: Column `trait` joining factor and character vector, coercing into
+## character vector</code></pre>
+<pre class="r"><code>write.table(mytraits$UKBB.code, paste0(tmp_dir, &#39;/&#39;, &#39;ukb_code&#39;), col = F, row = F, quo = F)
+mytraits %&gt;% pander</code></pre>
+<table style="width:32%;">
+<colgroup>
+<col width="15%" />
+<col width="16%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">trait</th>
+<th align="center">UKBB.code</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">height</td>
+<td align="center">50</td>
+</tr>
+<tr class="even">
+<td align="center">monocyte</td>
+<td align="center">30130</td>
+</tr>
+<tr class="odd">
+<td align="center">dbp</td>
+<td align="center">4079</td>
+</tr>
+<tr class="even">
+<td align="center">hb</td>
+<td align="center">30020</td>
+</tr>
+<tr class="odd">
+<td align="center">bmi</td>
+<td align="center">21001</td>
+</tr>
+<tr class="even">
+<td align="center">mcv</td>
+<td align="center">30040</td>
+</tr>
+</tbody>
+</table>
+<p>Download GWAS sum stats from Neale’s lab</p>
+<pre class="bash"><code>cd ~/Desktop/tmp/gwas_check
+for i in `cat ukb_code`
+do
+  if [[ ! -f $i\_raw.gwas.imputed_v3.both_sexes.tsv.bgz ]]
+  then 
+    e=`cat ~/Desktop/tmp/UKBB_Imputed_v3_File_Manifest_Release_20180731.csv |grep ^$i\_ | grep raw|grep both | cut -f 6 -d,`
+    echo $e
+    $e
+  fi
+done
+</code></pre>
 </div>
-<div id="quality-control" class="section level1">
-<h1><span class="header-section-number">2</span> Quality control</h1>
-<ul>
-<li>Population QC (based on UKB label and filter out outliers in PC space (10 PC’s)) <a href="population_assignment.html">link</a></li>
-<li>Phenotype QC <a href="phenotype_qc.html">link</a></li>
-<li>Monocyte technical covariates and multiple modes in monocyte count <a href="query_monocyte_covar.html">link</a></li>
-</ul>
+<div id="load-data-table" class="section level1">
+<h1><span class="header-section-number">2</span> Load data table</h1>
+<pre class="r"><code>if(!file.exists(paste0(tmp_dir, &#39;/&#39;, &#39;subsampled_gwas_results.rds&#39;))) {
+  set.seed(2019)
+  result_list = list()
+  for(i in 1 : nrow(mytraits)) {
+    message(mytraits$trait[i])
+    gwas_this = fread(paste0(&#39;zcat &lt; ~/Desktop/tmp/gwas_check/gwas_test_subset13_x_&#39;, mytraits$trait[i], &#39;.tsv.gz&#39;), header = T, sep = &#39;\t&#39;)
+    gwas_neale = fread(paste0(&#39;zcat &lt; ~/Desktop/tmp/gwas_check/&#39;, mytraits$UKBB.code[i], &#39;_raw.gwas.imputed_v3.both_sexes.tsv.bgz&#39;), header = T, sep = &#39;\t&#39;)
+    both = inner_join(gwas_this, gwas_neale, by = &#39;variant&#39;, suffix = c(&#39;.this&#39;, &#39;.neale&#39;))
+    idx = subsample_for_vis(rep(1, nrow(both)), nmax = 10000)
+    sub = both[idx, ]
+    result_list[[length(result_list) + 1]] = sub %&gt;% mutate(trait = paste0(mytraits$trait[i], &#39;-&#39;, mytraits$UKBB.code[i]))
+  }
+  df_result = do.call(rbind, result_list)
+  saveRDS(df_result, paste0(tmp_dir, &#39;/&#39;, &#39;subsampled_gwas_results.rds&#39;))
+} else {
+  df_result = readRDS(paste0(tmp_dir, &#39;/&#39;, &#39;subsampled_gwas_results.rds&#39;))
+}</code></pre>
 </div>
-<div id="gwas-tries" class="section level1">
-<h1><span class="header-section-number">3</span> GWAS tries</h1>
-<ul>
-<li>First attempt <a href="first_gwas_compare.html">link</a></li>
-<li>Sanity check of GWAS runs using GCP <a href="check_gwas_run.html">link</a></li>
-</ul>
-</div>
-<div id="misc-analysis" class="section level1">
-<h1><span class="header-section-number">4</span> Misc analysis</h1>
-<ul>
-<li>Splitting data into training, validation, and test sets <a href="split_individuals.html">link</a></li>
-<li>REML <a href="regulability_gcta.html">link</a></li>
-</ul>
+<div id="visualization" class="section level1">
+<h1><span class="header-section-number">3</span> Visualization</h1>
+<pre class="r"><code>df_result %&gt;% ggplot() + geom_point(aes(x = -log10(pval.this), y = -log10(pval.neale)), alpha = .5) + geom_abline(slope = 1, intercept = 0) + facet_wrap(~trait) + coord_equal(xlim = c(0, 30), ylim = c(0, 30))</code></pre>
+<p><img src="check_gwas_run_files/figure-html/vis1-1.png" width="672" /></p>
+<pre class="r"><code>df_result %&gt;% ggplot() + geom_point(aes(x = beta.this, y = beta.neale), alpha = .5) + geom_abline(slope = 1, intercept = 0) + facet_wrap(~trait, scales = &#39;free&#39;) # + coord_equal()  # xlim = c(-1, 1), ylim = c(-1, 1)</code></pre>
+<p><img src="check_gwas_run_files/figure-html/vis2-1.png" width="672" /></p>
 </div>
 
 

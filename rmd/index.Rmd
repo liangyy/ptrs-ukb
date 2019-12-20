@@ -15,6 +15,7 @@ title: "Home"
 # GWAS tries
 
 * First attempt [link](first_gwas_compare.html)
+* Sanity check of GWAS runs using GCP [link](check_gwas_run.html)
 
 # Misc analysis
 
