@@ -23,10 +23,13 @@ rule subset:
         '{outdir}/subset_chr{chr_num}.bgen',
         '{outdir}/subset_chr{chr_num}.sample'
     shell:
-        'config[plink2_path] \
+        '{config[plink2_path]} \
             --bgen {input.bgen} \
             --sample {input.sample} \
             --keep {input.indiv} \
             --extract {input.var} \
+            --export bgen-1.2 \
+            --memory {config[plink_memory_in_mb]} \
+            --threads {config[plink_threads]} \
             --out {params.prefix}'
             

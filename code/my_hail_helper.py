@@ -52,9 +52,9 @@ def gwas_formater_from_neale_lab(gwas_out, outer_i, inner_j):
         se = gwas_out['standard_error'][i][j],
         tstat = gwas_out['t_stat'][i][j],
         pval = gwas_out['p_value'][i][j],
-        rsid = gwas_out['rsid'][i][j],
-        ref = gwas_out['alleles'][i][j][0],
-        alt = gwas_out['alleles'][i][j][1]
+        rsid = gwas_out['rsid'],
+        ref = gwas_out['alleles'][0],
+        alt = gwas_out['alleles'][1]
     )
     ht_export = ht_export.annotate(
         AF = ht_export['AC'] / (2 * ht_export['n_complete_samples'])

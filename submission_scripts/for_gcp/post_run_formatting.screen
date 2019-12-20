@@ -1,8 +1,9 @@
-# NOTE: this script is run on washington
+# NOTE: this script is run on washington or nucleus
+# IMPORTANT: you may need to comment out `export SPARK_LOCAL_IP=127.0.0.1` if you work on nucleus
 
 # environment setup
 source /vol/bmd/yanyul/miniconda3/etc/profile.d/conda.sh
-export SPARK_LOCAL_IP=127.0.0.1
+# export SPARK_LOCAL_IP=127.0.0.1
 export PYSPARK_SUBMIT_ARGS="--driver-memory 40G --executor-memory 8g pyspark-shell"
 conda activate /vol/bmd/yanyul/softwares/conda_envs/hail
 
