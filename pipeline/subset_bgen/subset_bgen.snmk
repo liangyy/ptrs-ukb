@@ -1,0 +1,32 @@
+if 'outdir' not in config:
+    config['outdir'] = 'output'
+
+rule all:
+    input:
+        [ '{outdir}/subset_chr{chr_num}.bgen'.format(outdir = config['outdir'], chr_num = i) for i in range(1, 23) ],
+        [ '{outdir}/subset_chr{chr_num}.sample'.format(outdir = config['outdir'], chr_num = i) for i in range(1, 23) ]
+
+rule all_one_chr:
+    input:
+        '{outdir}/subset_chr{chr_num}.bgen'.format(**config),
+        '{outdir}/subset_chr{chr_num}.sample'.format(**config)
+
+rule subset:
+    input:
+        bgen = config['bgen'],
+        sample = config['sample'],
+        indiv = config['individual_list'],
+        var = config['variant_list']
+    params:
+        prefix = '{outdir}/subset_chr{chr_num}'
+    output:
+        '{outdir}/subset_chr{chr_num}.bgen',
+        '{outdir}/subset_chr{chr_num}.sample'
+    shell:
+        'config[plink2_path] \
+            --bgen {input.bgen} \
+            --sample {input.sample} \
+            --keep {input.indiv} \
+            --extract {input.var} \
+            --out {params.prefix}'
+            
