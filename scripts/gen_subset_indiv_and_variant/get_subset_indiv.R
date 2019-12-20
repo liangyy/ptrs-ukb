@@ -29,4 +29,4 @@ df = read.csv(opt$pheno_table)
 df = df[df[, opt$pop_col] == opt$pop, ]
 idx = sample(1 : nrow(df), size = opt$nindiv, replace = FALSE)
 out = df[idx, ]
-write.table(out[, opt$indiv_col], opt$output, col = F, row = F, quo = F)
+write.table(data.frame(x = out[, opt$indiv_col], y = out[, opt$indiv_col]), opt$output, col = F, row = F, quo = F)
