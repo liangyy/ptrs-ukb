@@ -1,5 +1,9 @@
+# NOTE: this script is run on washington
+
 # environment setup
 source /vol/bmd/yanyul/miniconda3/etc/profile.d/conda.sh
+export SPARK_LOCAL_IP=127.0.0.1
+export PYSPARK_SUBMIT_ARGS="--driver-memory 40G --executor-memory 8g pyspark-shell"
 conda activate /vol/bmd/yanyul/softwares/conda_envs/hail
 
 # directory setup
@@ -16,11 +20,11 @@ fi
 batches='bottom middle up'
 for i in $batches
 do
-  echo python $SCRIPTDIR/gwas_ht_to_tsv.py \
+  python $SCRIPTDIR/gwas_ht_to_tsv.py \
     --gwas-ht $INPUTDIR/all_chrs_$i.ht \
     --output-prefix $OUTDIR/gwas_in_tsv \
     --hail-log $OUTDIR/convert_$i.log \
-    # > $OUTDIR/run_$i.log 2>&1
+    > $OUTDIR/run_$i.log 2>&1
     
 done
 
