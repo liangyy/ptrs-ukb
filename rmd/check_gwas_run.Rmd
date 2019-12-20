@@ -1,0 +1,81 @@
+---
+title: "Comparing GWAS results with GWAS from Neale's lab"
+---
+
+```{r setup}
+rm(list = ls())
+library(dplyr)
+library(data.table)
+library(ggplot2)
+library(pander)
+source('../code/rlib_doc.R')
+tmp_dir = '~/Desktop/tmp/gwas_check'
+if(!dir.exists(tmp_dir)) {
+  dir.create(tmp_dir)
+}
+```
+
+# Traits to look at
+
+```{r traits}
+mytraits = data.frame(
+  trait = c('height', 'monocyte', 'dbp', 'hb', 'bmi', 'mcv')
+)
+table_martin = read.csv('../external_data/martin_et_al_2019ng_table_s6.csv')
+mytraits = inner_join(mytraits, table_martin %>% mutate(trait = tolower(Trait)) %>% select(trait, UKBB.code), by = 'trait')
+write.table(mytraits$UKBB.code, paste0(tmp_dir, '/', 'ukb_code'), col = F, row = F, quo = F)
+mytraits %>% pander
+```
+
+Download GWAS sum stats from Neale's lab
+
+```{bash}
+cd ~/Desktop/tmp/gwas_check
+for i in `cat ukb_code`
+do
+  if [[ ! -f $i\_raw.gwas.imputed_v3.both_sexes.tsv.bgz ]]
+  then 
+    e=`cat ~/Desktop/tmp/UKBB_Imputed_v3_File_Manifest_Release_20180731.csv |grep ^$i\_ | grep raw|grep both | cut -f 6 -d,`
+    echo $e
+    $e
+  fi
+done
+
+```
+
+
+
+# Load data table
+
+```{r load}
+if(!file.exists(paste0(tmp_dir, '/', 'subsampled_gwas_results.rds'))) {
+  set.seed(2019)
+  result_list = list()
+  for(i in 1 : nrow(mytraits)) {
+    message(mytraits$trait[i])
+    gwas_this = fread(paste0('zcat < ~/Desktop/tmp/gwas_check/gwas_test_subset13_x_', mytraits$trait[i], '.tsv.gz'), header = T, sep = '\t')
+    gwas_neale = fread(paste0('zcat < ~/Desktop/tmp/gwas_check/', mytraits$UKBB.code[i], '_raw.gwas.imputed_v3.both_sexes.tsv.bgz'), header = T, sep = '\t')
+    both = inner_join(gwas_this, gwas_neale, by = 'variant', suffix = c('.this', '.neale'))
+    idx = subsample_for_vis(rep(1, nrow(both)), nmax = 10000)
+    sub = both[idx, ]
+    result_list[[length(result_list) + 1]] = sub %>% mutate(trait = paste0(mytraits$trait[i], '-', mytraits$UKBB.code[i]))
+  }
+  df_result = do.call(rbind, result_list)
+  saveRDS(df_result, paste0(tmp_dir, '/', 'subsampled_gwas_results.rds'))
+} else {
+  df_result = readRDS(paste0(tmp_dir, '/', 'subsampled_gwas_results.rds'))
+}
+
+```
+
+
+# Visualization
+
+
+```{r vis1}
+df_result %>% ggplot() + geom_point(aes(x = -log10(pval.this), y = -log10(pval.neale)), alpha = .5) + geom_abline(slope = 1, intercept = 0) + facet_wrap(~trait) + coord_equal(xlim = c(0, 30), ylim = c(0, 30))
+```
+
+```{r vis2}
+df_result %>% ggplot() + geom_point(aes(x = beta.this, y = beta.neale), alpha = .5) + geom_abline(slope = 1, intercept = 0) + facet_wrap(~trait, scales = 'free') # + coord_equal()  # xlim = c(-1, 1), ylim = c(-1, 1)
+```
