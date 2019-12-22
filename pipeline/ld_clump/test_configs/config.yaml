@@ -1,11 +1,12 @@
 gwas: '/gpfs/data/im-lab/nas40t2/yanyul/PTRS/gwas_in_tsv/gwas_in_tsv_{gwas_name}.tsv'
 gwas_name: 'subset16_x_platelet'
 genotype:
-  bgen: '/gpfs/data/im-lab/nas40t2/yanyul/PTRS/subset_bgen/subset_chr{chr_num}.bgen'
-  sample: '/gpfs/data/im-lab/nas40t2/yanyul/PTRS/subset_bgen/subset_chr{chr_num}.sample'
+  vcf: '/scratch/t.cri.yliang/PTRS/subset_british_cleaned_up_vcf/cleaned.chr{chr_num}.vcf.gz'
+  # bgen: '/gpfs/data/im-lab/nas40t2/yanyul/PTRS/subset_bgen/subset_chr{chr_num}.bgen'
+  # sample: '/gpfs/data/im-lab/nas40t2/yanyul/PTRS/subset_bgen/subset_chr{chr_num}.sample'
 snp_field: 'rsid'
 pval_field: 'pval'
-plink_memory_in_mb: 2000
+plink_memory_in_mb: 16000
 plink_threads: 1
 # module load gcc/6.2.0
 # module load plink/1.90

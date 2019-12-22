@@ -17,4 +17,6 @@
 *.h5
 __pycache__
 *.pheno
+output/
+logs/
 
