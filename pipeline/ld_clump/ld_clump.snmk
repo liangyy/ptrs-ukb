@@ -1,4 +1,4 @@
-if 'outdir' in config:
+if 'outdir' not in config:
     config['outdir'] = 'output'
 
 rule all:  
@@ -21,8 +21,9 @@ rule ld_clump:
         '{outdir}/gwas_clump_x_{gwas_name}_x_chr{chr_num}.valid.snp'
     shell:
         '{config[plink_cmd]} \
-           --bgen {input[0]} \
-           --clump {input[1]} \
+           --bgen {input.bgen} \
+           --sample {input.sample} \
+           --clump {input.gwas} \
            --clump-p1 1 \
            --clump-r2 0.1 \
            --clump-kb 250 \
@@ -41,8 +42,5 @@ rule merge_ld_clump:
         prefix = '{outdir}/gwas_clump_x_{gwas_name}_x_chr',
         suffix = '.valid.snp'
     shell:
-        'cat {params.prefix}1{params.suffix} > {output[0];\
-        for i in `seq 2 22`; \
-        do \ 
-        cat {params.prefix}$i{params.suffix} >> {output[0]};\
-        done'
+        'cat {params.prefix}1{params.suffix} > {output[0]}; for i in `seq 2 22`; do cat {params.prefix}$i{params.suffix} >> {output[0]}; done'
+
