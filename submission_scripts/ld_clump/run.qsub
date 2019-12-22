@@ -1,0 +1,15 @@
+#PBS -S /bin/bash
+#PBS -l walltime=24:00:00
+#PBS -l nodes=1:ppn=1
+#PBS -l mem=16gb
+#PBS -e logs/run-chr{$CHRNUM}.err
+#PBS -o logs/run-chr{$CHRNUM}.out
+
+source ~/.bash_profile
+source ~/.bashrc
+cd /gpfs/data/im-lab/nas40t2/yanyul/GitHub/ptrs-ukb/pipeline/ld_clump
+
+conda activate parquet
+
+snakemake -s cleanup.snmk --configfile ../../submission_scripts/ld_clump/config.yaml all_chr --nolock --config chr_num=$CHRNUM threads=1 memory=16000 > ../../submission_scripts/ld_clump/logs/run-chr$CHRNUM.log 2>&1
+
