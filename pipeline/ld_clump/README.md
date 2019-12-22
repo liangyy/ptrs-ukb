@@ -17,3 +17,13 @@ plink \
 Here we have 289 GWASs to run LD-clumping.
 Each GWAS clumping job is split into 22 sub-jobs.
 And they get to merged as one at the end.
+
+Unfortunately, the bgen files from `subset_bgen.snmk` are not directly usable for LD-clumping due to two issues:
+
+1. bgen v1.2 is not readable for plink1.9
+2. there are duplicated variant ID (rsID) 
+
+So, we need to run LD-clumping in two steps:
+
+1. run `cleanup.snmk` to convert BGEN v1.2 to VCF without duplicated variant
+2. run `ld_clump.snmk`

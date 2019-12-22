@@ -1,0 +1,5 @@
+bgen: '/gpfs/data/im-lab/nas40t2/yanyul/PTRS/subset_bgen/subset_chr{chr_num}.bgen'
+sample: '/gpfs/data/im-lab/nas40t2/yanyul/PTRS/subset_bgen/subset_chr{chr_num}.sample'
+plink_cmd: '/gpfs/data/im-lab/nas40t2/yanyul/softwares/plink2'
+plink_memory_in_mb: 2000
+plink_threads: 1
