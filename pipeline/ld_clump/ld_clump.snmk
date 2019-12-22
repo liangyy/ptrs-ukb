@@ -8,7 +8,7 @@ rule all:
 if 'chr_num' in config:
     rule all_chr:
         input:
-            '{outdir}/gwas_clump_x_{gwas_name}_x_chr{chr_num}.valid.snp'.format(**config)
+            '{outdir}/tmp_{gwas_name}/gwas_clump_x_chr{chr_num}.valid.snp'.format(**config)
 
 rule ld_clump:
     input:
@@ -19,10 +19,10 @@ rule ld_clump:
         pval_field = config['pval_field'],
         memory = config['plink_memory_in_mb'],
         thread = config['plink_threads'],
-        out = '{outdir}/gwas_clump_x_{gwas_name}_x_chr{chr_num}'
+        out = '{outdir}/tmp_{gwas_name}/gwas_clump_x_chr{chr_num}'
     output: 
-        o1 = '{outdir}/gwas_clump_x_{gwas_name}_x_chr{chr_num}.clumped',
-        o2 = '{outdir}/gwas_clump_x_{gwas_name}_x_chr{chr_num}.valid.snp'
+        o1 = '{outdir}/tmp_{gwas_name}/gwas_clump_x_chr{chr_num}.clumped',
+        o2 = '{outdir}/tmp_{gwas_name}/gwas_clump_x_chr{chr_num}.valid.snp'
     shell:
         '''
         {config[plink_cmd]} \
@@ -41,11 +41,11 @@ rule ld_clump:
 
 rule merge_ld_clump:
     input:
-        [ '{{outdir}}/gwas_clump_x_{{gwas_name}}_x_chr{chr_num}.valid.snp'.format(chr_num = i) for i in range(1, 23) ]
+        [ '{{outdir}}/tmp_{{gwas_name}}/gwas_clump_x_chr{chr_num}.valid.snp'.format(chr_num = i) for i in range(1, 23) ]
     output:
         '{outdir}/gwas_clump_x_{gwas_name}.clumped_snp'
     params:
-        prefix = '{outdir}/gwas_clump_x_{gwas_name}_x_chr',
+        prefix = '{outdir}/tmp_{gwas_name}/gwas_clump_x_chr',
         suffix = '.valid.snp'
     shell:
         'cat {params.prefix}1{params.suffix} > {output[0]}; for i in `seq 2 22`; do cat {params.prefix}$i{params.suffix} >> {output[0]}; done'
