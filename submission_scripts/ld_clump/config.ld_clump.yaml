@@ -1,0 +1,9 @@
+gwas: '/gpfs/data/im-lab/nas40t2/yanyul/PTRS/gwas_in_tsv/gwas_in_tsv_{gwas_name}.tsv'
+genotype:
+  vcf: '/scratch/t.cri.yliang/PTRS/subset_british_cleaned_up_vcf/cleaned.chr{chr_num}.vcf.gz'
+snp_field: 'rsid'
+pval_field: 'pval'
+plink_memory_in_mb: 16000
+plink_threads: 1
+plink_cmd: 'plink'  
+outdir: '/scratch/t.cri.yliang/PTRS/ld_clump'

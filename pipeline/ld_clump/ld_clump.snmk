@@ -1,0 +1,52 @@
+if 'outdir' not in config:
+    config['outdir'] = 'output'
+
+rule all:  
+    input:
+        '{outdir}/gwas_clump_x_{gwas_name}.clumped_snp'.format(**config)
+
+if 'chr_num' in config:
+    rule all_chr:
+        input:
+            '{outdir}/tmp_{gwas_name}/gwas_clump_x_chr{chr_num}.valid.snp'.format(**config)
+
+rule ld_clump:
+    input:
+        gwas = config['gwas'],
+        vcf = config['genotype']['vcf']
+    params:
+        snp_field = config['snp_field'],
+        pval_field = config['pval_field'],
+        memory = config['plink_memory_in_mb'],
+        thread = config['plink_threads'],
+        out = '{outdir}/tmp_{gwas_name}/gwas_clump_x_chr{chr_num}'
+    output: 
+        o1 = '{outdir}/tmp_{gwas_name}/gwas_clump_x_chr{chr_num}.clumped',
+        o2 = '{outdir}/tmp_{gwas_name}/gwas_clump_x_chr{chr_num}.valid.snp'
+    shell:
+        '''
+        {config[plink_cmd]} \
+           --vcf {input.vcf} \
+           --clump {input.gwas} \
+           --clump-p1 1 \
+           --clump-r2 0.1 \
+           --clump-kb 250 \
+           --clump-snp-field {params.snp_field} \
+           --clump-field {params.pval_field} \
+           --memory {params.memory} \
+           --threads {params.thread} \
+           --out {params.out}
+        if [[ ! -f {output.o1} ]]; then touch {output.o1}; fi; awk \'{{if(NR!=1 && NF>0){{print $3}}}}\' {output.o1} > {output.o2}
+        '''
+
+rule merge_ld_clump:
+    input:
+        [ '{{outdir}}/tmp_{{gwas_name}}/gwas_clump_x_chr{chr_num}.valid.snp'.format(chr_num = i) for i in range(1, 23) ]
+    output:
+        '{outdir}/gwas_clump_x_{gwas_name}.clumped_snp'
+    params:
+        prefix = '{outdir}/tmp_{gwas_name}/gwas_clump_x_chr',
+        suffix = '.valid.snp'
+    shell:
+        'cat {params.prefix}1{params.suffix} > {output[0]}; for i in `seq 2 22`; do cat {params.prefix}$i{params.suffix} >> {output[0]}; done'
+
