@@ -1,0 +1,17 @@
+predictdb:
+  model: '/gpfs/data/im-lab/nas40t2/abarbeira/projects/gtex_v8/models_v1/eqtl/ctimp/ctimp_{tissue}.db'
+  covariance: '/gpfs/data/im-lab/nas40t2/abarbeira/projects/gtex_v8/models_v1/eqtl/ctimp/ctimp_{tissue}.txt.gz'
+  name: 'ctimp'
+gwas:
+  snp-name-col: 'rsid' 
+  effect-allele-col: 'alt'
+  non-effect-allele-col: 'ref'
+  effect_size_inputs:
+    beta_column: 'beta'
+    se_column: 'se'
+
+gwas_name: 'subset1_x_height' 
+gwas_path: '/gpfs/data/im-lab/nas40t2/yanyul/PTRS/gwas_in_tsv/gwas_in_tsv_{trait}.tsv'
+
+tissue: 'Whole_Blood'
+metaxcan-path: '/gpfs/data/im-lab/nas40t2/yanyul/softwares/MetaXcan/software'     
