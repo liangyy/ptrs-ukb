@@ -15,3 +15,6 @@ gwas_path: '/gpfs/data/im-lab/nas40t2/yanyul/PTRS/gwas_in_tsv/gwas_in_tsv_{gwas_
 
 tissue: 'Whole_Blood'
 metaxcan-path: '/gpfs/data/im-lab/nas40t2/yanyul/softwares/MetaXcan/software'
+
+outdir: '/scratch/t.cri.yliang/PTRS/spredixcan'
+
