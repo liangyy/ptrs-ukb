@@ -1,0 +1,33 @@
+if 'outdir' not in config:
+    config['outdir'] = 'output'
+
+option_cmd = ''
+for i in ['se_column', 'beta_column', 'beta_sign_column', 'or_column', 'zscore_column', 'pvalue_column']:
+    if i in config['gwas']['effect_size_inputs']:
+        option_cmd += ' --{} {}'.format(i, config['gwas']['effect_size_inputs'][i])
+extra_cmd = ''
+if 'extra_cmd' in config['gwas']:
+    extra_cmd += config['gwas']['extra_cmd']
+
+rule all:
+    input:
+        '{outdir}/spredixcan_x_{gwas_name}_x_{tissue}_x_{predictdb_name}.csv'.format(outdir = config['outdir'], gwas_name = config['gwas_name'], tissue = config['tissue'], predictdb_name = config['predictdb']['name'])
+
+rule spredixcan:
+    input:
+        predictdb_model = config['predictdb']['model'],
+        predictdb_covar = config['predictdb']['covariance'],
+        gwas = config['gwas_path'],
+    output:
+        '{outdir}/spredixcan_x_{gwas_name}_x_{tissue}_x_{predictdb_name}.csv'
+    shell:
+        '{config[metaxcan-path]}/MetaXcan.py \
+            --model_db_path {input.predictdb_model} \
+            --covariance {input.predictdb_covar} \
+            --gwas_file {input.gwas} \
+            --snp_column {config[gwas][snp-name-col]} \
+            --effect_allele_column {config[gwas][effect-allele-col]} \
+            --non_effect_allele_column {config[gwas][non-effect-allele-col]} \
+            {option_cmd} \
+            {extra_cmd} \
+            --output_file {output[0]}'
