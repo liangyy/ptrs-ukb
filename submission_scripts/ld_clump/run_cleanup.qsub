@@ -11,5 +11,5 @@ cd /gpfs/data/im-lab/nas40t2/yanyul/GitHub/ptrs-ukb/pipeline/ld_clump
 
 conda activate parquet
 
-snakemake -s cleanup.snmk --configfile ../../submission_scripts/ld_clump/config.cleanup.yaml all_chr --nolock --config chr_num=$CHRNUM threads=1 memory=16000 > ../../submission_scripts/ld_clump/logs/cleanup-chr$CHRNUM.log 2>&1
+snakemake -s cleanup.snmk --configfile ../../submission_scripts/ld_clump/config.cleanup.yaml all_chr --nolock --config chr_num=$CHRNUM > ../../submission_scripts/ld_clump/logs/cleanup-chr$CHRNUM.log 2>&1
 

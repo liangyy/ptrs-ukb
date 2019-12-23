@@ -11,7 +11,7 @@ gwas:
     se_column: 'se'
 
 gwas_name: 'subset1_x_height' 
-gwas_path: '/gpfs/data/im-lab/nas40t2/yanyul/PTRS/gwas_in_tsv/gwas_in_tsv_{trait}.tsv'
+gwas_path: '/gpfs/data/im-lab/nas40t2/yanyul/PTRS/gwas_in_tsv/gwas_in_tsv_{gwas_name}.tsv'
 
 tissue: 'Whole_Blood'
 metaxcan-path: '/gpfs/data/im-lab/nas40t2/yanyul/softwares/MetaXcan/software'     
