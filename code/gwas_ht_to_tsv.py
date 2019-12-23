@@ -79,4 +79,7 @@ phenotypes = gwas_out['phenotypes'].collect()[0]   # note that this annotation `
 for i, subset in enumerate(phenotypes):
     for j, trait in enumerate(subset):
         ht_export = myhelper.gwas_formater_from_neale_lab(gwas_out, i, j)
-        ht_export.export('{prefix}_{trait}.tsv'.format(prefix = args.output_prefix, trait = trait))
+        filename = '{prefix}_{trait}.tsv'.format(prefix = args.output_prefix, trait = trait)
+        if not os.path.exists(filename):
+            ht_export.export(filename)
+
