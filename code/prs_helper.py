@@ -1,6 +1,6 @@
 import hail as hl
 
-def read_gwas_table_with_varlist(gwas_table_tsv, varlist, type_dic):
+def read_gwas_table_with_varlist(gwas_table_tsv, varlist, type_dic, checkpoint_path):
     # varlist can be one file or a list of files
     # type dic is for gwas_table_tsv
     gwas_tsv = hl.import_table(gwas_table_tsv, key = ['rsid'], types = type_dic)
@@ -11,4 +11,5 @@ def read_gwas_table_with_varlist(gwas_table_tsv, varlist, type_dic):
     gwas_tsv = gwas_tsv.key_by(gwas_tsv.locus, gwas_tsv.alleles)
     # gwas_tsv = gwas_tsv.repartition(40)
     # gwas_tsv = gwas_tsv.cache()
+    gwas_tsv = gwas_tsv.checkpoint(checkpoint_path, overwrite = True)
     return gwas_tsv

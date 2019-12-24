@@ -12,6 +12,9 @@ parser.add_argument('--mode', default='full', help='''
     2. pre_subset: only pre-subset genotypes
     3. skip_subset: if have run pre_subset, use this mode to skip unnecessary calculation
 ''')
+parser.add_argument('--dont-overwrite', action="store_true", help='''
+    If overwrite intermediate files
+''')
 
 ## Genotype inputs
 parser.add_argument('--bgen-path', required=True, help='''
@@ -78,7 +81,7 @@ parser.add_argument('--hail-log', default=None, help='''
 
 
 args = parser.parse_args()
-
+# print(args.dont_overwrite)
 import hail as hl
 import logging, os, time, sys
 import gwas_helper
@@ -140,7 +143,7 @@ if args.mode != 'skip_subset':
 
     ## load variant loop (limiting to clump variant)
     logging.info('--> Start loading variant pool')
-    ht_var_pool = prs_helper.read_gwas_table_with_varlist(args.variant_pool, clump_var_files, type_dic = {'beta' : hl.tfloat, 'pval' : hl.tfloat})
+    ht_var_pool = prs_helper.read_gwas_table_with_varlist(args.variant_pool, clump_var_files, type_dic = {'beta' : hl.tfloat, 'pval' : hl.tfloat}, checkpoint_path = args.output_prefix + '_x_ht_var_pool.ht')
     logging.info('--> Loading variant pool FINISHED!')
 
 
@@ -174,14 +177,14 @@ logging.info('Start looping over all subsets')
 for subset in list(myinputs.keys()):
     logging.info('--> Working on subset = {}'.format(subset))
     mt_sub_name = '{prefix}_x_{subset}.mt'.format(prefix = args.output_prefix, subset = subset)
-    if args.mode != 'skip_subset':
+    if args.mode != 'skip_subset' and args.dont_overwrite is False:
         indiv_files = myinputs[subset]['indiv_lists'].split(',')
         ht_indiv = hl.import_table(indiv_files, key = ['f0'], no_header = True, delimiter = ' ')
         ## subset by individual
         logging.info('--> Start subsetting genotype')
         tstart = time.time()
         mt_subset = mt.filter_cols(hl.is_defined(ht_indiv[mt.s]))
-        mt_subset.write(mt_sub_name)
+        mt_subset.write(mt_sub_name, overwrite = True)
         mt_subset = hl.read_matrix_table(mt_sub_name)
         if args.mode == 'pre_subset':
             continue
@@ -195,13 +198,15 @@ for subset in list(myinputs.keys()):
         clump_file = myinputs[subset]['GWASs'][gwas]['ld_clump']
         logging.info('----> Start loading GWAS TSV'.format(subset, gwas))
         tstart = time.time()
-        gwas_tsv = prs_helper.read_gwas_table_with_varlist(gwas_file, clump_file, type_dic = {'beta' : hl.tfloat, 'pval' : hl.tfloat})
+        gwas_tsv = prs_helper.read_gwas_table_with_varlist(gwas_file, clump_file, type_dic = {'beta' : hl.tfloat, 'pval' : hl.tfloat}, checkpoint_path = args.output_prefix + '_x_checkpoint_x_' + subset + '_x_' + gwas + '.ht')
         tend = time.time()
         logging.info('----> Loading GWAS TSV FINISHED! {} seconds elapsed'.format(tend - tstart))
         ## subset by variant
         logging.info('----> Start subsetting GWAS-specific clumping variant'.format(subset, gwas))
         tstart = time.time()
         mt_this = mt_subset.filter_rows(hl.is_defined(gwas_tsv[mt_subset.locus, mt_subset.alleles]))
+        mt_this = mt_this.repartition(100)
+        mt_this = mt_this.cache()
         tend = time.time()
         logging.info('----> Subsetting GWAS-specific clumping variant FINISHED! {} seconds elapsed'.format(tend - tstart))
         ## annotate variant with gwas sum stat
@@ -220,8 +225,7 @@ for subset in list(myinputs.keys()):
         ## FIXME: this is temporary! the output format should by tsv.bgz once everything gets settled down 
         logging.info('----> Start writing to disk'.format(subset, gwas))
         tstart = time.time()
-        mt_this.write('{prefix}_x_{subset}_x_{gwas}.prs.ht'.format(prefix = args.output_prefix, subset = subset, gwas = gwas))
-        mt_this = mt_this.annotate_cols(**prs)
+        mt_this.write('{prefix}_x_{subset}_x_{gwas}.prs.ht'.format(prefix = args.output_prefix, subset = subset, gwas = gwas), overwrite = True)
         tend = time.time()
         logging.info('----> Writing to disk FINISHED! {} seconds elapsed'.format(tend - tstart))
         
