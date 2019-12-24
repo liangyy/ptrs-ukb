@@ -227,7 +227,7 @@ for subset in list(myinputs.keys()):
         logging.info('----> Start writing to disk'.format(subset, gwas))
         tstart = time.time()
         mt_this.col.export('{prefix}_x_{subset}_x_{gwas}.prs.tsv.bgz'.format(prefix = args.output_prefix, subset = subset, gwas = gwas))
-        prs_helper.remove_ht(gwas_tmp_ht)
+        # prs_helper.remove_ht(gwas_tmp_ht)
         tend = time.time()
         logging.info('----> Writing to disk FINISHED! {} seconds elapsed'.format(tend - tstart))
         

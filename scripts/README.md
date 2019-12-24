@@ -48,8 +48,20 @@ $ bash sync_output_on_nucleus.sh
 $ screen -dmS test_gwas bash test_run_gwas_on_subset.screen
 ```
 
-* Run GWAS
+* Run GWAS (DEPRECATED)
+
+This is deprecated.
+The actual runs were done on GCP.
+See submission scripts at `../submission_scripts/for_gcp/`
 
 ```
 $ screen -dmS gwas bash run-submit-and-loop_gwas_on_all_subsets.screen  # screen -dmS run_gwas bash run_gwas_on_all_subsets.screen
+```
+
+* Run PRS
+
+Pre-subset genotypes.
+
+```
+$ screen -dmS presubset_1 bash run_prs_pre_subset.screen 
 ```
