@@ -63,7 +63,7 @@ parser.add_argument('--variant-pool', required=True, help='''
 ''')
 
 ## PRS parameter
-parser.add_argument('--pval-thresholds', required=True, help='''
+parser.add_argument('--pval-thresholds', default='5e-8,0.05', help='''
     GWAS p-value cutoffs used to calculate PRS.
     It should be separated by ',' 
 ''')
