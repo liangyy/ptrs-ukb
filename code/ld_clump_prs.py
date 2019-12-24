@@ -185,9 +185,9 @@ for subset in list(myinputs.keys()):
         tstart = time.time()
         mt_subset = mt.filter_cols(hl.is_defined(ht_indiv[mt.s]))
         mt_subset.write(mt_sub_name, overwrite = True)
-        mt_subset = hl.read_matrix_table(mt_sub_name)
         if args.mode == 'pre_subset':
             continue
+        mt_subset = hl.read_matrix_table(mt_sub_name)
     else:        
         mt_subset = hl.read_matrix_table(mt_sub_name)
     tend = time.time()
@@ -198,7 +198,8 @@ for subset in list(myinputs.keys()):
         clump_file = myinputs[subset]['GWASs'][gwas]['ld_clump']
         logging.info('----> Start loading GWAS TSV'.format(subset, gwas))
         tstart = time.time()
-        gwas_tsv = prs_helper.read_gwas_table_with_varlist(gwas_file, clump_file, type_dic = {'beta' : hl.tfloat, 'pval' : hl.tfloat}, checkpoint_path = args.output_prefix + '_x_checkpoint_x_' + subset + '_x_' + gwas + '.ht')
+        gwas_tmp_ht = args.output_prefix + '_x_checkpoint_x_' + subset + '_x_' + gwas + '.ht'
+        gwas_tsv = prs_helper.read_gwas_table_with_varlist_light(gwas_file, clump_file, type_dic = {'beta' : hl.tfloat, 'pval' : hl.tfloat}, checkpoint_path = gwas_tmp_ht)
         tend = time.time()
         logging.info('----> Loading GWAS TSV FINISHED! {} seconds elapsed'.format(tend - tstart))
         ## subset by variant
@@ -225,7 +226,8 @@ for subset in list(myinputs.keys()):
         ## FIXME: this is temporary! the output format should by tsv.bgz once everything gets settled down 
         logging.info('----> Start writing to disk'.format(subset, gwas))
         tstart = time.time()
-        mt_this.write('{prefix}_x_{subset}_x_{gwas}.prs.ht'.format(prefix = args.output_prefix, subset = subset, gwas = gwas), overwrite = True)
+        mt_this.col.export('{prefix}_x_{subset}_x_{gwas}.prs.tsv.bgz'.format(prefix = args.output_prefix, subset = subset, gwas = gwas), overwrite = True)
+        prs_helper.remove_ht(gwas_tmp_ht)
         tend = time.time()
         logging.info('----> Writing to disk FINISHED! {} seconds elapsed'.format(tend - tstart))
         

@@ -1,4 +1,5 @@
 import hail as hl
+import os
 
 def read_gwas_table_with_varlist(gwas_table_tsv, varlist, type_dic, checkpoint_path):
     # varlist can be one file or a list of files
@@ -13,3 +14,6 @@ def read_gwas_table_with_varlist(gwas_table_tsv, varlist, type_dic, checkpoint_p
     # gwas_tsv = gwas_tsv.cache()
     gwas_tsv = gwas_tsv.checkpoint(checkpoint_path, overwrite = True)
     return gwas_tsv
+
+def remove_ht(filepath):
+    os.system("rm -rf {}".format(filepath))
