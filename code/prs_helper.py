@@ -9,6 +9,6 @@ def read_gwas_table_with_varlist(gwas_table_tsv, varlist, type_dic):
     k = hl.parse_variant(gwas_tsv.variant)
     gwas_tsv = gwas_tsv.annotate(**k)
     gwas_tsv = gwas_tsv.key_by(gwas_tsv.locus, gwas_tsv.alleles)
-    gwas_tsv = gwas_tsv.repartition(40)
-    gwas_tsv = gwas_tsv.cache()
+    # gwas_tsv = gwas_tsv.repartition(40)
+    # gwas_tsv = gwas_tsv.cache()
     return gwas_tsv
