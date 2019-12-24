@@ -199,7 +199,7 @@ for subset in list(myinputs.keys()):
         logging.info('----> Start loading GWAS TSV'.format(subset, gwas))
         tstart = time.time()
         gwas_tmp_ht = args.output_prefix + '_x_checkpoint_x_' + subset + '_x_' + gwas + '.ht'
-        gwas_tsv = prs_helper.read_gwas_table_with_varlist_light(gwas_file, clump_file, type_dic = {'beta' : hl.tfloat, 'pval' : hl.tfloat}, checkpoint_path = gwas_tmp_ht)
+        gwas_tsv = prs_helper.read_gwas_table_with_varlist(gwas_file, clump_file, type_dic = {'beta' : hl.tfloat, 'pval' : hl.tfloat}, checkpoint_path = gwas_tmp_ht)
         tend = time.time()
         logging.info('----> Loading GWAS TSV FINISHED! {} seconds elapsed'.format(tend - tstart))
         ## subset by variant
@@ -226,7 +226,7 @@ for subset in list(myinputs.keys()):
         ## FIXME: this is temporary! the output format should by tsv.bgz once everything gets settled down 
         logging.info('----> Start writing to disk'.format(subset, gwas))
         tstart = time.time()
-        mt_this.col.export('{prefix}_x_{subset}_x_{gwas}.prs.tsv.bgz'.format(prefix = args.output_prefix, subset = subset, gwas = gwas), overwrite = True)
+        mt_this.col.export('{prefix}_x_{subset}_x_{gwas}.prs.tsv.bgz'.format(prefix = args.output_prefix, subset = subset, gwas = gwas))
         prs_helper.remove_ht(gwas_tmp_ht)
         tend = time.time()
         logging.info('----> Writing to disk FINISHED! {} seconds elapsed'.format(tend - tstart))
