@@ -1,3 +1,4 @@
+export PYSPARK_SUBMIT_ARGS="--driver-memory 64G --executor-memory 4g pyspark-shell"
 source /vol/bmd/yanyul/miniconda3/etc/profile.d/conda.sh
 conda activate /vol/bmd/yanyul/softwares/conda_envs/hail
 
@@ -10,5 +11,6 @@ python ../code/ld_clump_prs.py \
   --variant-pool /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset3_x_height.tsv \
   --pval-thresholds 5e-8,1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,0.1,0.05,0.1,0.5,1 \
   --output-prefix /vol/bmd/yanyul/UKB/tmp/test_prs \
-  --hail-log /vol/bmd/yanyul/UKB/tmp/test_prs.log
+  --hail-log /vol/bmd/yanyul/UKB/tmp/hail_test_prs.log \
+  > /vol/bmd/yanyul/UKB/tmp/run_test_prs.log 2>&1
   

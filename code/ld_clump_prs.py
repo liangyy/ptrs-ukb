@@ -170,8 +170,8 @@ for subset in list(myinputs.keys()):
     logging.info('--> Start subsetting genotype')
     tstart = time.time()
     mt_subset = mt.filter_cols(hl.is_defined(ht_indiv[mt.s]))
-    mt_subset = mt_subset.repartition(200)
-    mt_subset = mt_subset.cache()
+    # mt_subset = mt_subset.repartition(200)
+    # mt_subset = mt_subset.cache()
     tend = time.time()
     logging.info('--> Subsetting genotype FINISHED! {} seconds elapsed'.format(tend - tstart))
     for gwas in list(myinputs[subset]['GWASs']):
