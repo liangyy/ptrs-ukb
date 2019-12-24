@@ -1,5 +1,5 @@
 subset1:
-  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-1.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-1.txt
+  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-1.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-1.txt
   GWASs:
     basophil:
       sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset1_x_basophil.tsv
@@ -53,7 +53,7 @@ subset1:
       sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset1_x_wbc.tsv
       ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset1_x_wbc.clumped_snp
 subset2:
-  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-2.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-2.txt
+  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-2.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-2.txt
   GWASs:
     basophil:
       sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset2_x_basophil.tsv
@@ -107,7 +107,7 @@ subset2:
       sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset2_x_wbc.tsv
       ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset2_x_wbc.clumped_snp
 subset3:
-  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-3.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-3.txt
+  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-3.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-3.txt
   GWASs:
     basophil:
       sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset3_x_basophil.tsv
@@ -161,7 +161,7 @@ subset3:
       sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset3_x_wbc.tsv
       ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset3_x_wbc.clumped_snp
 subset4:
-  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-4.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-4.txt
+  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-4.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-4.txt
   GWASs:
     basophil:
       sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset4_x_basophil.tsv
@@ -215,7 +215,7 @@ subset4:
       sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset4_x_wbc.tsv
       ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset4_x_wbc.clumped_snp
 subset5:
-  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-5.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-5.txt
+  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-5.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-5.txt
   GWASs:
     basophil:
       sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset5_x_basophil.tsv
@@ -269,7 +269,7 @@ subset5:
       sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset5_x_wbc.tsv
       ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset5_x_wbc.clumped_snp
 subset6:
-  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-6.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-6.txt
+  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-6.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-6.txt
   GWASs:
     basophil:
       sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset6_x_basophil.tsv
@@ -323,7 +323,7 @@ subset6:
       sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset6_x_wbc.tsv
       ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset6_x_wbc.clumped_snp
 subset7:
-  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-7.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-7.txt
+  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-7.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-7.txt
   GWASs:
     basophil:
       sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset7_x_basophil.tsv
@@ -377,7 +377,7 @@ subset7:
       sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset7_x_wbc.tsv
       ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset7_x_wbc.clumped_snp
 subset8:
-  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-8.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-8.txt
+  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-8.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-8.txt
   GWASs:
     basophil:
       sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset8_x_basophil.tsv
@@ -431,7 +431,7 @@ subset8:
       sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset8_x_wbc.tsv
       ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset8_x_wbc.clumped_snp
 subset9:
-  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-9.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-9.txt
+  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-9.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-9.txt
   GWASs:
     basophil:
       sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset9_x_basophil.tsv
@@ -485,7 +485,7 @@ subset9:
       sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset9_x_wbc.tsv
       ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset9_x_wbc.clumped_snp
 subset10:
-  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-10.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-10.txt
+  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-10.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-10.txt
   GWASs:
     basophil:
       sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset10_x_basophil.tsv
@@ -539,7 +539,7 @@ subset10:
       sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset10_x_wbc.tsv
       ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset10_x_wbc.clumped_snp
 subset11:
-  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-11.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-11.txt
+  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-11.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-11.txt
   GWASs:
     basophil:
       sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset11_x_basophil.tsv
@@ -593,7 +593,7 @@ subset11:
       sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset11_x_wbc.tsv
       ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset11_x_wbc.clumped_snp
 subset12:
-  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-12.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-12.txt
+  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-12.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-12.txt
   GWASs:
     basophil:
       sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset12_x_basophil.tsv
@@ -647,7 +647,7 @@ subset12:
       sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset12_x_wbc.tsv
       ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset12_x_wbc.clumped_snp
 subset13:
-  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-13.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-13.txt
+  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-13.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-13.txt
   GWASs:
     basophil:
       sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset13_x_basophil.tsv
@@ -701,7 +701,7 @@ subset13:
       sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset13_x_wbc.tsv
       ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset13_x_wbc.clumped_snp
 subset14:
-  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-14.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-14.txt
+  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-14.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-14.txt
   GWASs:
     basophil:
       sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset14_x_basophil.tsv
@@ -755,7 +755,7 @@ subset14:
       sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset14_x_wbc.tsv
       ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset14_x_wbc.clumped_snp
 subset15:
-  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-15.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-15.txt
+  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-15.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-15.txt
   GWASs:
     basophil:
       sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset15_x_basophil.tsv
@@ -809,7 +809,7 @@ subset15:
       sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset15_x_wbc.tsv
       ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset15_x_wbc.clumped_snp
 subset16:
-  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-16.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-16.txt
+  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-16.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-16.txt
   GWASs:
     basophil:
       sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset16_x_basophil.tsv
@@ -863,7 +863,7 @@ subset16:
       sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset16_x_wbc.tsv
       ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset16_x_wbc.clumped_snp
 subset17:
-  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-17.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-17.txt
+  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-17.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-17.txt
   GWASs:
     basophil:
       sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset17_x_basophil.tsv

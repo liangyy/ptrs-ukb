@@ -9,7 +9,7 @@ for(i in 1 : nsubset) {
   list_name = paste0('subset', i)
   out_list[[list_name]] = list()
   indiv_lists = c(
-    other_populations, 
+    paste0(other_populations, '.txt'), 
     c(
       paste0('British-test-', i, '.txt'),
       paste0('British-validation-', i, '.txt')
