@@ -1,0 +1,26 @@
+test_subset1:
+  indiv_lists: '../output/data_split/African.txt,../output/data_split/Chinese.txt,../output/data_split/Indian.txt,../output/data_split/British-test-1.txt,../output/data_split/British-validation-1.txt'
+  GWASs:
+    height:
+      sum_stat: '/vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset1_x_height.tsv'
+      ld_clump: '/vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset1_x_height.clumped_snp'
+    bmi:
+      sum_stat: '/vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset1_x_bmi.tsv'
+      ld_clump: '/vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset1_x_bmi.clumped_snp'
+    wbc:
+      sum_stat: '/vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset1_x_wbc.tsv'
+      ld_clump: '/vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset1_x_wbc.clumped_snp'
+
+test_subset2:
+  indiv_lists: '../output/data_split/African.txt,../output/data_split/Chinese.txt,../output/data_split/Indian.txt,../output/data_split/British-test-2.txt,../output/data_split/British-validation-2.txt'
+  GWASs:
+    height:
+      sum_stat: '/vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset2_x_height.tsv'
+      ld_clump: '/vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset2_x_height.clumped_snp'
+    bmi:
+      sum_stat: '/vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset2_x_bmi.tsv'
+      ld_clump: '/vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset2_x_bmi.clumped_snp'
+    wbc:
+      sum_stat: '/vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset2_x_wbc.tsv'
+      ld_clump: '/vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset2_x_wbc.clumped_snp'
+      
