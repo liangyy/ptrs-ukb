@@ -5,6 +5,14 @@ parser = argparse.ArgumentParser(prog='ld_clump_prs.py', description='''
     For each subset, it calculates PRS of one or multiple GWAS. 
 ''')
 
+## Mode 
+parser.add_argument('--mode', default='full', help='''
+    Three modes: 
+    1. full: pre-subset genotypes and do downstream PRS calculation
+    2. pre_subset: only pre-subset genotypes
+    3. skip_subset: if have run pre_subset, use this mode to skip unnecessary calculation
+''')
+
 ## Genotype inputs
 parser.add_argument('--bgen-path', required=True, help='''
     Template of bgen file, need to contain {chr_num} in place of chromosome 
@@ -123,55 +131,62 @@ hl.init(log = args.hail_log)
 logging.info('Read subset and GWAS / LD-clumping YAML')
 myinputs = gwas_helper.read_yaml(args.subset_and_gwas)
 
-## collect clump variant
-clump_var_files = []
-for i in list(myinputs.keys()):
-    for j in list(myinputs[i]['GWASs'].keys()):
-        clump_var_files.append(myinputs[i]['GWASs'][j]['ld_clump'])
+if args.mode != 'skip_subset':
+    ## collect clump variant
+    clump_var_files = []
+    for i in list(myinputs.keys()):
+        for j in list(myinputs[i]['GWASs'].keys()):
+            clump_var_files.append(myinputs[i]['GWASs'][j]['ld_clump'])
 
-## load variant loop (limiting to clump variant)
-logging.info('--> Start loading variant pool')
-ht_var_pool = prs_helper.read_gwas_table_with_varlist(args.variant_pool, clump_var_files, type_dic = {'beta' : hl.tfloat, 'pval' : hl.tfloat})
-logging.info('--> Loading variant pool FINISHED!')
+    ## load variant loop (limiting to clump variant)
+    logging.info('--> Start loading variant pool')
+    ht_var_pool = prs_helper.read_gwas_table_with_varlist(args.variant_pool, clump_var_files, type_dic = {'beta' : hl.tfloat, 'pval' : hl.tfloat})
+    logging.info('--> Loading variant pool FINISHED!')
 
 
 
-# load bgen
-logging.info('Start to load genotype files')
-bgen_path = args.bgen_path.format(
-    chr_num = '{' + args.chrs + '}'
-)
-bgen_sample = args.bgen_sample
-bgen_idx_dict = {}
-for i in range(1, 23):
-    bgen = args.bgen_path.format(chr_num = i)
-    bgen_idx = args.bgen_index.format(chr_num = i)
-    bgen_idx_dict[bgen] = bgen_idx
-tstart = time.time()
-mt = hl.import_bgen(
-    path = bgen_path, 
-    sample_file = bgen_sample, 
-    n_partitions = None, 
-    index_file_map = bgen_idx_dict, 
-    entry_fields = ['dosage'],
-    variants = ht_var_pool
-)
-tend = time.time()
-logging.info('Loading genotype FINISHED! {} seconds elapsed'.format(tend - tstart))
+    # load bgen
+    logging.info('Start to load genotype files')
+    bgen_path = args.bgen_path.format(
+        chr_num = '{' + args.chrs + '}'
+    )
+    bgen_sample = args.bgen_sample
+    bgen_idx_dict = {}
+    for i in range(1, 23):
+        bgen = args.bgen_path.format(chr_num = i)
+        bgen_idx = args.bgen_index.format(chr_num = i)
+        bgen_idx_dict[bgen] = bgen_idx
+    tstart = time.time()
+    mt = hl.import_bgen(
+        path = bgen_path, 
+        sample_file = bgen_sample, 
+        n_partitions = None, 
+        index_file_map = bgen_idx_dict, 
+        entry_fields = ['dosage'],
+        variants = ht_var_pool
+    )
+    tend = time.time()
+    logging.info('Loading genotype FINISHED! {} seconds elapsed'.format(tend - tstart))
 
 
 # loop over all subsets
 logging.info('Start looping over all subsets')
 for subset in list(myinputs.keys()):
     logging.info('--> Working on subset = {}'.format(subset))
-    indiv_files = myinputs[subset]['indiv_lists'].split(',')
-    ht_indiv = hl.import_table(indiv_files, key = ['f0'], no_header = True, delimiter = ' ')
-    ## subset by individual
-    logging.info('--> Start subsetting genotype')
-    tstart = time.time()
-    mt_subset = mt.filter_cols(hl.is_defined(ht_indiv[mt.s]))
-    # mt_subset = mt_subset.repartition(200)
-    # mt_subset = mt_subset.cache()
+    mt_sub_name = '{prefix}_x_{subset}.mt'.format(prefix = args.output_prefix, subset = subset)
+    if args.mode != 'skip_subset':
+        indiv_files = myinputs[subset]['indiv_lists'].split(',')
+        ht_indiv = hl.import_table(indiv_files, key = ['f0'], no_header = True, delimiter = ' ')
+        ## subset by individual
+        logging.info('--> Start subsetting genotype')
+        tstart = time.time()
+        mt_subset = mt.filter_cols(hl.is_defined(ht_indiv[mt.s]))
+        mt_subset.write(mt_sub_name)
+        mt_subset = hl.read_matrix_table(mt_sub_name)
+        if args.mode == 'pre_subset':
+            continue
+    else:        
+        mt_subset = hl.read_matrix_table(mt_sub_name)
     tend = time.time()
     logging.info('--> Subsetting genotype FINISHED! {} seconds elapsed'.format(tend - tstart))
     for gwas in list(myinputs[subset]['GWASs']):
@@ -182,13 +197,13 @@ for subset in list(myinputs.keys()):
         tstart = time.time()
         gwas_tsv = prs_helper.read_gwas_table_with_varlist(gwas_file, clump_file, type_dic = {'beta' : hl.tfloat, 'pval' : hl.tfloat})
         tend = time.time()
-        logging.info('--> Loading GWAS TSV FINISHED! {} seconds elapsed'.format(tend - tstart))
+        logging.info('----> Loading GWAS TSV FINISHED! {} seconds elapsed'.format(tend - tstart))
         ## subset by variant
         logging.info('----> Start subsetting GWAS-specific clumping variant'.format(subset, gwas))
         tstart = time.time()
         mt_this = mt_subset.filter_rows(hl.is_defined(gwas_tsv[mt_subset.locus, mt_subset.alleles]))
         tend = time.time()
-        logging.info('--> Subsetting GWAS-specific clumping variant FINISHED! {} seconds elapsed'.format(tend - tstart))
+        logging.info('----> Subsetting GWAS-specific clumping variant FINISHED! {} seconds elapsed'.format(tend - tstart))
         ## annotate variant with gwas sum stat
         logging.info('----> Start calculating PRS'.format(subset, gwas))
         tstart = time.time()
@@ -201,12 +216,12 @@ for subset in list(myinputs.keys()):
         }
         mt_this = mt_this.annotate_cols(**prs)
         tend = time.time()
-        logging.info('--> Calculating PRS FINISHED! {} seconds elapsed'.format(tend - tstart))
+        logging.info('----> Calculating PRS FINISHED! {} seconds elapsed'.format(tend - tstart))
         ## FIXME: this is temporary! the output format should by tsv.bgz once everything gets settled down 
         logging.info('----> Start writing to disk'.format(subset, gwas))
         tstart = time.time()
         mt_this.write('{prefix}_x_{subset}_x_{gwas}.prs.ht'.format(prefix = args.output_prefix, subset = subset, gwas = gwas))
         mt_this = mt_this.annotate_cols(**prs)
         tend = time.time()
-        logging.info('--> Writing to disk FINISHED! {} seconds elapsed'.format(tend - tstart))
+        logging.info('----> Writing to disk FINISHED! {} seconds elapsed'.format(tend - tstart))
         
