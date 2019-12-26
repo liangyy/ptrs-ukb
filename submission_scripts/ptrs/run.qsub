@@ -1,0 +1,17 @@
+#PBS -S /bin/bash
+#PBS -l walltime=24:00:00
+#PBS -l nodes=1:ppn=1
+#PBS -l mem=16gb
+#PBS -e logs/${NUM}-${INDIVLIST}.err
+#PBS -o logs/${NUM}-${INDIVLIST}.out
+
+
+source ~/.bash_profile
+source ~/.bashrc
+cd /gpfs/data/im-lab/nas40t2/yanyul/GitHub/ptrs-ukb/pipeline/ptrs
+
+module load gcc/6.2.0
+module load R/3.5.0
+
+
+snakemake -s ptrs.snmk --configfile ../../submission_scripts/ptrs/config.yaml --nolock --config spredixcan_list=$SPREDIXCANLIST indiv_list_name=$INDIVLIST > ../../submission_scripts/ptrs/logs/$NUM-$INDIVLIST.log 2>&1
