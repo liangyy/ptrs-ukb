@@ -1,0 +1,58 @@
+if 'outdir' not in config:
+    config['outdir'] = 'output'
+
+rule all:
+    input:
+        '{outdir}/ptrs_{ptrs_type}_spredixcan_{spredixcan_name}_x_{prediction_model_name}_x_{indiv_list_name}.tsv.gz'.format(**config)
+
+if 'spredixcan_list' in config:
+    spredixcan_list = config['spredixcan_list'].split(',')
+    rule all_spredixcan:
+        input:
+            [ '{outdir}/ptrs_{ptrs_type}_spredixcan_{spredixcan_name}_x_{prediction_model_name}_x_{indiv_list_name}.tsv.gz'.format(
+                ptrs_type = config['ptrs_type'],
+                spredixcan_name = config['spredixcan_name'],
+                prediction_model_name = config['prediction_model_name'],
+                indiv_list_name = i
+            ) for i in spredixcan_list ]
+        
+
+rule ptrs_preprocess:
+    input:
+        spredixcan = config['spredixcan']
+    output:
+        '{outdir}/{ptrs_type}_ptrs_preprocess.{spredixcan_name}.gene_list.txt'
+    shell:
+        'Rscript ../../code/ptrs_preprocess.R \
+          --spredixcan {input.spredixcan} \
+          --mode {wildcards.ptrs_type} \
+          --output {output[0]}'
+
+rule subset_indiv:
+    input:
+        pred_expr = config['predicted_expression'],
+        indiv_list = config['indiv_subset']
+    output:
+        '{outdir}/pred_expr.{prediction_model_name}_x_{indiv_list_name}.tsv.gz'
+    shell:
+        'python ../../code/subset_pred_expr_by_indiv.py \
+           --pred-expr {input.pred_expr} \
+           --indiv-list {input.indiv_list} \
+           --output {output[0]} \
+           --compress \
+           --no-gene-filter'
+
+rule calculate_ptrs:
+    input:
+        pred_expr = '{outdir}/pred_expr.{prediction_model_name}_x_{indiv_list_name}.tsv.gz',
+        spredixcan = config['spredixcan'],
+        gene_list = '{outdir}/{ptrs_type}_ptrs_preprocess.{spredixcan_name}.gene_list.txt'
+    output:
+        '{outdir}/ptrs_{ptrs_type}_spredixcan_{spredixcan_name}_x_{prediction_model_name}_x_{indiv_list_name}.tsv.gz'
+    shell:
+        'Rscript ../../code/calculate_ptrs.R \
+          --pred_expr {input.pred_expr} \
+          --spredixcan {input.spredixcan} \
+          --gene_list {input.gene_list} \
+          --output {output[0]}'
+    

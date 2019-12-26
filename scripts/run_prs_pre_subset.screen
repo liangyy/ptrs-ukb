@@ -1,0 +1,25 @@
+# ARGS1: input YAML
+# ARGS2: job tag
+
+INPUTYAML=$1
+JOBNAME=$2
+
+export PYSPARK_SUBMIT_ARGS="--driver-memory 60G --executor-memory 4g pyspark-shell"
+source /vol/bmd/yanyul/miniconda3/etc/profile.d/conda.sh
+conda activate /vol/bmd/yanyul/softwares/conda_envs/hail
+
+WORKDIR=/vol/bmd/yanyul/GitHub/ptrs-ukb/scripts
+
+cd $WORKDIR
+
+python ../code/ld_clump_prs.py \
+  --mode pre_subset \
+  --bgen-path /vol/bmd/data/ukbiobank/genotypes/v3/ukb_imp_chr{chr_num}_v3.bgen \
+  --bgen-sample /vol/bmd/data/ukbiobank/genotypes/v3/ukb19526_imp_chr1_v3_s487395.sample \
+  --bgen-index /vol/bmd/yanyul/UKB/bgen_idx/ukb_imp_chr{chr_num}_v3.bgen.idx2 \
+  --subset-and-gwas $INPUTYAML \
+  --variant-pool /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset3_x_height.tsv \
+  --output-prefix /vol/bmd/yanyul/UKB/prs/$JOBNAME \
+  --hail-log /vol/bmd/yanyul/UKB/prs/hail_pre_subset_$JOBNAME.log \
+  > /vol/bmd/yanyul/UKB/prs/run_pre_subset_$JOBNAME.log 2>&1
+  
