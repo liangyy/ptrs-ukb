@@ -10,10 +10,11 @@ if 'spredixcan_list' in config:
     rule all_spredixcan:
         input:
             [ '{outdir}/ptrs_{ptrs_type}_spredixcan_{spredixcan_name}_x_{prediction_model_name}_x_{indiv_list_name}.tsv.gz'.format(
+                outdir = config['outdir'],
                 ptrs_type = config['ptrs_type'],
-                spredixcan_name = config['spredixcan_name'],
+                spredixcan_name = i,
                 prediction_model_name = config['prediction_model_name'],
-                indiv_list_name = i
+                indiv_list_name = config['indiv_list_name']
             ) for i in spredixcan_list ]
         
 
