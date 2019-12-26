@@ -1,0 +1,32 @@
+# NOTE: this script is run on washington or nucleus
+# IMPORTANT: you may need to comment out `export SPARK_LOCAL_IP=127.0.0.1` if you work on nucleus
+
+# environment setup
+source /vol/bmd/yanyul/miniconda3/etc/profile.d/conda.sh
+# export SPARK_LOCAL_IP=127.0.0.1
+export PYSPARK_SUBMIT_ARGS="--driver-memory 40G --executor-memory 8g pyspark-shell"
+conda activate /vol/bmd/yanyul/softwares/conda_envs/hail
+
+# directory setup
+INPUTDIR=/vol/bmd/yanyul/UKB/gwas_on_subset/from_gcp
+OUTDIR=/vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv
+SCRIPTDIR=/vol/bmd/yanyul/GitHub/ptrs-ukb/code
+
+# take care of output directory
+if [[ ! -d $OUTDIR ]]
+then
+  mkdir -p $OUTDIR
+fi
+
+batches='middle'
+for i in $batches
+do
+  python $SCRIPTDIR/gwas_ht_to_tsv.py \
+    --gwas-ht $INPUTDIR/all_chrs_$i.ht \
+    --output-prefix $OUTDIR/gwas_in_tsv \
+    --hail-log $OUTDIR/convert_$i.log \
+    > $OUTDIR/run_makeup_$i.log 2>&1
+    
+done
+
+screen -X kill
