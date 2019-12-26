@@ -113,7 +113,9 @@ try:
 except:
     print('--args.pval-thresholds {} is not floats separated by ",". Exit!'.format(args.pval_thresholds))
     sys.exit()
-    
+if args.mode not in ['full', 'pre_subset', 'skip_subset']:
+    logging.info('--mode {} is wrong. Exit'.format(args.mode))
+    sys.exit()    
     
 # more on args
 if args.bgen_index is None:
@@ -177,12 +179,12 @@ logging.info('Start looping over all subsets')
 for subset in list(myinputs.keys()):
     logging.info('--> Working on subset = {}'.format(subset))
     mt_sub_name = '{prefix}_x_{subset}.mt'.format(prefix = args.output_prefix, subset = subset)
+    logging.info('--> Start subsetting genotype')
+    tstart = time.time()
     if args.mode != 'skip_subset' and args.dont_overwrite is False:
         indiv_files = myinputs[subset]['indiv_lists'].split(',')
         ht_indiv = hl.import_table(indiv_files, key = ['f0'], no_header = True, delimiter = ' ')
         ## subset by individual
-        logging.info('--> Start subsetting genotype')
-        tstart = time.time()
         mt_subset = mt.filter_cols(hl.is_defined(ht_indiv[mt.s]))
         mt_subset.write(mt_sub_name, overwrite = True)
         if args.mode == 'pre_subset':
@@ -223,7 +225,7 @@ for subset in list(myinputs.keys()):
         mt_this = mt_this.annotate_cols(**prs)
         tend = time.time()
         logging.info('----> Calculating PRS FINISHED! {} seconds elapsed'.format(tend - tstart))
-        ## FIXME: this is temporary! the output format should by tsv.bgz once everything gets settled down 
+        ## DONE: FIXME: this is temporary! the output format should by tsv.bgz once everything gets settled down 
         logging.info('----> Start writing to disk'.format(subset, gwas))
         tstart = time.time()
         mt_this.col.export('{prefix}_x_{subset}_x_{gwas}.prs.tsv.bgz'.format(prefix = args.output_prefix, subset = subset, gwas = gwas))
