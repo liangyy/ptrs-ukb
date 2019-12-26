@@ -1,0 +1,10 @@
+ptrs_type: 'naive'  # currently we only implemented naive PTRS model which only removes outlier 
+predicted_expression: '/scratch/t.cri.yliang/PTRS/predicted_expression/predicted_expression.ukb_imp_x_{prediction_model_name}.h5'
+spredixcan: '/scratch/t.cri.yliang/PTRS/spredixcan/spredixcan_x_{spredixcan_name}_x_Whole_Blood_x_ctimp.csv'
+indiv_subset: '/scratch/t.cri.yliang/PTRS/output/data_split/{indiv_list_name}.txt'
+
+spredixcan_name: 'subset13_x_lymphocyte'
+prediction_model_name: 'ctimp_Whole_Blood'
+indiv_list_name: 'British-test-1'
+
+spredixcan_list: 'subset13_x_lymphocyte,subset13_x_height'

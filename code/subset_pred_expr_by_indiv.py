@@ -13,6 +13,12 @@ parser.add_argument('--indiv-list', required=True, help='''
     The list of individuals (it can have several columns but the first one 
     will be treated as individual ID)
 ''')
+parser.add_argument('--compress', action="store_true", help='''
+    If compress
+''')
+parser.add_argument('--no-gene-filter', action="store_true", help='''
+    If don't want to filter out genes with constant value
+''')
 parser.add_argument('--output', required=True, help='''
     Predicted expression on subset individuals in TSV format
 ''')
@@ -58,9 +64,12 @@ tend = time.time()
 logging.info('Main function FINISHED! {} seconds elapsed'.format(tend - tstart))
 
 # remove genes with no variation
-logging.info('Removing genes with constant predicted expression')
-sub_pred_expr, sub_genes = ghelper.remove_constant_row(sub_pred_expr, row_names)
-
+if args.no_gene_filter is False:
+    logging.info('Removing genes with constant predicted expression')
+    sub_pred_expr, sub_genes = ghelper.remove_constant_row(sub_pred_expr, row_names)
+else:
+    sub_genes = np.array(row_names)
+    
 # convert subset predicted expression to pandas data.frame
 logging.info('Convert predicted expression to data.frame')
 tstart = time.time()
@@ -75,7 +84,10 @@ logging.info('Conversion FINISHED! {} seconds elapsed'.format(tend - tstart))
 # write to disk
 logging.info('Writing to disk as TSV file')
 tstart = time.time()
-df.to_csv(args.output, index = None, header = True, sep = '\t')
+if args.compress is False:
+    df.to_csv(args.output, index = None, header = True, sep = '\t')
+else:
+    df.to_csv(args.output, index = None, header = True, sep = '\t', compression = 'gzip')
 tend = time.time()
 logging.info('Writing to disk FINISHED! {} seconds elapsed'.format(tend - tstart))
 
