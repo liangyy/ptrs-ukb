@@ -1,0 +1,21 @@
+# ARGS1: input YAML
+# ARGS2: job tag
+
+INPUTYAML=$1
+JOBNAME=$2
+
+export PYSPARK_SUBMIT_ARGS="--driver-memory 60G --executor-memory 4g pyspark-shell"
+source /vol/bmd/yanyul/miniconda3/etc/profile.d/conda.sh
+conda activate /vol/bmd/yanyul/softwares/conda_envs/hail
+
+WORKDIR=/vol/bmd/yanyul/GitHub/ptrs-ukb/scripts
+
+cd $WORKDIR
+
+python ../code/ld_clump_prs_prepare_gwas.py \
+  --subset-and-gwas $INPUTYAML \
+  --gwas-ht /vol/bmd/yanyul/UKB/gwas_on_subset/from_gcp/all_chrs_$JOBNAME.ht \
+  --output-prefix /vol/bmd/yanyul/UKB/prs/prs_gwas \
+  --hail-log /vol/bmd/yanyul/UKB/prs/hail_prs_gwas_$JOBNAME.log \
+  > /vol/bmd/yanyul/UKB/prs/run_prs_gwas_$JOBNAME.log 2>&1
+  

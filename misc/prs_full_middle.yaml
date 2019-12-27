@@ -1,0 +1,324 @@
+subset7:
+  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-7.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-7.txt
+  GWASs:
+    basophil:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset7_x_basophil.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset7_x_basophil.clumped_snp
+    bmi:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset7_x_bmi.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset7_x_bmi.clumped_snp
+    dbp:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset7_x_dbp.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset7_x_dbp.clumped_snp
+    eosinophil:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset7_x_eosinophil.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset7_x_eosinophil.clumped_snp
+    hb:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset7_x_hb.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset7_x_hb.clumped_snp
+    height:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset7_x_height.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset7_x_height.clumped_snp
+    ht:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset7_x_ht.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset7_x_ht.clumped_snp
+    lymphocyte:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset7_x_lymphocyte.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset7_x_lymphocyte.clumped_snp
+    mch:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset7_x_mch.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset7_x_mch.clumped_snp
+    mchc:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset7_x_mchc.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset7_x_mchc.clumped_snp
+    mcv:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset7_x_mcv.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset7_x_mcv.clumped_snp
+    monocyte:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset7_x_monocyte.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset7_x_monocyte.clumped_snp
+    neutrophil:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset7_x_neutrophil.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset7_x_neutrophil.clumped_snp
+    platelet:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset7_x_platelet.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset7_x_platelet.clumped_snp
+    rbc:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset7_x_rbc.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset7_x_rbc.clumped_snp
+    sbp:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset7_x_sbp.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset7_x_sbp.clumped_snp
+    wbc:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset7_x_wbc.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset7_x_wbc.clumped_snp
+subset8:
+  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-8.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-8.txt
+  GWASs:
+    basophil:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset8_x_basophil.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset8_x_basophil.clumped_snp
+    bmi:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset8_x_bmi.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset8_x_bmi.clumped_snp
+    dbp:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset8_x_dbp.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset8_x_dbp.clumped_snp
+    eosinophil:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset8_x_eosinophil.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset8_x_eosinophil.clumped_snp
+    hb:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset8_x_hb.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset8_x_hb.clumped_snp
+    height:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset8_x_height.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset8_x_height.clumped_snp
+    ht:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset8_x_ht.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset8_x_ht.clumped_snp
+    lymphocyte:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset8_x_lymphocyte.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset8_x_lymphocyte.clumped_snp
+    mch:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset8_x_mch.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset8_x_mch.clumped_snp
+    mchc:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset8_x_mchc.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset8_x_mchc.clumped_snp
+    mcv:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset8_x_mcv.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset8_x_mcv.clumped_snp
+    monocyte:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset8_x_monocyte.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset8_x_monocyte.clumped_snp
+    neutrophil:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset8_x_neutrophil.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset8_x_neutrophil.clumped_snp
+    platelet:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset8_x_platelet.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset8_x_platelet.clumped_snp
+    rbc:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset8_x_rbc.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset8_x_rbc.clumped_snp
+    sbp:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset8_x_sbp.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset8_x_sbp.clumped_snp
+    wbc:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset8_x_wbc.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset8_x_wbc.clumped_snp
+subset9:
+  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-9.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-9.txt
+  GWASs:
+    basophil:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset9_x_basophil.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset9_x_basophil.clumped_snp
+    bmi:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset9_x_bmi.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset9_x_bmi.clumped_snp
+    dbp:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset9_x_dbp.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset9_x_dbp.clumped_snp
+    eosinophil:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset9_x_eosinophil.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset9_x_eosinophil.clumped_snp
+    hb:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset9_x_hb.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset9_x_hb.clumped_snp
+    height:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset9_x_height.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset9_x_height.clumped_snp
+    ht:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset9_x_ht.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset9_x_ht.clumped_snp
+    lymphocyte:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset9_x_lymphocyte.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset9_x_lymphocyte.clumped_snp
+    mch:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset9_x_mch.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset9_x_mch.clumped_snp
+    mchc:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset9_x_mchc.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset9_x_mchc.clumped_snp
+    mcv:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset9_x_mcv.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset9_x_mcv.clumped_snp
+    monocyte:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset9_x_monocyte.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset9_x_monocyte.clumped_snp
+    neutrophil:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset9_x_neutrophil.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset9_x_neutrophil.clumped_snp
+    platelet:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset9_x_platelet.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset9_x_platelet.clumped_snp
+    rbc:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset9_x_rbc.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset9_x_rbc.clumped_snp
+    sbp:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset9_x_sbp.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset9_x_sbp.clumped_snp
+    wbc:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset9_x_wbc.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset9_x_wbc.clumped_snp
+subset10:
+  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-10.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-10.txt
+  GWASs:
+    basophil:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset10_x_basophil.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset10_x_basophil.clumped_snp
+    bmi:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset10_x_bmi.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset10_x_bmi.clumped_snp
+    dbp:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset10_x_dbp.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset10_x_dbp.clumped_snp
+    eosinophil:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset10_x_eosinophil.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset10_x_eosinophil.clumped_snp
+    hb:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset10_x_hb.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset10_x_hb.clumped_snp
+    height:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset10_x_height.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset10_x_height.clumped_snp
+    ht:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset10_x_ht.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset10_x_ht.clumped_snp
+    lymphocyte:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset10_x_lymphocyte.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset10_x_lymphocyte.clumped_snp
+    mch:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset10_x_mch.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset10_x_mch.clumped_snp
+    mchc:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset10_x_mchc.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset10_x_mchc.clumped_snp
+    mcv:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset10_x_mcv.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset10_x_mcv.clumped_snp
+    monocyte:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset10_x_monocyte.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset10_x_monocyte.clumped_snp
+    neutrophil:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset10_x_neutrophil.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset10_x_neutrophil.clumped_snp
+    platelet:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset10_x_platelet.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset10_x_platelet.clumped_snp
+    rbc:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset10_x_rbc.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset10_x_rbc.clumped_snp
+    sbp:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset10_x_sbp.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset10_x_sbp.clumped_snp
+    wbc:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset10_x_wbc.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset10_x_wbc.clumped_snp
+subset11:
+  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-11.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-11.txt
+  GWASs:
+    basophil:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset11_x_basophil.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset11_x_basophil.clumped_snp
+    bmi:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset11_x_bmi.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset11_x_bmi.clumped_snp
+    dbp:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset11_x_dbp.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset11_x_dbp.clumped_snp
+    eosinophil:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset11_x_eosinophil.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset11_x_eosinophil.clumped_snp
+    hb:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset11_x_hb.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset11_x_hb.clumped_snp
+    height:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset11_x_height.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset11_x_height.clumped_snp
+    ht:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset11_x_ht.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset11_x_ht.clumped_snp
+    lymphocyte:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset11_x_lymphocyte.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset11_x_lymphocyte.clumped_snp
+    mch:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset11_x_mch.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset11_x_mch.clumped_snp
+    mchc:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset11_x_mchc.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset11_x_mchc.clumped_snp
+    mcv:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset11_x_mcv.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset11_x_mcv.clumped_snp
+    monocyte:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset11_x_monocyte.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset11_x_monocyte.clumped_snp
+    neutrophil:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset11_x_neutrophil.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset11_x_neutrophil.clumped_snp
+    platelet:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset11_x_platelet.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset11_x_platelet.clumped_snp
+    rbc:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset11_x_rbc.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset11_x_rbc.clumped_snp
+    sbp:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset11_x_sbp.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset11_x_sbp.clumped_snp
+    wbc:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset11_x_wbc.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset11_x_wbc.clumped_snp
+subset12:
+  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-12.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-12.txt
+  GWASs:
+    basophil:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset12_x_basophil.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset12_x_basophil.clumped_snp
+    bmi:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset12_x_bmi.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset12_x_bmi.clumped_snp
+    dbp:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset12_x_dbp.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset12_x_dbp.clumped_snp
+    eosinophil:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset12_x_eosinophil.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset12_x_eosinophil.clumped_snp
+    hb:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset12_x_hb.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset12_x_hb.clumped_snp
+    height:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset12_x_height.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset12_x_height.clumped_snp
+    ht:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset12_x_ht.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset12_x_ht.clumped_snp
+    lymphocyte:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset12_x_lymphocyte.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset12_x_lymphocyte.clumped_snp
+    mch:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset12_x_mch.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset12_x_mch.clumped_snp
+    mchc:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset12_x_mchc.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset12_x_mchc.clumped_snp
+    mcv:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset12_x_mcv.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset12_x_mcv.clumped_snp
+    monocyte:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset12_x_monocyte.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset12_x_monocyte.clumped_snp
+    neutrophil:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset12_x_neutrophil.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset12_x_neutrophil.clumped_snp
+    platelet:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset12_x_platelet.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset12_x_platelet.clumped_snp
+    rbc:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset12_x_rbc.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset12_x_rbc.clumped_snp
+    sbp:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset12_x_sbp.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset12_x_sbp.clumped_snp
+    wbc:
+      sum_stat: /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset12_x_wbc.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset12_x_wbc.clumped_snp
