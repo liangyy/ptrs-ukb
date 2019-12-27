@@ -1,0 +1,31 @@
+# calculate PTRS R2
+
+if 'outdir' not in config:
+    config['outdir'] = 'output'
+
+populations = config['populations'].split(':')
+
+rule all:
+    input:
+        '{outdir}/ptrs-r2_subset{num}_x_{trait_name}.txt'.format(**config)
+
+rule calc_r2:
+    input:
+        ptrs = [ config['ptrs']['prefix'] + i + config['ptrs']['suffix'] for i in populations ],
+        pheno_table = config['phenotype']['table'],
+        pheno_yaml = config['phenotype']['yaml']
+    params:
+        config[populations]
+    output:
+        '{outdir}/ptrs-r2_subset{num}_x_{trait_name}.txt'
+    shell:
+        'Rscript ../../code/ptrs_compute_r2.R \
+           --input_prefix {config[ptrs][prefix]} \
+           --input_suffix {config[ptrs][suffix]} \
+           --populations {params[0]} \
+           --indiv_col {config[indiv_col]} \
+           --pheno_table {input.pheno_table} \
+           --pheno_yaml {input.pheno_yaml} \
+           --trait_col {wildcards.trait_name} \
+           --output {output[0]}'
+           

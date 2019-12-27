@@ -1,0 +1,50 @@
+---
+title: "First look at PTRS"
+---
+
+```{r setup}
+library(dplyr)
+library(data.table)
+library(ggplot2)
+options(stringsAsFactors = F)
+```
+
+# Load misc
+
+Load trait list and population lists.
+
+```{r load misc}
+traits = tolower(read.table('../external_data/martin_et_al_2019ng_table_s6_trait_description.tsv', sep = '\t', header = T)$short)
+other_pop = c('Chinese', 'Indian', 'African')
+british_pop = c('British-test-', 'British-validation-')
+subset_list = list()
+for(i in 1 : 17) {
+  subset_list[[paste0('subset', i)]] = c(other_pop, paste0(british_pop, i))
+}
+```
+
+Load phenotype
+
+```{r pheno}
+pheno = fread('../output/query_phenotypes_cleaned_up.csv', header = T, sep = ',', data.table = F)
+meta_info = yaml::read_yaml('../misc/gwas_full_pheno_covar.yaml')
+covars = strsplit(meta_info$covar_names, ',')[[1]]
+phenos = strsplit(meta_info$pheno_names, ',')[[1]]
+df_covar = pheno[, c(covars, meta_info$indiv_id)]
+df_pheno = pheno[, c(phenos, meta_info$indiv_id)]
+```
+
+# Load ptrs
+
+```{r load ptrs}
+ptrs = list()
+subset_name = 'subset1'
+trait = 'height'
+for(n in subset_list[[subset_name]]) {
+  tmp = read.table(paste0('~/Desktop/tmp/ptrs/ptrs_naive_spredixcan_', subset_name, '_x_', trait, '_x_ctimp_Whole_Blood_x_', n, '.tsv.gz'), header = T, sep = '\t')
+  ptrs[[length(ptrs) + 1]] = tmp %>% mutate(trait = trait, population = n)
+}
+ptrs = do.call(rbind, ptrs)
+ptrs = inner_join(ptrs, df_covar, by = c('indiv' = meta_info$indiv_id))
+ptrs = inner_join(ptrs, df_pheno[, c(meta_info$indiv_id, trait)], by = c('indiv' = meta_info$indiv_id))
+```
