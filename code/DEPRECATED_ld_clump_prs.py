@@ -223,33 +223,31 @@ for subset in list(myinputs.keys()):
         tend = time.time()
         logging.info('----> Loading GWAS TSV FINISHED! {} seconds elapsed'.format(tend - tstart))
         ## subset by variant
-        logging.info('----> Start annotating GWAS-specific clumping variant'.format(subset, gwas))
+        logging.info('----> Start subsetting GWAS-specific clumping variant'.format(subset, gwas))
         tstart = time.time()
-        annot_gwas = {
-            f'beta_{subset}_x_{gwas}': gwas_tsv[mt_subset.locus, mt_subset.alleles].beta,
-            f'pval_{subset}_x_{gwas}': gwas_tsv[mt_subset.locus, mt_subset.alleles].pval
-        }
-        mt_subset = mt_subset.annotate_rows(**annot_gwas)
+        mt_this = mt_subset.filter_rows(hl.is_defined(gwas_tsv[mt_subset.locus, mt_subset.alleles]))
+        mt_this = mt_this.repartition(100)
+        mt_this = mt_this.cache()
         tend = time.time()
-        logging.info('----> Annotating GWAS-specific clumping variant FINISHED! {} seconds elapsed'.format(tend - tstart))
+        logging.info('----> Subsetting GWAS-specific clumping variant FINISHED! {} seconds elapsed'.format(tend - tstart))
         ## annotate variant with gwas sum stat
         logging.info('----> Start calculating PRS'.format(subset, gwas))
         tstart = time.time()
-        # mt_this = mt_this.annotate_rows(
-        #     gwas_beta = gwas_tsv[mt_this.locus, mt_this.alleles].beta, 
-        #     gwas_pval = gwas_tsv[mt_this.locus, mt_this.alleles].pval
-        # )
+        mt_this = mt_this.annotate_rows(
+            gwas_beta = gwas_tsv[mt_this.locus, mt_this.alleles].beta, 
+            gwas_pval = gwas_tsv[mt_this.locus, mt_this.alleles].pval
+        )
         prs = {
-            f'pval_thres_{subset}_x_{gwas}_x_{i}' : hl.agg.sum(mt_subset[f'beta_{subset}_x_{gwas}'] * mt_subset.dosage * hl.int(mt_subset[f'pval_{subset}_x_{gwas}'] < i)) for i in pval_thresholds
+            'pval_thres_' + str(i) : hl.agg.sum(mt_this.gwas_beta * mt_this.dosage * hl.int(mt_this.gwas_pval < i)) for i in pval_thresholds
         }
-        mt_subset = mt_subset.annotate_cols(**prs)
+        mt_this = mt_this.annotate_cols(**prs)
         tend = time.time()
         logging.info('----> Calculating PRS FINISHED! {} seconds elapsed'.format(tend - tstart))
         ## DONE: FIXME: this is temporary! the output format should by tsv.bgz once everything gets settled down 
-    logging.info('----> Start export ')
-    tstart = time.time()
-    mt_subset.write('{prefix}_{subset}.mt'.format(prefix = args.output_prefix, subset = subset), overwrite = True)
-    # prs_helper.remove_ht(gwas_tmp_ht)
-    tend = time.time()
-    logging.info('----> Export to disk FINISHED! {} seconds elapsed'.format(tend - tstart))
+        logging.info('----> Start writing to disk'.format(subset, gwas))
+        tstart = time.time()
+        mt_this.col.export('{prefix}_x_{subset}_x_{gwas}.prs.tsv.bgz'.format(prefix = args.output_prefix, subset = subset, gwas = gwas))
+        # prs_helper.remove_ht(gwas_tmp_ht)
+        tend = time.time()
+        logging.info('----> Writing to disk FINISHED! {} seconds elapsed'.format(tend - tstart))
         
