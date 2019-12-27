@@ -1,7 +1,11 @@
+outdir: '/scratch/t.cri.yliang/PTRS/ptrs' 
+
 ptrs_type: 'naive' 
 predicted_expression: '/scratch/t.cri.yliang/PTRS/predicted_expression/predicted_expression.ukb_imp_x_{prediction_model_name}.h5'
 spredixcan: '/scratch/t.cri.yliang/PTRS/spredixcan/spredixcan_x_{spredixcan_name}_x_Whole_Blood_x_ctimp.csv'
 indiv_subset: '/scratch/t.cri.yliang/PTRS/output/data_split/{indiv_list_name}.txt'
+
+pval_cutoffs: '1e-8,1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,0.05,0.1,0.5,1' 
 
 prediction_model_name: 'ctimp_Whole_Blood'
 # indiv_list_name: 'British-test-1'

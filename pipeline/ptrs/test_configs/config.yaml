@@ -8,3 +8,4 @@ prediction_model_name: 'ctimp_Whole_Blood'
 indiv_list_name: 'British-test-1'
 
 spredixcan_list: 'subset13_x_lymphocyte,subset13_x_height'
+pval_cutoffs: '1e-8,1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,0.05,0.1,0.5,1'
