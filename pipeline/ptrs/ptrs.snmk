@@ -1,12 +1,13 @@
 if 'outdir' not in config:
     config['outdir'] = 'output'
 
-rule all:
-    input:
-        '{outdir}/ptrs_{ptrs_type}_spredixcan_{spredixcan_name}_x_{prediction_model_name}_x_{indiv_list_name}.tsv.gz'.format(**config)
+if 'spredixcan_name' in config:
+    rule all:
+        input:
+            '{outdir}/ptrs_{ptrs_type}_spredixcan_{spredixcan_name}_x_{prediction_model_name}_x_{indiv_list_name}.tsv.gz'.format(**config)
 
 if 'spredixcan_list' in config:
-    spredixcan_list = config['spredixcan_list'].split(',')
+    spredixcan_list = config['spredixcan_list'].split(':')
     rule all_spredixcan:
         input:
             [ '{outdir}/ptrs_{ptrs_type}_spredixcan_{spredixcan_name}_x_{prediction_model_name}_x_{indiv_list_name}.tsv.gz'.format(
@@ -55,5 +56,6 @@ rule calculate_ptrs:
           --pred_expr {input.pred_expr} \
           --spredixcan {input.spredixcan} \
           --gene_list {input.gene_list} \
-          --output {output[0]}'
+          --output {output[0]} \
+          --pval_cutoffs {config[pval_cutoffs]}'
     

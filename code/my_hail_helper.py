@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import hail as hl
+# import hail as hl
 def names_to_list(names):
     if names is None:
         return []
@@ -36,10 +36,12 @@ def read_indiv_list(file_path):
 def subset_by_col(df, colname, target_list):
     return df[df[colname].isin(target_list)]
 def df_to_ht(df, key, repartition = 40):
+    import hail as hl
     df = hl.Table.from_pandas(df, key = key)
     df = df.repartition(repartition)
     return df
 def gwas_formater_from_neale_lab(gwas_out, outer_i, inner_j):
+    import hail as hl
     # format to GWAS sum stats format from Neale's lab
     # code source: https://github.com/Nealelab/UK_Biobank_GWAS/blob/95ac260a5d4cf9c40effff13fa33fb95ed825e2a/0.2/export_results.biomarkers.py
     i = outer_i
