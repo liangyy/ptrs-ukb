@@ -19,9 +19,6 @@ option_list <- list(
     make_option(c("-y", "--pheno_yaml"), type="character", default=NULL,
                 help="YAML file specifying columns of phenotypes and covariates, etc",
                 metavar="character"),
-    make_option(c("-l", "--populations"), type="character", default=NULL,
-                help="populations separated by :",
-                metavar="character"),
     make_option(c("-t", "--trait_col"), type="character", default=NULL,
                 help="column of trait",
                 metavar="character"),
@@ -57,7 +54,7 @@ df_covar = pheno[, c(covars, meta_info$indiv_id)]
 df_pheno = pheno[, c(opt$trait_col, meta_info$indiv_id)]
 
 
-pops = strsplit(opt$populations, ',')[[1]]
+pops = strsplit(opt$populations, ':')[[1]]
 ptrs = list()
 for(p in pops) {
   filename = paste0(opt$input_prefix, p, opt$input_suffix)
@@ -68,13 +65,16 @@ ptrs = do.call(rbind, ptrs)
 ptrs_cols = colnames(ptrs)
 ptrs_cols = ptrs_cols[!ptrs_cols %in% c(opt$indiv_col, 'population')]
 
-ptrs = inner_join(ptrs, df_covar, by = c(opt$indiv_col = meta_info$indiv_id))
-ptrs = inner_join(ptrs, df_pheno, by = c(opt$indiv_col = meta_info$indiv_id))
+join_col = meta_info$indiv_id
+names(join_col) = opt$indiv_col
+ptrs = inner_join(ptrs, df_covar, by = join_col)
+ptrs = inner_join(ptrs, df_pheno, by = join_col)
 
 out = list()
 for(ptrs_k in ptrs_cols) {
   tmp = ptrs %>% group_by(population) %>% do(compute_r2(., opt$trait_col, ptrs_k, covars))
-  out[[length(out)]] = tmp %>% mutate(ptrs_col = ptrs_k)
+  out[[length(out) + 1]] = tmp %>% mutate(ptrs_col = ptrs_k)
 }
 out = do.call(rbind, out)
 write.table(out, opt$output, col = T, row = F, quo = F, sep = '\t')
+

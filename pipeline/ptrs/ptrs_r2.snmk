@@ -15,12 +15,13 @@ rule calc_r2:
         pheno_table = config['phenotype']['table'],
         pheno_yaml = config['phenotype']['yaml']
     params:
-        config[populations]
+        config['populations'],
+        config['ptrs']['prefix']
     output:
         '{outdir}/ptrs-r2_subset{num}_x_{trait_name}.txt'
     shell:
         'Rscript ../../code/ptrs_compute_r2.R \
-           --input_prefix {config[ptrs][prefix]} \
+           --input_prefix {params[1]} \
            --input_suffix {config[ptrs][suffix]} \
            --populations {params[0]} \
            --indiv_col {config[indiv_col]} \
