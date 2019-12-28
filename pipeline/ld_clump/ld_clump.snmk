@@ -5,6 +5,10 @@ rule all:
     input:
         '{outdir}/gwas_clump_x_{gwas_name}.clumped_snp'.format(**config)
 
+rule all_gwas:
+    input:
+        '{outdir}/gwas_clump_x_{gwas_name}.gwas.tsv'.format(**config)
+
 if 'chr_num' in config:
     rule all_chr:
         input:
@@ -50,3 +54,15 @@ rule merge_ld_clump:
     shell:
         'cat {params.prefix}1{params.suffix} > {output[0]}; for i in `seq 2 22`; do cat {params.prefix}$i{params.suffix} >> {output[0]}; done'
 
+rule post_filter_gwas:
+    input:
+        gwas = config['gwas'],
+        clump = '{outdir}/gwas_clump_x_{gwas_name}.clumped_snp'
+    output:
+        '{outdir}/gwas_clump_x_{gwas_name}.gwas.tsv'
+    shell:
+        'Rscript ../../code/extract_by_column.R \
+           --input {input.gwas} \
+           --extract_list {input.clump} \
+           --extract_col {config[snp_field]} \
+           --output {output[0]}'

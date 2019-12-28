@@ -49,3 +49,14 @@ best_british = df_result %>% filter(population == 'British-validation') %>% grou
 tmp = df_result %>% filter(paste(trait, subset, ptrs_col) %in% paste(best_british$trait, best_british$subset, best_british$best_model)) %>% group_by(trait, subset) %>% mutate(transferability = r2 / r2[population == 'British-validation'])
 tmp %>% filter(paste(trait, subset) %in% paste(diag_df$trait, diag_df$index))%>% ggplot() + geom_violin(aes(x = population, y = transferability))
 ```
+
+# "Best" model
+
+```{r best model}
+best_model = df_result %>% group_by(trait, subset, population) %>% summarize(best_model = ptrs_col[which.max(r2)])
+tmp = df_result %>% filter(paste(trait, subset, ptrs_col, population) %in% paste(best_model$trait, best_model$subset, best_model$best_model, best_model$population)) %>% group_by(trait, subset) %>% mutate(transferability = r2 / r2[population == 'British-validation'])
+tmp_clean = tmp %>% filter(paste(trait, subset) %in% paste(diag_df$trait, diag_df$index)) 
+tmp_clean %>% ggplot() + geom_violin(aes(x = population, y = transferability)) + geom_jitter(aes(x = population, y = transferability), height = 0, width = 0.2)
+tmp_clean$trait = factor(tmp_clean$trait, levels = tmp_clean %>% select(trait, r2) %>% summarize(r2 = median(r2)) %>% arrange(desc(r2)) %>% pull(trait))
+tmp_clean %>% ggplot() + geom_point(aes(x = trait, y = r2, color = population, group = population), position = position_dodge(0.3)) + theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
+```
