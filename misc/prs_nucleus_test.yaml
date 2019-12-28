@@ -1,0 +1,9 @@
+subset1:
+  indiv_lists: /vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/African.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Chinese.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/Indian.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-test-1.txt,/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/British-validation-1.txt
+  GWASs:
+    basophil:
+      sum_stat: /vol/bmd/yanyul/UKB/tmp/gwas_clump_x_subset1_x_basophil.gwas.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset1_x_basophil.clumped_snp
+    bmi:
+      sum_stat: /vol/bmd/yanyul/UKB/tmp/gwas_clump_x_subset1_x_bmi.gwas.tsv
+      ld_clump: /vol/bmd/yanyul/UKB/ld_clump/gwas_clump_x_subset1_x_bmi.clumped_snp

@@ -2,8 +2,8 @@ subset1:
   indiv_lists: gs://ptrs-ukb/results/output/data_split/African.txt,gs://ptrs-ukb/results/output/data_split/Chinese.txt,gs://ptrs-ukb/results/output/data_split/Indian.txt,gs://ptrs-ukb/results/output/data_split/British-test-1.txt,gs://ptrs-ukb/results/output/data_split/British-validation-1.txt
   GWASs:
     basophil:
-      sum_stat: 'subset1_x_basophil'
+      sum_stat: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_basophil.gwas.tsv
       ld_clump: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_basophil.clumped_snp
     bmi:
-      sum_stat: 'subset1_x_bmi'
+      sum_stat: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_bmi.gwas.tsv
       ld_clump: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_bmi.clumped_snp

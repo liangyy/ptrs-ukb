@@ -50,3 +50,12 @@ def get_index_in_nested_list(inlist, target):
 
 def remove_ht(filepath):
     os.system("rm -rf {}".format(filepath))
+    
+    
+def read_gwas_table(gwas_table_tsv, type_dic):
+    gwas_tsv = hl.import_table(gwas_table_tsv, types = type_dic)
+    gwas_tsv = gwas_tsv.annotate(v = hl.parse_variant(gwas_tsv.variant))
+    gwas_tsv = gwas_tsv.key_by(gwas_tsv.v.locus, gwas_tsv.v.alleles)
+    gwas_tsv = gwas_tsv.drop('v') 
+    return gwas_tsv
+    

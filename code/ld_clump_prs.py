@@ -37,6 +37,9 @@ parser.add_argument('--bgen-index', default=None, help='''
     and same name as bgen files.
     Otherwise, specify with {chr_num} as well
 ''')
+parser.add_argument('--mt-prefix', default=None, help='''
+    Prefix of pre-subsetted genotype
+''')
 
 ## subset and GWAS list 
 parser.add_argument('--subset-and-gwas', required=True, help='''
@@ -196,7 +199,10 @@ if args.mode != 'skip_subset':
 logging.info('Start looping over all subsets')
 for subset in list(myinputs.keys()):
     logging.info('--> Working on subset = {}'.format(subset))
-    mt_sub_name = '{prefix}_x_{subset}.mt'.format(prefix = args.output_prefix, subset = subset)
+    if args.mt_prefix is None:
+        mt_sub_name = '{prefix}_x_{subset}.mt'.format(prefix = args.output_prefix, subset = subset)
+    else:
+        mt_sub_name = '{prefix}_x_{subset}.mt'.format(prefix = args.mt_prefix, subset = subset)
     logging.info('--> Start subsetting genotype')
     tstart = time.time()
     if args.mode != 'skip_subset' and args.dont_overwrite is False:
@@ -218,8 +224,9 @@ for subset in list(myinputs.keys()):
         clump_file = myinputs[subset]['GWASs'][gwas]['ld_clump']
         logging.info('----> Start loading GWAS TSV'.format(subset, gwas))
         tstart = time.time()
-        gwas_tmp_ht = args.output_prefix + '_x_checkpoint_x_' + subset + '_x_' + gwas + '.ht'
-        gwas_tsv = prs_helper.read_gwas_table_with_varlist(gwas_file, clump_file, type_dic = {'beta' : hl.tfloat, 'pval' : hl.tfloat}, checkpoint_path = gwas_tmp_ht, gwas_ht = gwas_ht)
+        # gwas_tmp_ht = args.output_prefix + '_x_checkpoint_x_' + subset + '_x_' + gwas + '.ht'
+        # gwas_tsv = prs_helper.read_gwas_table_with_varlist(gwas_file, clump_file, type_dic = {'beta' : hl.tfloat, 'pval' : hl.tfloat}, checkpoint_path = gwas_tmp_ht, gwas_ht = gwas_ht)
+        gwas_tsv = prs_helper.read_gwas_table(gwas_file, type_dic = {'beta' : hl.tfloat, 'pval' : hl.tfloat})
         tend = time.time()
         logging.info('----> Loading GWAS TSV FINISHED! {} seconds elapsed'.format(tend - tstart))
         ## subset by variant
