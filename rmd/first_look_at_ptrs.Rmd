@@ -7,44 +7,45 @@ library(dplyr)
 library(data.table)
 library(ggplot2)
 options(stringsAsFactors = F)
+parse_pop = function(x) {
+  x = unlist(lapply(strsplit(x, '-'), function(y) {
+    if(length(y) > 1) {
+      return(paste0(y[1], '-', y[2]))
+    } else {
+      return(y)
+    }
+  }))
+}
 ```
 
-# Load misc
+# Load results
 
-Load trait list and population lists.
-
-```{r load misc}
-traits = tolower(read.table('../external_data/martin_et_al_2019ng_table_s6_trait_description.tsv', sep = '\t', header = T)$short)
-other_pop = c('Chinese', 'Indian', 'African')
-british_pop = c('British-test-', 'British-validation-')
-subset_list = list()
+```{r load}
+traits = tolower(read.csv('../external_data/martin_et_al_2019ng_table_s6.csv')$Trait)
+diag_df = data.frame(trait = traits, index = 1 : 17)
+result = list()
 for(i in 1 : 17) {
-  subset_list[[paste0('subset', i)]] = c(other_pop, paste0(british_pop, i))
+  for(t in traits) {
+    filename = paste0('~/Desktop/tmp/ptrs_r2/ptrs-r2_subset', i, '_x_', t, '.txt')
+    tmp = read.table(filename, header = T, sep = '\t')
+    result[[length(result) + 1]] = tmp %>% mutate(subset = i, trait = t)
+  }
 }
+df_result = do.call(rbind, result)
+df_result$population = parse_pop(df_result$population)
+df_result$ptrs_col = factor(df_result$ptrs_col, levels = unique(df_result$ptrs_col))
 ```
 
-Load phenotype
+# Plot
 
-```{r pheno}
-pheno = fread('../output/query_phenotypes_cleaned_up.csv', header = T, sep = ',', data.table = F)
-meta_info = yaml::read_yaml('../misc/gwas_full_pheno_covar.yaml')
-covars = strsplit(meta_info$covar_names, ',')[[1]]
-phenos = strsplit(meta_info$pheno_names, ',')[[1]]
-df_covar = pheno[, c(covars, meta_info$indiv_id)]
-df_pheno = pheno[, c(phenos, meta_info$indiv_id)]
+```{r plot, fig.height=17, fig.width=6}
+df_result %>% ggplot() + geom_boxplot(aes(x = ptrs_col, y = r2, color = population)) + facet_wrap(~trait, ncol = 1, scales = 'free_y') + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
 ```
 
-# Load ptrs
+# "Best British" model
 
-```{r load ptrs}
-ptrs = list()
-subset_name = 'subset1'
-trait = 'height'
-for(n in subset_list[[subset_name]]) {
-  tmp = read.table(paste0('~/Desktop/tmp/ptrs/ptrs_naive_spredixcan_', subset_name, '_x_', trait, '_x_ctimp_Whole_Blood_x_', n, '.tsv.gz'), header = T, sep = '\t')
-  ptrs[[length(ptrs) + 1]] = tmp %>% mutate(trait = trait, population = n)
-}
-ptrs = do.call(rbind, ptrs)
-ptrs = inner_join(ptrs, df_covar, by = c('indiv' = meta_info$indiv_id))
-ptrs = inner_join(ptrs, df_pheno[, c(meta_info$indiv_id, trait)], by = c('indiv' = meta_info$indiv_id))
+```{r best british}
+best_british = df_result %>% filter(population == 'British-validation') %>% group_by(trait, subset) %>% summarize(best_model = ptrs_col[which.max(r2)])
+tmp = df_result %>% filter(paste(trait, subset, ptrs_col) %in% paste(best_british$trait, best_british$subset, best_british$best_model)) %>% group_by(trait, subset) %>% mutate(transferability = r2 / r2[population == 'British-validation'])
+tmp %>% filter(paste(trait, subset) %in% paste(diag_df$trait, diag_df$index))%>% ggplot() + geom_violin(aes(x = population, y = transferability))
 ```

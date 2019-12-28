@@ -83,7 +83,12 @@ compute_r2 = function(df, y, ypred, covariates) {
   formula_full = paste0(y, ' ~ ', '1 + ', covariates_terms, ' + `', ypred, '`')
   mod_null <- lm(as.formula(formula_null), data = df)
   mod_full <- lm(as.formula(formula_full), data = df)
-  r2 <- summary(mod_full)$adj.r.squared - summary(mod_null)$adj.r.squared
+  a <- anova(mod_full)
+  b <- anova(mod_null)
+  # derived from asbio::partial.R2
+  SSE.wo <- tail(a$"Sum Sq", 1)
+  SSE.with <- tail(b$"Sum Sq", 1)
+  r2 <- (SSE.wo - SSE.with) / SSE.wo
   pval <- anova(mod_full, mod_null)$'Pr(>F'[2]
   data.frame(r2 = r2, pval = pval)
 }
