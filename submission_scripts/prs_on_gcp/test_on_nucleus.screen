@@ -2,7 +2,7 @@ export PYSPARK_SUBMIT_ARGS="--driver-memory 60G --executor-memory 4g pyspark-she
 source /vol/bmd/yanyul/miniconda3/etc/profile.d/conda.sh
 conda activate /vol/bmd/yanyul/softwares/conda_envs/hail
 
-WORKDIR=/vol/bmd/yanyul/GitHub/ptrs-ukb/scripts
+WORKDIR=/vol/bmd/yanyul/GitHub/ptrs-ukb/submission_scripts/prs_on_gcp
 
 cd $WORKDIR
 
@@ -16,7 +16,7 @@ python ../../code/ld_clump_prs.py \
   --variant-pool /vol/bmd/yanyul/UKB/gwas_on_subset/gwas_runs_in_tsv/gwas_in_tsv_subset3_x_height.tsv \
   --subset-and-gwas /vol/bmd/yanyul/GitHub/ptrs-ukb/misc/prs_nucleus_test.yaml \
   --mt-prefix /vol/bmd/yanyul/UKB/prs/presubset_1 \
-  --output-prefix /vol/bmd/yanyul/UKB/tmp/prs_test \
-  --hail-log /vol/bmd/yanyul/UKB/tmp/hail_prs_test.log \
-  > /vol/bmd/yanyul/UKB/tmp/run_prs_test.log 2>&1
+  --output-prefix /vol/bmd/yanyul/UKB/tmp/prs_test3 \
+  --hail-log /vol/bmd/yanyul/UKB/tmp/hail_prs_test3.log \
+  > /vol/bmd/yanyul/UKB/tmp/run_prs_test3.log 2>&1
   

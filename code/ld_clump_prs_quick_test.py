@@ -87,7 +87,7 @@ for trait in args.trait_names.split(','):
     columns.append('beta.' + trait)
     columns.append('pval.' + trait)
 type_dic = {
-    t : hl..tfloat for i in columns
+    i : hl.tfloat for i in columns
 }
 type_dic['variant'] = hl.tstr
 gwas_tsv = prs_helper.read_gwas_table(args.gwas_tsv, type_dic = type_dic)
@@ -98,7 +98,7 @@ gwas_tsv = gwas_tsv.cache()
 
 # prs calculation
 logging.info('Start PRS calculation')
-mt_subset = mt_subset.annotate_rows(**annot_gwas)
+# mt_subset = mt_subset.annotate_rows(**annot_gwas)
 logging.info('--> Start annotating genotype with GWAS information')
 annot_gwas = {}
 for trait in args.trait_names.split(','):
@@ -109,8 +109,8 @@ logging.info('--> Start PRS annotation')
 prs = {}
 for trait in args.trait_names.split(','):
     for pval in pval_thresholds:
-        prs[f'{trait}_pval_thres_{pval}'] = hl.agg.sum(mt_subset[f'beta_{trait}'] * mt_subset.dosage * hl.int(mt_subset[f'pval_{trait}'] < i)) for i in pval_thresholds
+        prs[f'{trait}_pval_thres_{pval}'] = hl.agg.sum(mt_subset[f'beta_{trait}'] * mt_subset.dosage * hl.int(mt_subset[f'pval_{trait}'] < pval))
 mt_subset = mt_subset.annotate_cols(**prs)
 logging.info('--> Start export')
-mt_subset.write(args.output, overwrite = True)
+mt_subset.col.export(args.output)
         
