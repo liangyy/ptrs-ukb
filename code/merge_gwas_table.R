@@ -34,7 +34,7 @@ myfread = function(filename, ...) {
   df
 }
 
-tags = strsplit(opt$tags)[[1]]
+tags = strsplit(opt$tags, ',')[[1]]
 beta_cols = c()
 pval_cols = c()
 if(length(tags) > 0) {

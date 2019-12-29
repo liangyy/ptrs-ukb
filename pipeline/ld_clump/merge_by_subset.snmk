@@ -2,6 +2,9 @@
 # The GWAS results are grouped naturally by individual subset
 # This module merge the GWAS clumped variants from the same subset together into one file.
 
+if 'outdir' not in config:
+    config['outdir'] = 'output'
+
 target_tags = config['target_tags'].split(',')
 
 rule all:
