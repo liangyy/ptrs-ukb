@@ -77,7 +77,7 @@ parse_neale_snp = function(str) {
   unlist(lapply(strsplit(str, ':'), function(x) { paste0(x[1], ':', x[2]) }))
 }
 
-compute_r2 = function(df, y, ypred, covariates) {
+compute_r2 = function(df, y, ypred, covariates, report_pval = T) {
   covariates_terms = paste0(covariates, collapse = ' + ')
   formula_null = paste0(y, ' ~ ', '1 + ', covariates_terms)
   formula_full = paste0(y, ' ~ ', '1 + ', covariates_terms, ' + `', ypred, '`')
@@ -85,12 +85,32 @@ compute_r2 = function(df, y, ypred, covariates) {
   # print(formula_full)
   mod_null <- lm(as.formula(formula_null), data = df)
   mod_full <- lm(as.formula(formula_full), data = df)
-  a <- anova(mod_null)
-  b <- anova(mod_full)
   # derived from asbio::partial.R2
-  SSE.wo <- tail(a$"Sum Sq", 1)
-  SSE.with <- tail(b$"Sum Sq", 1)
+  SSE.wo <- get_sse(mod_null, df[, y])
+  SSE.with <- get_sse(mod_full, df[, y])
   r2 <- (SSE.wo - SSE.with) / SSE.wo
-  pval <- anova(mod_full, mod_null)$'Pr(>F'[2]
-  data.frame(r2 = r2, pval = pval)
+  if(report_pval == F) {
+    return(data.frame(r2 = r2, SSE.wo = SSE.wo, SSE.with = SSE.with))
+  } else {
+    pval <- anova(mod_full, mod_null)$'Pr(>F'[2]
+    return(data.frame(r2 = r2, pval = pval, SSE.wo = SSE.wo, SSE.with = SSE.with))
+  }
+}
+
+get_sse = function(mod, y) {
+  ypred = predict(mod)
+  sum((y - ypred)^2)
+}
+
+report_r2 = function(df, y, ypred, covariates, nbootstrap = 1000, quantiles = c(0.025, 0.975)) {
+  obs = compute_r2(df, y, ypred, covariates)
+  bootstrap_out = replicate(nbootstrap, {
+    shuffled_idx = sample(1 : nrow(df), size = nrow(df), replace = T)
+    compute_r2(df[shuffled_idx, ], y, ypred, covariates, report_pval = F)$r2
+  })
+  r2_quantile = quantile(bootstrap_out, probs = quantiles)
+  r2_quantile = as.data.frame(t(r2_quantile))
+  colnames(r2_quantile) = paste0('quantile_', quantiles)
+  rownames(r2_quantile) = NULL
+  cbind(obs, r2_quantile)
 }

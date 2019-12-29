@@ -1,0 +1,5 @@
+gwas_table: 
+  prefix: '/scratch/t.cri.yliang/PTRS/ld_clump/gwas_clump_x_{subset_name}_x_'
+  suffix: '.gwas.tsv'
+subset_name: 'subset1'
+target_tags: 'bmi,height,basophil'

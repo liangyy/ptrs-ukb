@@ -1,0 +1,24 @@
+# This is tailored to the analysis pipeline structure.
+# The GWAS results are grouped naturally by individual subset
+# This module merge the GWAS clumped variants from the same subset together into one file.
+
+target_tags = config['target_tags'].split(',')
+
+rule all:
+    input:
+        '{outdir}/merged_by_subset.{subset_name}.gwas.tsv'.format(outdir = config['outdir'], subset_name = config['subset_name'])
+
+rule merge:
+    input:
+        [ config['gwas_table']['prefix'] + g + config['gwas_table']['suffix'] for g in target_tags ]
+    params:
+        prefix = config['gwas_table']['prefix'],
+        suffix = config['gwas_table']['suffix'] 
+    output:
+        '{outdir}/merged_by_subset.{subset_name}.gwas.tsv'
+    shell:
+        'Rscript ../../code/merge_gwas_table.R \
+           --input_prefix {params.prefix} \
+           --input_suffix {params.suffix} \
+           --tags {config[target_tags]} \
+           --output {output[0]}'

@@ -93,7 +93,7 @@ logging.info('Start looping over all subsets')
 for subset in list(myinputs.keys()):
     for gwas in list(myinputs[subset]['GWASs']):
         logging.info('----> Start subset = {} and gwas = {}'.format(subset, gwas))
-        gwas_file = myinputs[subset]['GWASs'][gwas]['sum_stat']
+        gwas_file = f'{subset}_x_{gwas}'  # myinputs[subset]['GWASs'][gwas]['sum_stat']
         clump_file = myinputs[subset]['GWASs'][gwas]['ld_clump']
         logging.info('----> Start working GWAS TSV'.format(subset, gwas))
         tstart = time.time()

@@ -25,9 +25,11 @@ hailctl dataproc submit $JOBNAME \
     --variant-pool gs://ptrs-ukb/results/gwas_on_subsets/in_tsv_format/gwas_in_tsv_subset3_x_height.tsv \
     --google-cloud-project ukb-im \
     --subset-and-gwas gs://ptrs-ukb/tmp-output/prs_gcp_test.yaml \
-    --gwas-ht gs://ptrs-ukb/results/gwas_on_subsets/all_chrs_up.ht \
-    --output-prefix gs://ptrs-ukb/results/prs/presubset_1 \
+    --mt-prefix gs://ptrs-ukb/results/prs/presubset_1 \
+    --output-prefix gs://ptrs-ukb/tmp-output/prs_test \
+    --hail-log gs://ptrs-ukb/tmp-output/hail_prs_test.log \
     >> $JOBNAME.log 2>&1 
-
+    
+# --gwas-ht gs://ptrs-ukb/results/gwas_on_subsets/all_chrs_up.ht \
 # hailctl dataproc stop $JOBNAME
 

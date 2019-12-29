@@ -2,8 +2,54 @@ subset1:
   indiv_lists: gs://ptrs-ukb/results/output/data_split/African.txt,gs://ptrs-ukb/results/output/data_split/Chinese.txt,gs://ptrs-ukb/results/output/data_split/Indian.txt,gs://ptrs-ukb/results/output/data_split/British-test-1.txt,gs://ptrs-ukb/results/output/data_split/British-validation-1.txt
   GWASs:
     basophil:
-      sum_stat: 'subset1_x_basophil'
+      sum_stat: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_basophil.gwas.tsv
       ld_clump: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_basophil.clumped_snp
     bmi:
-      sum_stat: 'subset1_x_bmi'
+      sum_stat: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_bmi.gwas.tsv
       ld_clump: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_bmi.clumped_snp
+    dbp:
+      sum_stat: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_dbp.gwas.tsv
+      ld_clump: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_dbp.clumped_snp
+    eosinophil:
+      sum_stat: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_eosinophil.gwas.tsv
+      ld_clump: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_eosinophil.clumped_snp
+    hb:
+      sum_stat: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_hb.gwas.tsv
+      ld_clump: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_hb.clumped_snp
+    height:
+      sum_stat: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_height.gwas.tsv
+      ld_clump: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_height.clumped_snp
+    ht:
+      sum_stat: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_ht.gwas.tsv
+      ld_clump: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_ht.clumped_snp
+    lymphocyte:
+      sum_stat: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_lymphocyte.gwas.tsv
+      ld_clump: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_lymphocyte.clumped_snp
+    mch:
+      sum_stat: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_mch.gwas.tsv
+      ld_clump: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_mch.clumped_snp
+    mchc:
+      sum_stat: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_mchc.gwas.tsv
+      ld_clump: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_mchc.clumped_snp
+    mcv:
+      sum_stat: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_mcv.gwas.tsv
+      ld_clump: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_mcv.clumped_snp
+    monocyte:
+      sum_stat: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_monocyte.gwas.tsv
+      ld_clump: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_monocyte.clumped_snp
+    neutrophil:
+      sum_stat: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_neutrophil.gwas.tsv
+      ld_clump: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_neutrophil.clumped_snp
+    platelet:
+      sum_stat: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_platelet.gwas.tsv
+      ld_clump: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_platelet.clumped_snp
+    rbc:
+      sum_stat: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_rbc.gwas.tsv
+      ld_clump: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_rbc.clumped_snp
+    sbp:
+      sum_stat: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_sbp.gwas.tsv
+      ld_clump: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_sbp.clumped_snp
+    wbc:
+      sum_stat: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_wbc.gwas.tsv
+      ld_clump: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset1_x_wbc.clumped_snp
+          

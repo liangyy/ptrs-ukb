@@ -1,0 +1,13 @@
+export PYSPARK_SUBMIT_ARGS="--driver-memory 64G --executor-memory 4g pyspark-shell"
+source /vol/bmd/yanyul/miniconda3/etc/profile.d/conda.sh
+conda activate /vol/bmd/yanyul/softwares/conda_envs/hail
+
+python ../code/ld_clump_prs_quick_test.py \
+  --pval-thresholds '5e-8,1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,1e-1,0.05,0.1,0.5,1' \
+  --mt-input /vol/bmd/yanyul/UKB/prs/presubset_1_x_subset1.mt \
+  --output /vol/bmd/yanyul/UKB/tmp/prs_test2_quick_test.tsv.bgz \
+  --hail-log /vol/bmd/yanyul/UKB/tmp/hail_prs_test2_quick_test.log \
+  --gwas-tsv /vol/bmd/yanyul/UKB/tmp/subset1_bmi_and_basophil.clump.tsv \
+  --trait-names bmi,basophil \
+  > /vol/bmd/yanyul/UKB/tmp/run_prs_test2_quick_test.log 2>&1
+  
