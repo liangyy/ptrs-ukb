@@ -1,0 +1,18 @@
+#PBS -S /bin/bash
+#PBS -l walltime=24:00:00
+#PBS -l nodes=1:ppn=1
+#PBS -l mem=16gb
+#PBS -e logs/merge-${SUBSET}.err
+#PBS -o logs/merge-${SUBSET}.out
+
+source ~/.bash_profile
+source ~/.bashrc
+cd /gpfs/data/im-lab/nas40t2/yanyul/GitHub/ptrs-ukb/pipeline/ld_clump
+
+conda activate parquet
+
+module load gcc/6.2.0
+module load R/3.5.0
+
+snakemake -s ld_clump.snmk --configfile ../../submission_scripts/ld_clump/config.merge.yaml --config subset_name=$SUBSET > ../../submission_scripts/ld_clump/logs/merge-$SUBSET.log 2>&1
+
