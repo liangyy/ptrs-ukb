@@ -1,0 +1,5 @@
+gwas_table:
+  prefix: '/scratch/t.cri.yliang/PTRS/ld_clump/gwas_clump_x_{subset_name}_x_'
+  suffix: '.gwas.tsv'
+target_tags: 'basophil,bmi,dbp,eosinophil,hb,height,ht,lymphocyte,mch,mchc,mcv,monocyte,neutrophil,platelet,rbc,sbp,wbc'
+outdir: '/scratch/t.cri.yliang/PTRS/ld_clump'
