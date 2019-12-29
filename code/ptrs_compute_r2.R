@@ -72,7 +72,7 @@ ptrs = inner_join(ptrs, df_pheno, by = join_col)
 
 out = list()
 for(ptrs_k in ptrs_cols) {
-  tmp = ptrs %>% group_by(population) %>% do(compute_r2(., opt$trait_col, ptrs_k, covars))
+  tmp = ptrs %>% group_by(population) %>% do(report_r2(., opt$trait_col, ptrs_k, covars))
   out[[length(out) + 1]] = tmp %>% mutate(ptrs_col = ptrs_k)
 }
 out = do.call(rbind, out)
