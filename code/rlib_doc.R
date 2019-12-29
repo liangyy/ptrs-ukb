@@ -86,8 +86,8 @@ compute_r2 = function(df, y, ypred, covariates, report_pval = T) {
   mod_null <- lm(as.formula(formula_null), data = df)
   mod_full <- lm(as.formula(formula_full), data = df)
   # derived from asbio::partial.R2
-  SSE.wo <- get_sse(mod_null, df[, 'y'])
-  SSE.with <- get_sse(mod_full, df[, 'y'])
+  SSE.wo <- get_sse(mod_null, df[, y])
+  SSE.with <- get_sse(mod_full, df[, y])
   r2 <- (SSE.wo - SSE.with) / SSE.wo
   if(report_pval == F) {
     return(data.frame(r2 = r2, SSE.wo = SSE.wo, SSE.with = SSE.with))
