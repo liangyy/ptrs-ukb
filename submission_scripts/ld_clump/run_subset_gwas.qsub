@@ -1,0 +1,18 @@
+#PBS -S /bin/bash
+#PBS -l walltime=24:00:00
+#PBS -l nodes=1:ppn=1
+#PBS -l mem=16gb
+#PBS -e logs/subset-gwas-${TRAIT}.err
+#PBS -o logs/subset-gwas-${TRAIT}.out
+
+source ~/.bash_profile
+source ~/.bashrc
+cd /gpfs/data/im-lab/nas40t2/yanyul/GitHub/ptrs-ukb/pipeline/ld_clump
+
+conda activate parquet
+
+module load gcc/6.2.0
+module load R/3.5.0
+
+snakemake -s ld_clump.snmk --configfile ../../submission_scripts/ld_clump/config.ld_clump.yaml all_gwas --config gwas_name=$TRAIT > ../../submission_scripts/ld_clump/logs/subset-gwas-$TRAIT.log 2>&1
+
