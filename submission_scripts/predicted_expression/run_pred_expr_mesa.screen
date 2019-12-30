@@ -1,0 +1,22 @@
+# ARGS1: model name
+# ARGS2: outdir
+
+# environment setup
+source /vol/bmd/yanyul/miniconda3/etc/profile.d/conda.sh
+conda activate predixcan_prediction
+source /vol/bmd/yanyul/GitHub/ptrs-ukb/scripts/source_snakemake_on_nucleus.sh
+
+WORKDIR=/vol/bmd/yanyul/GitHub/ptrs-ukb/pipeline/predicted_expression
+SUBDIR=/vol/bmd/yanyul/GitHub/ptrs-ukb/submission_scripts/predicted_expression
+
+cd $WORKDIR
+
+if [[ ! -d $SUBDIR/logs ]]; then
+  mkdir -p $SUBDIR/logs
+fi
+
+$MYSNMK -s pred_expr.snmk --configfile $SUBDIR/config.mesa.yaml -pn --config predictdb_name=$1 outdir=$2 > $SUBDIR/logs/$1.log 2>&1
+$MYSNMK -s pred_expr.snmk --configfile $SUBDIR/config.mesa.yaml -p --config predictdb_name=$1 outdir=$2 >> $SUBDIR/logs/$1.log 2>&1
+
+screen -X kill
+
