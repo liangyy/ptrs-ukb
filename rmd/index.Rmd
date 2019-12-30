@@ -21,3 +21,9 @@ title: "Home"
 
 * Splitting data into training, validation, and test sets [link](split_individuals.html)
 * REML [link](regulability_gcta.html)
+* REML on MESA models [link](regulability_mesa.html)
+
+# PRS/PTRS results
+
+* First look at PTRS/PRS on GTEx V8 whole blood CTIMP model [link](first_look_at_ptrs_prs.html)
+
