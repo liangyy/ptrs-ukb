@@ -239,7 +239,7 @@ for subset in list(myinputs.keys()):
             f'beta_{subset}_x_{gwas}': gwas_tsv[mt_subset.locus, mt_subset.alleles].beta,
             f'pval_{subset}_x_{gwas}': gwas_tsv[mt_subset.locus, mt_subset.alleles].pval
         }
-        mt_subset = mt_subset.annotate_rows(**annot_gwas)
+        mt_this = mt_subset.annotate_rows(**annot_gwas)
         tend = time.time()
         logging.info('----> Annotating GWAS-specific clumping variant FINISHED! {} seconds elapsed'.format(tend - tstart))
         ## annotate variant with gwas sum stat
@@ -250,16 +250,16 @@ for subset in list(myinputs.keys()):
         #     gwas_pval = gwas_tsv[mt_this.locus, mt_this.alleles].pval
         # )
         prs = {
-            f'pval_thres_{subset}_x_{gwas}_x_{i}' : hl.agg.sum(mt_subset[f'beta_{subset}_x_{gwas}'] * mt_subset.dosage * hl.int(mt_subset[f'pval_{subset}_x_{gwas}'] < i)) for i in pval_thresholds
+            f'pval_thres_{subset}_x_{gwas}_x_{i}' : hl.agg.sum(mt_this[f'beta_{subset}_x_{gwas}'] * mt_this.dosage * hl.int(mt_this[f'pval_{subset}_x_{gwas}'] < i)) for i in pval_thresholds
         }
-        mt_subset = mt_subset.annotate_cols(**prs)
+        mt_this = mt_this.annotate_cols(**prs)
         tend = time.time()
         logging.info('----> Calculating PRS FINISHED! {} seconds elapsed'.format(tend - tstart))
         ## DONE: FIXME: this is temporary! the output format should by tsv.bgz once everything gets settled down 
-    logging.info('----> Start export ')
-    tstart = time.time()
-    mt_subset.col.export('{prefix}_{subset}.tsv.bgz'.format(prefix = args.output_prefix, subset = subset))
-    # prs_helper.remove_ht(gwas_tmp_ht)
-    tend = time.time()
-    logging.info('----> Export to disk FINISHED! {} seconds elapsed'.format(tend - tstart))
+        logging.info(f'----> Start export {gwas}')
+        tstart = time.time()
+        mt_this.col.export('{prefix}_{subset}_x_{gwas}.tsv.bgz'.format(prefix = args.output_prefix, subset = subset, gwas = gwas))
+        # prs_helper.remove_ht(gwas_tmp_ht)
+        tend = time.time()
+        logging.info('----> Export to disk FINISHED! {} seconds elapsed'.format(tend - tstart))
         

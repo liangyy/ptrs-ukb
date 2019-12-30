@@ -77,6 +77,8 @@ hl.init(log = args.hail_log)
 logging.info('Start reading genotype file')
 mt_sub_name = args.mt_input
 mt_subset = hl.read_matrix_table(mt_sub_name)
+mt_subset = mt_subset.repartition(4000)
+mt_subset = mt_subset.cache()
 
 
 # load gwas table
@@ -84,8 +86,8 @@ logging.info('Start read GWAS table')
 columns = [ 'variant' ]
 # columns = []
 for trait in args.trait_names.split(','):
-    columns.append('beta.' + trait)
-    columns.append('pval.' + trait)
+    columns.append('beta_' + trait)
+    columns.append('pval_' + trait)
 type_dic = {
     i : hl.tfloat for i in columns
 }
@@ -102,8 +104,8 @@ logging.info('Start PRS calculation')
 logging.info('--> Start annotating genotype with GWAS information')
 annot_gwas = {}
 for trait in args.trait_names.split(','):
-    annot_gwas[f'beta_{trait}'] = gwas_tsv[mt_subset.locus, mt_subset.alleles][f'beta.{trait}']
-    annot_gwas[f'pval_{trait}'] = gwas_tsv[mt_subset.locus, mt_subset.alleles][f'pval.{trait}']
+    annot_gwas[f'beta_{trait}'] = gwas_tsv[mt_subset.locus, mt_subset.alleles][f'beta_{trait}']
+    annot_gwas[f'pval_{trait}'] = gwas_tsv[mt_subset.locus, mt_subset.alleles][f'pval_{trait}']
 mt_subset = mt_subset.annotate_rows(**annot_gwas)
 logging.info('--> Start PRS annotation')
 prs = {}
