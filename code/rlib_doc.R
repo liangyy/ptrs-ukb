@@ -69,7 +69,7 @@ myggpairs = function(df, col, ...) {
       done = c(done, paste(i, j), paste(j, i))
     }
   }
-  p = do.call(rbind, mydat) %>% ggplot() + geom_point(aes(x = x, y = y, color = color), ...) + facet_grid(xfacet ~ yfacet)
+  p = do.call(rbind, mydat) %>% ggplot() + geom_point(aes(x = x, y = y, color = color), ...) + facet_grid(cols = vars(xfacet), rows = vars(yfacet))
   p
 }
 
@@ -113,4 +113,37 @@ report_r2 = function(df, y, ypred, covariates, nbootstrap = 1000, quantiles = c(
   colnames(r2_quantile) = paste0('quantile_', quantiles)
   rownames(r2_quantile) = NULL
   cbind(obs, r2_quantile)
+}
+
+change_colname = function(df, from_name, to_name) {
+  tmp = colnames(df)
+  tmp[tmp == from_name] = to_name
+  colnames(df) = tmp
+  df
+}
+
+best_model_based_on_one = function(df, pop_name, model_col, score_col) {
+  mydf = df %>% select(trait, population, subset)
+  mydf$model = df[, model_col]
+  mydf$score = df[, score_col]
+  best_model = mydf %>% filter(population == pop_name) %>% group_by(trait, subset) %>% summarize(best_model = model[which.max(score)])
+  perf_in_all = mydf %>% filter(paste(trait, subset, model) %in% paste(best_model$trait, best_model$subset, best_model$best_model)) %>% group_by(trait, subset) %>% mutate(transferability = score / score[population == pop_name])
+  best_model = change_colname(best_model, 'model', model_col)
+  best_model = change_colname(best_model, 'score', score_col)
+  perf_in_all = change_colname(perf_in_all, 'model', model_col)
+  perf_in_all = change_colname(perf_in_all, 'score', score_col)
+  return(list(best_model = best_model, perf_in_all = perf_in_all))
+}
+
+best_model_for_each = function(df, reference_pop, model_col, score_col) {
+  mydf = df %>% select(trait, population, subset)
+  mydf$model = df[, model_col]
+  mydf$score = df[, score_col]
+  best_model = mydf %>% group_by(trait, subset, population) %>% summarize(best_model = model[which.max(score)])
+  perf_in_all = mydf %>% filter(paste(trait, subset, model, population) %in% paste(best_model$trait, best_model$subset, best_model$best_model, best_model$population)) %>% group_by(trait, subset) %>% mutate(transferability = score / score[population == reference_pop])
+  best_model = change_colname(best_model, 'model', model_col)
+  best_model = change_colname(best_model, 'score', score_col)
+  perf_in_all = change_colname(perf_in_all, 'model', model_col)
+  perf_in_all = change_colname(perf_in_all, 'score', score_col)
+  return(list(best_model = best_model, perf_in_all = perf_in_all))
 }

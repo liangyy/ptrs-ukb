@@ -13,18 +13,19 @@ For a given individual list, set it up.
 ```
 POPNAME='British-test-1'  
 OUTDIR=/vol/bmd/yanyul/UKB/gcta_regulability
+GENEMODEL=ctimp_Whole_Blood
 ```
 
 Do formatting first.
 
 ```
-screen -dmS format-$POPNAME bash run_format.screen $POPNAME $OUTDIR
+screen -dmS format-$POPNAME bash run_format.screen $POPNAME $GENEMODEL $OUTDIR
 ```
 
 Then, do gcta
 
 ```
-screen -dmS format-$POPNAME bash run_gcta.screen $POPNAME $OUTDIR
+screen -dmS format-$POPNAME bash run_gcta.screen $POPNAME $GENEMODEL $OUTDIR
 ```
 
 ## Loop over all lists
@@ -35,7 +36,7 @@ Formatting.
 mylist=('African' 'British-test-1' 'Indian' 'Chinese')
 for i in "${mylist[@]}"
 do 
-  screen -dmS format-$i bash run_format.screen $i $OUTDIR
+  screen -dmS format-$i bash run_format.screen $i $GENEMODEL $OUTDIR
 done
 ```
 
@@ -45,6 +46,16 @@ Run `gcta`
 mylist=('African' 'British-test-1' 'Indian' 'Chinese')
 for i in "${mylist[@]}"
 do 
-  screen -dmS gcta-$i bash run_gcta.screen $i $OUTDIR
+  screen -dmS gcta-$i bash run_gcta.screen $i $GENEMODEL $OUTDIR
+done
+```
+
+Run `hail`
+
+```
+mylist=('African' 'British-test-1' 'Indian' 'Chinese')
+for i in "${mylist[@]}"
+do 
+  screen -dmS hail-$i bash run_hail.screen $i $GENEMODEL $OUTDIR
 done
 ```

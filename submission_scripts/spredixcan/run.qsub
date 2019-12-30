@@ -2,8 +2,8 @@
 #PBS -l walltime=24:00:00
 #PBS -l nodes=1:ppn=1
 #PBS -l mem=4gb
-#PBS -e logs/${TRAIT}.err
-#PBS -o logs/${TRAIT}.out
+#PBS -e logs/${TRAIT}-${CONFIG}-${MODELTAG}.err
+#PBS -o logs/${TRAIT}-${CONFIG}-${MODELTAG}.out
 
 source ~/.bash_profile
 source ~/.bashrc
@@ -14,5 +14,5 @@ conda activate parquet
 module load gcc/6.2.0
 module load python/2.7.13
 
-snakemake -s spredixcan.snmk --configfile ../../submission_scripts/spredixcan/config.yaml --nolock --config gwas_name=$TRAIT > ../../submission_scripts/spredixcan/logs/$TRAIT.log 2>&1
+snakemake -s spredixcan.snmk --configfile ../../submission_scripts/spredixcan/config.$CONFIG.yaml --nolock --config gwas_name=$TRAIT tissue=$MODELTAG > ../../submission_scripts/spredixcan/logs/$TRAIT-$CONFIG-$MODELTAG.log 2>&1
 

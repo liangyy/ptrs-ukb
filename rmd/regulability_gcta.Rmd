@@ -176,7 +176,10 @@ est %>% filter(Source == 'V(G)/Vp') %>% rename(regu = Variance) %>% inner_join(d
   facet_wrap(~population, ncol = 2)
 ```
 
-# Plan 
+# Save heritabilty table
 
-Implement and summarize REML results using hail.
+```{r save}
+saveRDS(hail, '../analysis_output/regulability_ctimp.rds')
+saveRDS(df_ldsc, '../analysis_output/hsq_neale_lab.rds')
+```
 

@@ -11,7 +11,7 @@
 
 
 
-<title>Home</title>
+<title>Regulability based on predicted expression: MESA models and GTEx v8 Whole Blood (ctimp)</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -421,45 +421,53 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Home</h1>
+<h1 class="title toc-ignore">Regulability based on predicted expression: MESA models and GTEx v8 Whole Blood (ctimp)</h1>
 
 </div>
 
 
-<div id="query-phenotypes" class="section level1">
-<h1><span class="header-section-number">1</span> Query phenotypes</h1>
-<ul>
-<li>First attempt <a href="first_query.html">link</a></li>
-</ul>
+<pre class="r"><code>library(ggplot2)
+library(dplyr)
+library(pander)
+options(stringsAsFactors = F)
+source(&#39;../code/rlib_doc.R&#39;)
+source(&#39;https://gist.githubusercontent.com/liangyy/43912b3ecab5d10c89f9d4b2669871c9/raw/8151c6fe70e3d4ee43d9ce340ecc0eb65172e616/my_ggplot_theme.R&#39;)
+th$panel.border = element_rect(colour = th$axis.line$colour)
+theme_set(theme_bw(base_size = 10))</code></pre>
+<div id="load-results" class="section level1">
+<h1><span class="header-section-number">1</span> Load results</h1>
+<p>Load CTIMP results.</p>
+<pre class="r"><code>ctimp = readRDS(&#39;../analysis_output/regulability_ctimp.rds&#39;)
+ctimp = ctimp %&gt;% select(-long, -hail) %&gt;% mutate(model = &#39;gtex_v8_ctimp&#39;)</code></pre>
+<p>Load MESA results.</p>
+<pre class="r"><code>pops = c(&#39;African&#39;, &#39;Chinese&#39;, &#39;Indian&#39;, &#39;British-test-1&#39;)
+models = c(&#39;AFA&#39;, &#39;CAU&#39;, &#39;AFHI&#39;, &#39;HIS&#39;, &#39;ALL&#39;)
+tmp_list = list()
+for(p in pops) {
+  for(m in models) {
+    filename = paste0(&#39;~/Desktop/tmp/gcta_regu/reml_from_hail_martin_et_al_traits_x_&#39;, m, &#39;_x_&#39;, p, &#39;.tsv&#39;)
+    tmp_list[[length(tmp_list) + 1]] = read.table(filename, header  = T, sep = &#39;\t&#39;) %&gt;% mutate(population = p, model = m)
+  }
+}
+mesa = do.call(rbind, tmp_list)</code></pre>
+<pre class="r"><code>regu = rbind(ctimp, mesa)
+regu$h_sq[is.na(regu$h_sq)] = 0
+regu$population[regu$population == &#39;British-test-1&#39;] = &#39;British&#39;
+pops[which(pops == &#39;British-test-1&#39;)] = &#39;British&#39;</code></pre>
 </div>
-<div id="quality-control" class="section level1">
-<h1><span class="header-section-number">2</span> Quality control</h1>
-<ul>
-<li>Population QC (based on UKB label and filter out outliers in PC space (10 PC’s)) <a href="population_assignment.html">link</a></li>
-<li>Phenotype QC <a href="phenotype_qc.html">link</a></li>
-<li>Monocyte technical covariates and multiple modes in monocyte count <a href="query_monocyte_covar.html">link</a></li>
-</ul>
-</div>
-<div id="gwas-tries" class="section level1">
-<h1><span class="header-section-number">3</span> GWAS tries</h1>
-<ul>
-<li>First attempt <a href="first_gwas_compare.html">link</a></li>
-<li>Sanity check of GWAS runs using GCP <a href="check_gwas_run.html">link</a></li>
-</ul>
-</div>
-<div id="misc-analysis" class="section level1">
-<h1><span class="header-section-number">4</span> Misc analysis</h1>
-<ul>
-<li>Splitting data into training, validation, and test sets <a href="split_individuals.html">link</a></li>
-<li>REML <a href="regulability_gcta.html">link</a></li>
-<li>REML on MESA models <a href="regulability_mesa.html">link</a></li>
-</ul>
-</div>
-<div id="prsptrs-results" class="section level1">
-<h1><span class="header-section-number">5</span> PRS/PTRS results</h1>
-<ul>
-<li>First look at PTRS/PRS on GTEx V8 whole blood CTIMP model <a href="first_look_at_ptrs_prs.html">link</a></li>
-</ul>
+<div id="results" class="section level1">
+<h1><span class="header-section-number">2</span> Results</h1>
+<pre class="r"><code>regu_reshape = regu %&gt;% select(population, trait, h_sq, model) %&gt;% dcast( trait + population ~ model, value.var = &#39;h_sq&#39;) 
+# pp = list()
+for(p in pops) {
+  pp = myggpairs(
+    regu_reshape %&gt;% filter(population == p) %&gt;% select(-population, -trait), 
+    col = regu_reshape %&gt;% filter(population == p) %&gt;% pull(population)
+    ) + geom_abline(slope = 1, intercept = 0) + coord_equal() + ggtitle(p) + 
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+  print(pp)
+}</code></pre>
+<p><img src="regulability_mesa_files/figure-html/plot-1.png" width="480" /><img src="regulability_mesa_files/figure-html/plot-2.png" width="480" /><img src="regulability_mesa_files/figure-html/plot-3.png" width="480" /><img src="regulability_mesa_files/figure-html/plot-4.png" width="480" /></p>
 </div>
 
 

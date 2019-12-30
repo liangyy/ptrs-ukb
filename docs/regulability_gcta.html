@@ -607,9 +607,10 @@ est %&gt;% filter(Source == &#39;V(G)/Vp&#39;) %&gt;% rename(gcta = Variance) %&
 <p><img src="regulability_gcta_files/figure-html/h%20vs%20e-1.png" width="576" /></p>
 </div>
 </div>
-<div id="plan" class="section level1">
-<h1><span class="header-section-number">4</span> Plan</h1>
-<p>Implement and summarize REML results using hail.</p>
+<div id="save-heritabilty-table" class="section level1">
+<h1><span class="header-section-number">4</span> Save heritabilty table</h1>
+<pre class="r"><code>saveRDS(hail, &#39;../analysis_output/regulability_ctimp.rds&#39;)
+saveRDS(df_ldsc, &#39;../analysis_output/hsq_neale_lab.rds&#39;)</code></pre>
 </div>
 
 
