@@ -2,11 +2,11 @@ if 'outdir' not in config:
     config['outdir'] = 'output'
 
 
-if 'name' in config or 'name_list' in config:
+if ('name' in config or 'name_list' in config) and ('{name}' in config['prs']):
     if 'name' in config:
         rule all:
             input:
-                '{outdir}/ptrs_r2_subset{num}_x_{name}.txt'.format(
+                '{outdir}/prs_r2_subset{num}_x_{name}.txt'.format(
                     outdir = config['outdir'],
                     num = config['num'],
                     name = config['name']
@@ -14,10 +14,10 @@ if 'name' in config or 'name_list' in config:
     elif 'name_list' in config:
         rule all:
             input:
-                [ '{outdir}/ptrs_r2_subset{num}_x_{name}.txt'.format(
+                [ '{outdir}/prs_r2_subset{num}_x_{name}.txt'.format(
                     outdir = config['outdir'],
                     num = config['num'],
-                    name = config['name']
+                    name = name
                 ) for name in config['name_list'].split(',') ]
     rule prs_r2:
         input:
@@ -28,7 +28,7 @@ if 'name' in config or 'name_list' in config:
         params:
             config['indiv_list']
         output:
-            '{outdir}/ptrs_r2_subset{num}_x_{name}.txt'
+            '{outdir}/prs_r2_subset{num}_x_{name}.txt'
         shell:
             'Rscript ../../code/prs_compute_r2.R \
                --prs {input.prs_file} \
@@ -40,7 +40,7 @@ if 'name' in config or 'name_list' in config:
 else:
     rule all:
         input:
-            '{outdir}/ptrs_r2_subset{num}.txt'.format(
+            '{outdir}/prs_r2_subset{num}.txt'.format(
                 outdir = config['outdir'],
                 num = config['num']
             )
@@ -53,7 +53,7 @@ else:
         params:
             config['indiv_list']
         output:
-            '{outdir}/ptrs_r2_subset{num}.txt'
+            '{outdir}/prs_r2_subset{num}.txt'
         shell:
             'Rscript ../../code/prs_compute_r2.R \
                --prs {input.prs_file} \

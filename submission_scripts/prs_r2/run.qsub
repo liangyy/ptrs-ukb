@@ -16,5 +16,5 @@ module load gcc/6.2.0
 module load R/3.5.0
 
 
-snakemake -s prs_r2.snmk --configfile ../../submission_scripts/prs_r2/config.$CONFIG.yaml --config num=$NUM > ../../submission_scripts/prs_r2/logs/R2-$NUM-$CONFIG.log 2>&1
+snakemake -s prs_r2.snmk --configfile ../../submission_scripts/prs_r2/config.$CONFIG.yaml --config num=$NUM outdir=$OUTDIR > ../../submission_scripts/prs_r2/logs/R2-$NUM-$CONFIG.log 2>&1
 
