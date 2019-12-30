@@ -1,6 +1,6 @@
 # predicted expression
 pred_expr: '/vol/bmd/yanyul/UKB/predicted_expression/predicted_expression.ukb_imp_x_{gene_model}.h5'
-gene_model: 'ctimp_Whole_Blood'
+# gene_model: 'ctimp_Whole_Blood'
 
 # individual list
 indiv_list: '/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/{pop_name}.txt'
