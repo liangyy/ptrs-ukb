@@ -1,0 +1,20 @@
+#PBS -S /bin/bash
+#PBS -l walltime=24:00:00
+#PBS -l nodes=1:ppn=1
+#PBS -l mem=4gb
+#PBS -e logs/R2-${NUM}-${CONFIG}.err
+#PBS -o logs/R2-${NUM}-${CONFIG}.out
+
+
+source ~/.bash_profile
+source ~/.bashrc
+cd /gpfs/data/im-lab/nas40t2/yanyul/GitHub/ptrs-ukb/pipeline/prs_r2
+
+conda activate parquet
+
+module load gcc/6.2.0
+module load R/3.5.0
+
+
+snakemake -s prs_r2.snmk --configfile ../../submission_scripts/prs_r2/config.$CONFIG.yaml --config num=$NUM > ../../submission_scripts/prs_r2/logs/R2-$NUM-$CONFIG.log 2>&1
+

@@ -2,14 +2,23 @@ if 'outdir' not in config:
     config['outdir'] = 'output'
 
 
-if 'name' in config:
-    rule all:
-        input:
-            '{outdir}/ptrs_r2_subset{num}_x_{name}.txt'.format(
-                outdir = config['outdir'],
-                num = config['num'],
-                name = config['name']
-            )
+if 'name' in config or 'name_list' in config:
+    if 'name' in config:
+        rule all:
+            input:
+                '{outdir}/ptrs_r2_subset{num}_x_{name}.txt'.format(
+                    outdir = config['outdir'],
+                    num = config['num'],
+                    name = config['name']
+                )
+    elif 'name_list' in config:
+        rule all:
+            input:
+                [ '{outdir}/ptrs_r2_subset{num}_x_{name}.txt'.format(
+                    outdir = config['outdir'],
+                    num = config['num'],
+                    name = config['name']
+                ) for name in config['name_list'].split(',') ]
     rule prs_r2:
         input:
             prs_file = config['prs'],
