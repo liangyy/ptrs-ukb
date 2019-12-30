@@ -1,0 +1,13 @@
+predictdb: '/vol/bmd/yanyul/data/MESA-2018-05-v2/{model}_imputed_10_peer_3_pcs_v2.db'
+genotype:
+  bgen: '/vol/bmd/data/ukbiobank/genotypes/v3/ukb_imp_chr{i}_v3.bgen'
+  sample: '/vol/bmd/data/ukbiobank/genotypes/v3/ukb19526_imp_chr1_v3_s487395.sample'
+  name: 'ukb_imp'
+# predictdb_name: 'ctimp_Whole_Blood'  
+bgens_cache_nvar: 250
+bgens_writing_cache_in_mb: 500
+script_dir: '/vol/bmd/yanyul/GitHub/predixcan_prediction' 
+bgenix_dir: '/vol/bmd/yanyul/softwares/from_bitbucket/gavinband-bgen-4e33223a8dc4/build/apps'
+max_sample_chunk_size: 10000
+max_gene_chunk_size: 10
+
