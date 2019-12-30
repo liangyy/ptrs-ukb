@@ -1,0 +1,13 @@
+subset10:
+  indiv_lists: gs://ptrs-ukb/results/output/data_split/African.txt,gs://ptrs-ukb/results/output/data_split/Chinese.txt,gs://ptrs-ukb/results/output/data_split/Indian.txt,gs://ptrs-ukb/results/output/data_split/British-test-10.txt,gs://ptrs-ukb/results/output/data_split/British-validation-10.txt
+  GWASs:
+    rbc:
+      sum_stat: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset10_x_rbc.gwas.tsv
+      ld_clump: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset10_x_rbc.clumped_snp
+    sbp:
+      sum_stat: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset10_x_sbp.gwas.tsv
+      ld_clump: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset10_x_sbp.clumped_snp
+    wbc:
+      sum_stat: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset10_x_wbc.gwas.tsv
+      ld_clump: gs://ptrs-ukb/results/ld_clump/gwas_clump_x_subset10_x_wbc.clumped_snp
+          
