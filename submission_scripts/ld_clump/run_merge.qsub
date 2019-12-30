@@ -14,5 +14,5 @@ conda activate parquet
 module load gcc/6.2.0
 module load R/3.5.0
 
-snakemake -s ld_clump.snmk --configfile ../../submission_scripts/ld_clump/config.merge.yaml --config subset_name=$SUBSET > ../../submission_scripts/ld_clump/logs/merge-$SUBSET.log 2>&1
+snakemake -s merge_by_subset.snmk --configfile ../../submission_scripts/ld_clump/config.merge.yaml --config subset_name=$SUBSET > ../../submission_scripts/ld_clump/logs/merge-$SUBSET.log 2>&1
 

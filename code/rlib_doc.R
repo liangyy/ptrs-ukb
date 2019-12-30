@@ -79,8 +79,8 @@ parse_neale_snp = function(str) {
 
 compute_r2 = function(df, y, ypred, covariates, report_pval = T) {
   covariates_terms = paste0(covariates, collapse = ' + ')
-  formula_null = paste0(y, ' ~ ', '1 + ', covariates_terms)
-  formula_full = paste0(y, ' ~ ', '1 + ', covariates_terms, ' + `', ypred, '`')
+  formula_null = paste0('`', y, '`', ' ~ ', '1 + ', covariates_terms)
+  formula_full = paste0('`', y, '`', ' ~ ', '1 + ', covariates_terms, ' + `', ypred, '`')
   # print(formula_null)
   # print(formula_full)
   mod_null <- lm(as.formula(formula_null), data = df)

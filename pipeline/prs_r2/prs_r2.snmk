@@ -1,29 +1,55 @@
 if 'outdir' not in config:
     config['outdir'] = 'output'
 
-rule all:
-    input:
-        '{outdir}/ptrs_r2_subset{num}{name}.txt'.format(
-            outdir = config['outdir'],
-            num = config['num'],
-            name = config['name']
-        )
 
-rule prs_r2:
-    input:
-        prs_file = config['prs'],
-        indiv_lists = config['indiv_list'].split(','),
-        pheno_table = config['phenotype']['table'],
-        pheno_yaml = config['phenotype']['yaml']
-    params:
-        config['indiv_list']
-    output:
-        '{outdir}/ptrs_r2_subset{num}{name}.txt'
-    shell:
-        'Rscript ../../code/prs_compute_r2.R \
-           --prs {input.prs_file} \
-           --indiv_lists {params[0]} \
-           --indiv_col {config[indiv_col]} \
-           --pheno_table {input.pheno_table} \
-           --pheno_yaml {input.pheno_yaml} \
-           --output {output[0]}'
+if 'name' in config:
+    rule all:
+        input:
+            '{outdir}/ptrs_r2_subset{num}_x_{name}.txt'.format(
+                outdir = config['outdir'],
+                num = config['num'],
+                name = config['name']
+            )
+    rule prs_r2:
+        input:
+            prs_file = config['prs'],
+            indiv_lists = config['indiv_list'].split(','),
+            pheno_table = config['phenotype']['table'],
+            pheno_yaml = config['phenotype']['yaml']
+        params:
+            config['indiv_list']
+        output:
+            '{outdir}/ptrs_r2_subset{num}_x_{name}.txt'
+        shell:
+            'Rscript ../../code/prs_compute_r2.R \
+               --prs {input.prs_file} \
+               --indiv_lists {params[0]} \
+               --indiv_col {config[indiv_col]} \
+               --pheno_table {input.pheno_table} \
+               --pheno_yaml {input.pheno_yaml} \
+               --output {output[0]}'
+else:
+    rule all:
+        input:
+            '{outdir}/ptrs_r2_subset{num}.txt'.format(
+                outdir = config['outdir'],
+                num = config['num']
+            )
+    rule prs_r2:
+        input:
+            prs_file = config['prs'],
+            indiv_lists = config['indiv_list'].split(','),
+            pheno_table = config['phenotype']['table'],
+            pheno_yaml = config['phenotype']['yaml']
+        params:
+            config['indiv_list']
+        output:
+            '{outdir}/ptrs_r2_subset{num}.txt'
+        shell:
+            'Rscript ../../code/prs_compute_r2.R \
+               --prs {input.prs_file} \
+               --indiv_lists {params[0]} \
+               --indiv_col {config[indiv_col]} \
+               --pheno_table {input.pheno_table} \
+               --pheno_yaml {input.pheno_yaml} \
+               --output {output[0]}'

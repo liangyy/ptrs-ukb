@@ -2,9 +2,10 @@ indiv_list: '/scratch/t.cri.yliang/PTRS/output/data_split/British-test-{num}.txt
 phenotype: 
   table: '/scratch/t.cri.yliang/PTRS/output/query_phenotypes_cleaned_up.csv'
   yaml: '/gpfs/data/im-lab/nas40t2/yanyul/GitHub/ptrs-ukb/misc/gwas_full_pheno_covar.yaml'
-prs: '/scratch/t.cri.yliang/PTRS/prs/prs_gcp_subset{num}{name}.tsv.bgz'
+# prs: '/scratch/t.cri.yliang/PTRS/prs/prs_gcp_subset{num}_x_{name}.tsv.bgz'
+prs: '/scratch/t.cri.yliang/PTRS/prs/prs_gcp_subset{num}.tsv.bgz'
 indiv_col: 's'
-# num: 1
+num: 1
 # name: ''
-num: 5
-name: '_x_height'
+# num: 5
+# name: 'height'

@@ -56,15 +56,16 @@ for(pop in strsplit(opt$indiv_lists, ',')[[1]]) {
   pop_name = stringr::str_remove(basename(pop), '.txt')
   tmp = myfread(pop, header = F)
   tmp = as.character(tmp$V1)
-  pop_list[[length(pop_list)]] = data.frame(indiv = tmp, population = pop_name)
+  pop_list[[length(pop_list) + 1]] = data.frame(indiv = tmp, population = pop_name)
 }
 pop_assign = do.call(rbind, pop_list)
 
 
 # read in prs
 prs = myfread(opt$prs, header = T, sep = '\t')
+prs[, opt$indiv_col] = as.character(prs[, opt$indiv_col])
 prs_cols = colnames(prs)
-prs_cols[which(prs_cols == opt$indiv_col)] = NULL
+prs_cols = prs_cols[which(prs_cols != opt$indiv_col)]
 trait_and_pvals = parse_trait_and_pthreshod_from_prs(prs_cols)
 join_by = 'indiv'; names(join_by) = opt$indiv_col
 message('Before join nrow(prs) = ', nrow(prs))
@@ -75,13 +76,14 @@ message('After join nrow(prs) = ', nrow(prs))
 # read phenotype/covariates
 pheno = myfread(opt$pheno_table, header = T, sep = ',')
 meta_info = yaml::read_yaml(opt$pheno_yaml)
+pheno[, meta_info$indiv_id] = as.character(pheno[, meta_info$indiv_id])
 covars = strsplit(meta_info$covar_names, ',')[[1]]
 df_covar = pheno[, c(covars, meta_info$indiv_id)]
 df_pheno = pheno[, c(unique(trait_and_pvals$trait), meta_info$indiv_id)]
 join_by = meta_info$indiv_id
 names(join_by) = opt$indiv_col
-prs = inner_join(prs, df_covar, by = join_col)
-prs = inner_join(prs, df_pheno, by = join_col)
+prs = inner_join(prs, df_covar, by = join_by)
+prs = inner_join(prs, df_pheno, by = join_by)
 
 
 # loop over traits
@@ -90,7 +92,8 @@ for(i in 1 : nrow(trait_and_pvals)) {
   colname_i = trait_and_pvals$colname[i]
   trait_i = trait_and_pvals$trait[i]
   pval_i = trait_and_pvals$pthreshold[i]
-  tmp = prs %>% group_by(population) %>% do(compute_r2(., colname_i, trait_i, covars)
+  print(colname_i)
+  tmp = prs %>% group_by(population) %>% do(compute_r2(., colname_i, trait_i, covars))
   out[[length(out) + 1]] = tmp %>% mutate(trait = trait_i, pval_cutoff = pval_i)
 }
 out = do.call(rbind, out)
