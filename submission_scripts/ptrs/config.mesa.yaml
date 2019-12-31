@@ -1,0 +1,13 @@
+outdir: '/scratch/t.cri.yliang/PTRS/ptrs_mesa' 
+
+ptrs_type: 'naive' 
+predicted_expression: '/gpfs/data/im-lab/nas40t2/yanyul/PTRS/predicted_expression/predicted_expression.ukb_imp_x_{prediction_model_name}.h5'
+spredixcan: '/scratch/t.cri.yliang/PTRS/spredixcan_mesa/spredixcan_x_{spredixcan_name}_x_CAU_x_MESA.csv'
+indiv_subset: '/scratch/t.cri.yliang/PTRS/output/data_split/{indiv_list_name}.txt'
+
+pval_cutoffs: '1e-8,1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,0.05,0.1,0.5,1' 
+
+# prediction_model_name: 'ctimp_Whole_Blood'
+# indiv_list_name: 'British-test-1'
+
+# spredixcan_list: 'subset$NUM_x_basophil,subset$NUM_x_bmi,subset$NUM_x_dbp,subset$NUM_x_eosinophil,subset$NUM_x_hb,subset$NUM_x_height,subset$NUM_x_ht,subset$NUM_x_lymphocyte,subset$NUM_x_mch,subset$NUM_x_mchc,subset$NUM_x_mcv,subset$NUM_x_monocyte,subset$NUM_x_neutrophil,subset$NUM_x_platelet,subset$NUM_x_rbc,subset$NUM_x_sbp,subset$NUM_x_wbc'

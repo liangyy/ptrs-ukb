@@ -2,8 +2,8 @@
 #PBS -l walltime=24:00:00
 #PBS -l nodes=1:ppn=1
 #PBS -l mem=16gb
-#PBS -e logs/${NUM}-${INDIVLIST}.err
-#PBS -o logs/${NUM}-${INDIVLIST}.out
+#PBS -e logs/${CONFIG}-${NUM}-${INDIVLIST}-${PREDMODEL}.err
+#PBS -o logs/${CONFIG}-${NUM}-${INDIVLIST}-${PREDMODEL}.out
 
 
 source ~/.bash_profile
@@ -15,6 +15,9 @@ conda activate parquet
 module load gcc/6.2.0
 module load R/3.5.0
 
-
-snakemake -s ptrs.snmk --configfile ../../submission_scripts/ptrs/config.yaml --nolock --config spredixcan_list=$SPREDIXCANLIST indiv_list_name=$INDIVLIST > ../../submission_scripts/ptrs/logs/$NUM-$INDIVLIST.log 2>&1
-
+if [[ -z $PREDMODEL ]]
+then
+  snakemake -s ptrs.snmk --configfile ../../submission_scripts/ptrs/config.$CONFIG.yaml --nolock --config spredixcan_list=$SPREDIXCANLIST indiv_list_name=$INDIVLIST > ../../submission_scripts/ptrs/logs/$CONFIG-$NUM-$INDIVLIST.log 2>&1
+else
+  snakemake -s ptrs.snmk --configfile ../../submission_scripts/ptrs/config.$CONFIG.yaml --nolock --config spredixcan_list=$SPREDIXCANLIST indiv_list_name=$INDIVLIST prediction_model_name=$PREDMODEL > ../../submission_scripts/ptrs/logs/$CONFIG-$NUM-$INDIVLIST-$PREDMODEL.log 2>&1
+fi
