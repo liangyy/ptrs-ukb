@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+
+<title>First look at MESA PTRS</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+  padding-left: 25px;
+  text-indent: 0;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">PTRS UKB</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/liangyy/ptrs-ukb">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">First look at MESA PTRS</h1>
+
+</div>
+
+
+<pre class="r"><code>library(dplyr)
+library(data.table)
+library(ggplot2)
+options(stringsAsFactors = F)
+parse_pop = function(x) {
+  x = unlist(lapply(strsplit(x, &#39;-&#39;), function(y) {
+    if(length(y) &gt; 1) {
+      return(paste0(y[1], &#39;-&#39;, y[2]))
+    } else {
+      return(y)
+    }
+  }))
+}
+theme_set(theme_bw(base_size = 10))
+source(&#39;../code/rlib_doc.R&#39;)
+traits = tolower(read.csv(&#39;../external_data/martin_et_al_2019ng_table_s6.csv&#39;)$Trait)
+diag_df = data.frame(trait = traits, index = 1 : 17)</code></pre>
+<div id="about" class="section level1">
+<h1><span class="header-section-number">1</span> About</h1>
+<p>Gene weights were obtained from S-PrediXcan run using MESA CAU model.</p>
+</div>
+<div id="load-results" class="section level1">
+<h1><span class="header-section-number">2</span> Load results</h1>
+<div id="mesa-ptrs" class="section level2">
+<h2><span class="header-section-number">2.1</span> MESA PTRS</h2>
+<pre class="r"><code>mesa_models = c(&#39;AFA&#39;, &#39;AFHI&#39;, &#39;CAU&#39;, &#39;ALL&#39;, &#39;HIS&#39;)
+result = list()
+for(m in mesa_models) {
+  for(i in 1 : 17) {
+    for(t in traits) {
+      filename = paste0(&#39;~/Desktop/tmp/ptrs_mesa_r2/ptrs_mesa_r2_&#39;, m, &#39;/ptrs-r2_subset&#39;, i, &#39;_x_&#39;, t, &#39;.txt&#39;)
+      tmp = read.table(filename, header = T, sep = &#39;\t&#39;)
+      result[[length(result) + 1]] = tmp %&gt;% mutate(subset = i, trait = t, model = m)
+    }
+  }
+}
+df_mesa = do.call(rbind, result)
+df_mesa$population = parse_pop(df_mesa$population)
+df_mesa$ptrs_col = factor(df_mesa$ptrs_col, levels = unique(df_mesa$ptrs_col))</code></pre>
+</div>
+<div id="gtex-v8-ctimp-whole-blood-ptrs" class="section level2">
+<h2><span class="header-section-number">2.2</span> GTEx V8 CTIMP whole blood PTRS</h2>
+<pre class="r"><code>result = list()
+for(i in 1 : 17) {
+  for(t in traits) {
+    filename = paste0(&#39;~/Desktop/tmp/ptrs_r2/ptrs-r2_subset&#39;, i, &#39;_x_&#39;, t, &#39;.txt&#39;)
+    tmp = read.table(filename, header = T, sep = &#39;\t&#39;)
+    result[[length(result) + 1]] = tmp %&gt;% mutate(subset = i, trait = t, model = &#39;gtex_v8_ctimp&#39;)
+  }
+}
+df_gtex = do.call(rbind, result)
+df_gtex$population = parse_pop(df_gtex$population)
+df_gtex$ptrs_col = factor(df_gtex$ptrs_col, levels = unique(df_gtex$ptrs_col))</code></pre>
+</div>
+<div id="merge" class="section level2">
+<h2><span class="header-section-number">2.3</span> Merge</h2>
+<pre class="r"><code>df_ptrs = rbind(df_mesa %&gt;% select(-SSE.wo, -SSE.with), df_gtex)</code></pre>
+</div>
+</div>
+<div id="plot" class="section level1">
+<h1><span class="header-section-number">3</span> Plot</h1>
+<div id="overview" class="section level2">
+<h2><span class="header-section-number">3.1</span> Overview</h2>
+<pre class="r"><code>df_ptrs %&gt;% ggplot() + geom_boxplot(aes(x = ptrs_col, y = r2, color = population)) + facet_wrap(~model, ncol = 2, scales = &#39;free_y&#39;) + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) + theme(legend.position = &#39;bottom&#39;)</code></pre>
+<p><img src="first_look_at_mesa_ptrs_files/figure-html/overview-1.png" width="960" /></p>
+</div>
+<div id="zoom-in-afhi-model-vs-cau-model" class="section level2">
+<h2><span class="header-section-number">3.2</span> Zoom in AFHI model vs CAU model</h2>
+<pre class="r"><code>df_ptrs %&gt;% filter(model %in% c(&#39;CAU&#39;, &#39;AFHI&#39;)) %&gt;% select(-pval) %&gt;% dcast(population + ptrs_col + subset + trait ~ model, value.var = &#39;r2&#39;) %&gt;% filter(paste(trait, subset) %in% paste(diag_df$trait, diag_df$index)) %&gt;% 
+  ggplot() + geom_point(aes(x = CAU, y = AFHI), alpha = .3) + facet_wrap(~population, scales = &#39;free&#39;) + geom_abline(slope = 1, intercept = 0)</code></pre>
+<p><img src="first_look_at_mesa_ptrs_files/figure-html/afa-vs-cau-1.png" width="672" /></p>
+</div>
+<div id="best-cau-model-performance" class="section level2">
+<h2><span class="header-section-number">3.3</span> Best CAU model performance</h2>
+<pre class="r"><code>df_cau = df_ptrs %&gt;% filter(model == &#39;CAU&#39;)
+best_cau = best_model_based_on_one(df_cau, pop_name = &#39;British-validation&#39;, model_col = &#39;ptrs_col&#39;, score_col = &#39;r2&#39;)
+best_cau$perf_in_all %&gt;% 
+  filter(paste(trait, subset) %in% paste(diag_df$trait, diag_df$index)) %&gt;% 
+  ggplot() + geom_violin(aes(x = population, y = transferability)) + 
+  geom_jitter(aes(x = population, y = transferability), height = 0, width = 0.2)</code></pre>
+<p><img src="first_look_at_mesa_ptrs_files/figure-html/best-cau-1.png" width="672" /></p>
+</div>
+<div id="performance-of-cau-model-with-other-prediction-models" class="section level2">
+<h2><span class="header-section-number">3.4</span> Performance of CAU model with other prediction models</h2>
+<pre class="r"><code>performance_of_best_model = function(best_model, best_pop, candidate_models) {
+  df_candidate_best = candidate_models %&gt;% filter(paste(trait, ptrs_col, subset) %in% paste(best_model$best_model$trait, best_model$best_model$best_model, best_model$best_model$subset))
+  df_candidate_best = inner_join(df_candidate_best, best_model$perf_in_all %&gt;% filter(population == best_pop) %&gt;% select(trait, ptrs_col, subset, r2) %&gt;% rename(best_r2 = r2), by = c(&#39;trait&#39;, &#39;ptrs_col&#39;, &#39;subset&#39;))
+  df_candidate_best_perf = df_candidate_best %&gt;% mutate(transferability = r2 / best_r2)
+  df_candidate_best_perf = inner_join(best_model$perf_in_all, df_candidate_best_perf, by = c(&#39;trait&#39;, &#39;population&#39;, &#39;subset&#39;, &#39;ptrs_col&#39;), suffix = c(&#39;_best&#39;, &#39;_cand&#39;)) %&gt;% mutate(ratio_cand_over_best = r2_cand / r2_best)
+  df_candidate_best_perf
+}</code></pre>
+<p>Loop over all other prediction models.</p>
+<pre class="r"><code>out_list = list()
+for(m in mesa_models) {
+  # if( m == &#39;CAU&#39;) {
+  #   next
+  # }
+  df_tmp = performance_of_best_model(best_cau, &#39;British-validation&#39;, df_ptrs %&gt;% filter(model == m))
+  out_list[[length(out_list) + 1]] = df_tmp %&gt;% mutate(other_model = m)
+}
+df_best_cau_all_others = do.call(rbind, out_list)</code></pre>
+<p>Performance of best CAU model with other prediction models.</p>
+<pre class="r"><code>df_best_cau_all_others %&gt;% 
+  filter(paste(trait, subset) %in% paste(diag_df$trait, diag_df$index)) %&gt;% 
+  ggplot() + geom_violin(aes(x = population, y = transferability_cand, color = other_model)) + 
+  geom_jitter(aes(x = population, y = transferability_cand, color = other_model), position = position_dodge(width = .9))</code></pre>
+<p><img src="first_look_at_mesa_ptrs_files/figure-html/perf-best-cau-with-other-1.png" width="672" /></p>
+<p>Side-by-side comparing best CAU model with other prediction models</p>
+<pre class="r"><code>df_best_cau_all_others %&gt;% filter(population != &#39;British-validation&#39;, other_model != &#39;CAU&#39;) %&gt;% 
+  ggplot(aes(x = transferability_best, y = transferability_cand)) + 
+  geom_point(alpha = 0.1) + 
+  facet_grid(population~other_model, scales = &#39;free&#39;) + 
+  geom_abline(slope = 1, intercept = 0) + 
+  scale_x_log10() + 
+  scale_y_log10()</code></pre>
+<p><img src="first_look_at_mesa_ptrs_files/figure-html/side-by-side-best-cau-with-others-1.png" width="576" /></p>
+<pre class="r"><code>df_best_cau_all_others %&gt;% filter(population != &#39;British-validation&#39;, other_model != &#39;CAU&#39;) %&gt;%
+  ggplot() + geom_boxplot(aes(x = trait, y = ratio_cand_over_best), alpha = 0.3) + facet_grid(population~other_model, scales = &#39;free_y&#39;) + scale_y_log10() + geom_hline(yintercept = 1) + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))</code></pre>
+<p><img src="first_look_at_mesa_ptrs_files/figure-html/side-by-side-best-cau-with-others-2.png" width="576" /></p>
+</div>
+<div id="best-model-within-each" class="section level2">
+<h2><span class="header-section-number">3.5</span> Best model within each</h2>
+<p>Calculate.</p>
+<pre class="r"><code>best_for_each = df_ptrs %&gt;% filter(model != &#39;gtex_v8_ctimp&#39;) %&gt;% group_by(trait, subset, model, population) %&gt;% summarize(best_model = ptrs_col[which.max(r2)], max_r2 = max(r2)) %&gt;% ungroup()
+best_for_each = inner_join(best_for_each, best_cau$perf_in_all %&gt;% filter(population == &#39;British-validation&#39;) %&gt;% select(r2, trait, subset) %&gt;% rename(reference_r2 = r2), by = c(&#39;trait&#39;, &#39;subset&#39;))
+best_for_each = best_for_each %&gt;% mutate(transferability = max_r2 / reference_r2)</code></pre>
+<p>Plot transferability.</p>
+<pre class="r"><code>best_for_each %&gt;% filter(paste(trait, subset) %in% paste(diag_df$trait, diag_df$index)) %&gt;% 
+  ggplot() + geom_violin(aes(x = population, y = transferability, color = model)) + 
+  geom_jitter(aes(x = population, y = transferability, color = model), position = position_dodge(width = .9))</code></pre>
+<p><img src="first_look_at_mesa_ptrs_files/figure-html/plot-best-for-each-1.png" width="672" /></p>
+<p>Side-by-side transferability between prediction models.</p>
+<pre class="r"><code>best_for_each_reference = best_for_each %&gt;% filter(model == &#39;CAU&#39;)
+best_for_each = inner_join(best_for_each, best_for_each_reference %&gt;% select(trait, subset, population, transferability), by = c(&#39;trait&#39;, &#39;subset&#39;, &#39;population&#39;), suffix = c(&#39;_cand&#39;, &#39;_best&#39;)) 
+best_for_each = best_for_each %&gt;% mutate(ratio_cand_over_best = transferability_cand / transferability_best)</code></pre>
+<pre class="r"><code>best_for_each %&gt;% filter(population != &#39;British-validation&#39;, model != &#39;CAU&#39;) %&gt;% 
+  ggplot(aes(x = transferability_best, y = transferability_cand)) + 
+  geom_point(alpha = 0.1) + 
+  facet_grid(population~model, scales = &#39;free&#39;) + 
+  geom_abline(slope = 1, intercept = 0) + 
+  scale_x_log10() + 
+  scale_y_log10()</code></pre>
+<p><img src="first_look_at_mesa_ptrs_files/figure-html/plot-best-for-each2-1.png" width="672" /></p>
+<pre class="r"><code>best_for_each %&gt;% filter(population != &#39;British-validation&#39;, model != &#39;CAU&#39;) %&gt;%
+  ggplot() + geom_boxplot(aes(x = trait, y = ratio_cand_over_best), alpha = 0.3) + facet_grid(population~model, scales = &#39;free_y&#39;) + scale_y_log10() + geom_hline(yintercept = 1) + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))</code></pre>
+<p><img src="first_look_at_mesa_ptrs_files/figure-html/plot-best-for-each2-2.png" width="672" /></p>
+</div>
+<div id="compare-with-ptrs-pve" class="section level2">
+<h2><span class="header-section-number">3.6</span> Compare with PTRS PVE</h2>
+<p>Load</p>
+<pre class="r"><code>regu = readRDS(&#39;../analysis_output/regulability_mesa_and_ctimp.rds&#39;)
+df_best_cau_all_others$pop = df_best_cau_all_others$population
+df_best_cau_all_others$pop[df_best_cau_all_others$pop %in% c(&#39;British-test&#39;, &#39;British-validation&#39;)] = &#39;British&#39;
+df_best_cau_all_others = inner_join(df_best_cau_all_others, regu, by = c(&#39;trait&#39;, &#39;pop&#39; = &#39;population&#39;, &#39;model&#39;))
+best_for_each$pop = best_for_each$population
+best_for_each$pop[best_for_each$pop %in% c(&#39;British-test&#39;, &#39;British-validation&#39;)] = &#39;British&#39;
+best_for_each = inner_join(best_for_each, regu, by = c(&#39;trait&#39;, &#39;pop&#39; = &#39;population&#39;, &#39;model&#39;))</code></pre>
+<p>Plot</p>
+<pre class="r"><code>df_best_cau_all_others %&gt;% 
+  filter(paste(trait, subset) %in% paste(diag_df$trait, diag_df$index)) %&gt;% 
+  ggplot() + geom_point(aes(x = h_sq, y = r2_cand)) + 
+  facet_grid(other_model~population, scales = &#39;free&#39;) </code></pre>
+<p><img src="first_look_at_mesa_ptrs_files/figure-html/ptrs-pve-vs-r2-best-cau-1.png" width="576" /></p>
+<pre class="r"><code>best_for_each %&gt;% 
+  filter(paste(trait, subset) %in% paste(diag_df$trait, diag_df$index)) %&gt;% 
+  ggplot() + geom_point(aes(x = h_sq, y = max_r2)) + 
+  facet_grid(model~population, scales = &#39;free&#39;) </code></pre>
+<p><img src="first_look_at_mesa_ptrs_files/figure-html/ptrs-pve-vs-r2-best-each-1.png" width="576" /></p>
+</div>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

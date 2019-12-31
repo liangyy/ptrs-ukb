@@ -142,7 +142,6 @@ best_each_ptrs$perf_in_all %>%
 
 ```{r best model prs}
 best_each_prs = best_model_for_each(df_result_prs, 'British-validation', 'pval_cutoff', 'r2')
-best_model = df_result %>% group_by(trait, subset, population) %>% summarize(best_model = ptrs_col[which.max(r2)])
 best_each_prs$perf_in_all %>% 
   filter(paste(trait, subset) %in% paste(diag_df$trait, diag_df$index)) %>% 
   ggplot() + geom_violin(aes(x = population, y = transferability)) + 

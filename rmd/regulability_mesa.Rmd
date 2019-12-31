@@ -58,3 +58,9 @@ for(p in pops) {
   print(pp)
 }
 ```
+
+# Save
+
+```{r save}
+saveRDS(regu, '../analysis_output/regulability_mesa_and_ctimp.rds')
+```
