@@ -1,5 +1,7 @@
 Run on CRI.
 
+# Compute PTRS
+
 Example:
 
 ```
@@ -44,3 +46,16 @@ do
 done
 ```
 
+# Compute R2
+
+Example:
+
+```
+bash submit_r2.sh r2
+```
+
+Run MESA models
+
+```
+bash submit_r2_mesa.sh config.r2_mesa_template.yaml CAU
+```

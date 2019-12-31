@@ -3,6 +3,9 @@
 if 'outdir' not in config:
     config['outdir'] = 'output'
 
+if 'bootstrap' not in config:
+    config['bootstrap'] = 'No'
+    
 populations = config['populations'].split(':')
 
 if 'trait_name' in config:
@@ -34,5 +37,6 @@ rule calc_r2:
            --pheno_table {input.pheno_table} \
            --pheno_yaml {input.pheno_yaml} \
            --trait_col {wildcards.trait_name} \
-           --output {output[0]}'
+           --output {output[0]} \
+           --bootstrap {config[bootstrap]}'
            

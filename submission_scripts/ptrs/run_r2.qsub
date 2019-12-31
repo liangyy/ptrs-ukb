@@ -2,8 +2,8 @@
 #PBS -l walltime=24:00:00
 #PBS -l nodes=1:ppn=1
 #PBS -l mem=4gb
-#PBS -e logs/R2-${NUM}.err
-#PBS -o logs/R2-${NUM}.out
+#PBS -e logs/R2-${CONFIG}-${NUM}.err
+#PBS -o logs/R2-${CONFIG}-${NUM}.out
 
 
 source ~/.bash_profile
@@ -16,5 +16,5 @@ module load gcc/6.2.0
 module load R/3.5.0
 
 
-snakemake -s ptrs_r2.snmk --configfile ../../submission_scripts/ptrs/config.r2.yaml --config num=$NUM > ../../submission_scripts/ptrs/logs/R2-$NUM.log 2>&1
+snakemake -s ptrs_r2.snmk --configfile ../../submission_scripts/ptrs/config.$CONFIG.yaml --config num=$NUM > ../../submission_scripts/ptrs/logs/R2-$CONFIG-$NUM.log 2>&1
 
