@@ -9,6 +9,7 @@ gwas:
   effect_size_inputs:
     beta_column: 'beta'
     se_column: 'se'
+  extra_cmd: '--keep_non_rsid  --model_db_snp_key varID'
 
 # gwas_name: 'subset1_x_height'
 gwas_path: '/scratch/t.cri.yliang/PTRS/gwas_table_annot_with_gtexv8/annot_with_gtexid.{gwas_name}.tsv.gz'
