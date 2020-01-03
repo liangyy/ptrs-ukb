@@ -16,6 +16,10 @@ trim_space = function(str) {
   stringr::str_remove_all(str, ' ')
 }
 
+trim_dot = function(str) {
+  unlist(lapply(strsplit(str, '\\.'), function(x) { x[1] }))
+}
+
 first_non_na = function(vec) {
   out = NA
   if(sum(!is.na(vec)) > 0) {
