@@ -1,0 +1,7 @@
+gwas_table: '/gpfs/data/im-lab/nas40t2/yanyul/PTRS/gwas_in_tsv/gwas_in_tsv_{gwas_table_name}.tsv'
+gwas_table_ncol: 14
+lookup_table: '/gpfs/data/im-lab/nas40t2/abarbeira/projects/gtex_v8/data/GTEx_Analysis_2017-06-05_v8_WholeGenomeSeq_838Indiv_Analysis_Freeze.lookup_table.txt.gz'
+liftover_chain: '/gpfs/data/im-lab/nas40t2/yanyul/data/hg19ToHg38.over.chain.gz'
+liftover_script: '/gpfs/data/im-lab/nas40t2/yanyul/GitHub/misc-tools/liftover_snp/liftover_snp.py'
+annot_script: '/gpfs/data/im-lab/nas40t2/yanyul/GitHub/misc-tools/annotate_snp_by_position/annotate_snp_by_position.py'
+# gwas_table_name: 'subset1_x_bmi'

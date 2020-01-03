@@ -1,0 +1,16 @@
+#PBS -S /bin/bash
+#PBS -l walltime=24:00:00
+#PBS -l nodes=1:ppn=1
+#PBS -l mem=4gb
+#PBS -e logs/annot-${TRAIT}.err
+#PBS -o logs/annot-${TRAIT}.out
+
+source ~/.bash_profile
+source ~/.bashrc
+cd /gpfs/data/im-lab/nas40t2/yanyul/GitHub/ptrs-ukb/pipeline/spredixcan
+
+conda activate parquet
+
+
+snakemake -s annot_gtexid.snmk --configfile ../../submission_scripts/spredixcan/config.annot.yaml --nolock --config gwas_table_name=$TRAIT > ../../submission_scripts/spredixcan/logs/annot-$TRAIT.log 2>&1
+
