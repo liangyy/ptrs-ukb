@@ -1,0 +1,62 @@
+# As pre-processing step, we need to add GTEx v8 variant ID to GWAS results (in hg19)
+# The procedure:
+#   1. Liftover from hg19 to hg38
+#   2. Use GTEx v8 variant look up table
+
+if 'outdir' not in config:
+    config['outdir'] = 'output'
+
+ncol = config['gwas_table_ncol']
+liftover_chr_col = ncol + 1
+liftover_pos_col = ncol + 2
+annot_chr_col = ncol + 3
+annot_pos_col = ncol + 4
+
+rule all:
+    input:
+        '{outdir}/annot_with_gtexid.{gwas_table_name}.tsv.gz'.format(outdir = config['outdir'], gwas_table_name = config['gwas_table_name'])
+
+rule pre_liftover:
+    input:
+        config['gwas_table']
+    output:
+        '{outdir}/pre-liftover-format.{gwas_table_name}.tsv.gz'
+    shell:
+        '''
+        cat {input[0]} | awk '{{split($1,a,":"); print $0"\t"a[1]"\t"a[2]}}' | gzip > {output[0]}
+        '''
+
+rule liftover:
+    input:
+        temp('{outdir}/pre-liftover-format.{gwas_table_name}.tsv.gz')
+    output:
+        '{outdir}/liftover-to-hg38.{gwas_table_name}.tsv.gz'
+    shell:
+        'python {config[liftover_script]} \
+            --input {input[0]} \
+            --chr_col {liftover_chr_col} \
+            --pos_col {liftover_pos_col} \
+            --liftover_chain /gpfs/data/im-lab/nas40t2/yanyul/data/hg18ToHg19.over.chain.gz \
+            --input_delim tab \
+            --out_txtgz test-out2.gz \
+            --if_with_chr 1'
+
+rule annot_gtexid:
+    input:
+        '{outdir}/liftover-to-hg38.{gwas_table_name}.tsv.gz',
+        config['lookup_table']
+    output:
+        '{outdir}/annot_with_gtexid.{gwas_table_name}.tsv.gz'
+    shell:
+        'python {config[annot_script]} \
+            --input {input[0]} \
+            --chr_col {annot_chr_col} \
+            --pos_col {annot_pos_col} \
+            --lookup_table {input[1]} \
+            --lookup_chr_col 1 \
+            --lookup_start_col 2 \
+            --lookup_end_col 3 \
+            --lookup_newid_col 4 \
+            --out_txtgz {output[0]} \
+            --if_input_has_header 1'
+            
