@@ -36,7 +36,7 @@ if config['ptrs_type'] != 'mashr':
 else:
     rule ptrs_preprocess:
         input:
-            spredixcan = config['spredixcan']
+            spredixcan = config['spredixcan'],
             mashr = config['mashr']
         output:
             '{outdir}/{ptrs_type}_ptrs_preprocess.{spredixcan_name}.gene_list.txt'
