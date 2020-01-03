@@ -1,0 +1,13 @@
+ptrs_type: 'mashr'  # currently we only implemented naive PTRS model which only removes outlier 
+predicted_expression: '/gpfs/data/im-lab/nas40t2/yanyul/PTRS/predicted_expression/predicted_expression.ukb_imp_x_{prediction_model_name}.h5'
+spredixcan: '/scratch/t.cri.yliang/PTRS/spredixcan/spredixcan_x_{spredixcan_name}_x_Whole_Blood_x_ctimp.csv'
+indiv_subset: '/scratch/t.cri.yliang/PTRS/output/data_split/{indiv_list_name}.txt'
+
+spredixcan_name: 'subset13_x_lymphocyte'
+prediction_model_name: 'ctimp_Whole_Blood'
+indiv_list_name: 'British-test-1'
+
+spredixcan_list: 'subset13_x_lymphocyte,subset13_x_height'
+pval_cutoffs: '1e-8,1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,0.05,0.1,0.5,1'
+mashr: '/scratch/t.cri.yliang/PTRS/spredixcan_mashr/spredixcan_x_{spredixcan_name}_x_Whole_Blood_x_mashr.csv'
+ptrs_extra_cmd: '--gene_list_pval Yes'

@@ -9,6 +9,9 @@ option_list <- list(
                 metavar="character"),
     make_option(c("-o", "--output"), type="character", default=NULL,
                 help="Output gene list",
+                metavar="character"),
+    make_option(c("-a", "--mashr"), type="character", default=NULL,
+                help="S-PrediXcan results with mashr model",
                 metavar="character")
 )
 
@@ -33,4 +36,9 @@ if(opt$mode == 'naive') {
   df = df %>% inner_join(df_top, by = 'ld_block') %>% filter(abs(zscore) == top_significance)
   df = df %>% filter(abs(effect_size) < 5)
   write.table(df$gene, opt$output, quo = F, col = F, row = F)
+} else if(opt$mode == 'mashr' & !is.null(opt$mashr)) {
+  mashr = read.csv(opt$mashr) %>% select(gene, pvalue)
+  df = df %>% filter(abs(effect_size) < 5)
+  df = df %>% select(gene) %>% left_join(mashr, by = 'gene')
+  write.table(df %>% select(gene, pvalue), opt$output, quo = F, col = F, row = F, sep = '\t')
 }

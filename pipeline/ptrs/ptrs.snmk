@@ -6,6 +6,10 @@ if 'spredixcan_name' in config:
         input:
             '{outdir}/ptrs_{ptrs_type}_spredixcan_{spredixcan_name}_x_{prediction_model_name}_x_{indiv_list_name}.tsv.gz'.format(**config)
 
+ptrs_extra_cmd = ''
+if 'ptrs_extra_cmd' in config:
+    ptrs_extra_cmd = config['ptrs_extra_cmd']
+
 if 'spredixcan_list' in config:
     spredixcan_list = config['spredixcan_list'].split(':')
     rule all_spredixcan:
@@ -18,17 +22,30 @@ if 'spredixcan_list' in config:
                 indiv_list_name = config['indiv_list_name']
             ) for i in spredixcan_list ]
         
-
-rule ptrs_preprocess:
-    input:
-        spredixcan = config['spredixcan']
-    output:
-        '{outdir}/{ptrs_type}_ptrs_preprocess.{spredixcan_name}.gene_list.txt'
-    shell:
-        'Rscript ../../code/ptrs_preprocess.R \
-          --spredixcan {input.spredixcan} \
-          --mode {wildcards.ptrs_type} \
-          --output {output[0]}'
+if config['ptrs_type'] != 'mashr':
+    rule ptrs_preprocess:
+        input:
+            spredixcan = config['spredixcan']
+        output:
+            '{outdir}/{ptrs_type}_ptrs_preprocess.{spredixcan_name}.gene_list.txt'
+        shell:
+            'Rscript ../../code/ptrs_preprocess.R \
+              --spredixcan {input.spredixcan} \
+              --mode {wildcards.ptrs_type} \
+              --output {output[0]}'
+else:
+    rule ptrs_preprocess:
+        input:
+            spredixcan = config['spredixcan']
+            mashr = config['mashr']
+        output:
+            '{outdir}/{ptrs_type}_ptrs_preprocess.{spredixcan_name}.gene_list.txt'
+        shell:
+            'Rscript ../../code/ptrs_preprocess.R \
+              --spredixcan {input.spredixcan} \
+              --mode {wildcards.ptrs_type} \
+              --output {output[0]} \
+              --mashr {input.mashr}'
 
 rule subset_indiv:
     input:
@@ -57,5 +74,6 @@ rule calculate_ptrs:
           --spredixcan {input.spredixcan} \
           --gene_list {input.gene_list} \
           --output {output[0]} \
-          --pval_cutoffs {config[pval_cutoffs]}'
+          --pval_cutoffs {config[pval_cutoffs]} \
+          {ptrs_extra_cmd}'
     
