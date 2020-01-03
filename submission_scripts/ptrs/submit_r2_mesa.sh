@@ -11,7 +11,7 @@ MESANAME=$2
 
 OUT=config.mesa-$MESANAME.yaml
 
-cat $TEMPLATEPATH | sed "s#MESA-MODEL-NAME#$MESANAME#g" > $MESANAME
+cat $TEMPLATEPATH | sed "s#MESA-MODEL-NAME#$MESANAME#g" > $OUT
 
 for i in `seq 1 17`
 do

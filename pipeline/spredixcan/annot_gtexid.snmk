@@ -23,7 +23,7 @@ rule pre_liftover:
         '{outdir}/pre-liftover-format.{gwas_table_name}.tsv.gz'
     shell:
         '''
-        cat {input[0]} | awk '{{split($1,a,":"); print $0"\t"a[1]"\t"a[2]}}' | gzip > {output[0]}
+        cat {input[0]} | awk '{{split($1,a,":"); if(NR==1) {{a[1]="split_chr"; a[2]="split_pos"}}; print $0"\t"a[1]"\t"a[2]}}' | gzip > {output[0]}
         '''
 
 rule liftover:
@@ -36,9 +36,9 @@ rule liftover:
             --input {input[0]} \
             --chr_col {liftover_chr_col} \
             --pos_col {liftover_pos_col} \
-            --liftover_chain /gpfs/data/im-lab/nas40t2/yanyul/data/hg18ToHg19.over.chain.gz \
+            --liftover_chain {config[liftover_chain]} \
             --input_delim tab \
-            --out_txtgz test-out2.gz \
+            --out_txtgz {output[0]} \
             --if_with_chr 1'
 
 rule annot_gtexid:
@@ -55,8 +55,8 @@ rule annot_gtexid:
             --lookup_table {input[1]} \
             --lookup_chr_col 1 \
             --lookup_start_col 2 \
-            --lookup_end_col 3 \
-            --lookup_newid_col 4 \
+            --lookup_end_col 2 \
+            --lookup_newid_col 3 \
             --out_txtgz {output[0]} \
             --if_input_has_header 1'
             

@@ -75,7 +75,7 @@ ptrs = inner_join(ptrs, df_pheno, by = join_col)
 
 out = list()
 compute_func = compute_r2
-if(opt$bootstrap) {
+if(opt$bootstrap == 'Yes') {
   compute_func = report_r2
 }
 for(ptrs_k in ptrs_cols) {
