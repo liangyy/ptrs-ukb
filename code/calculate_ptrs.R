@@ -13,6 +13,9 @@ option_list <- list(
     make_option(c("-e", "--gene_list"), type="character", default=NULL,
                 help="Gene list",
                 metavar="character"),
+    make_option(c("-n", "--gene_list_pval"), type="character", default='No',
+                help="If want to use pval contained in gene list, set to 'Yes'",
+                metavar="character"),
     make_option(c("-v", "--pval_cutoffs"), type="character", default='1e-7,0.05',
                 help="pvalue cutoffs separated by ','",
                 metavar="character")
@@ -53,6 +56,13 @@ pred_expr_mat = t(as.matrix(pred_expr_mat))
 
 spredixcan_cleaned = spredixcan %>% filter(gene %in% gene_pool)
 spredixcan_cleaned = spredixcan_cleaned[match(gene_list, spredixcan_cleaned$gene), ]
+
+if(opt$gene_list_pval == 'Yes') {
+  gene_list_df = read.table(opt$gene_list, header = F, sep ='\t')
+  colnames(gene_list_df) = c('gene', 'pvalue')
+  spredixcan_cleaned = inner_join(spredixcan_cleaned %>% select(-pvalue), gene_list_df, by = 'gene')
+}
+
 gene_beta = spredixcan_cleaned$effect_size
 gene_pval = spredixcan_cleaned$pvalue
 
