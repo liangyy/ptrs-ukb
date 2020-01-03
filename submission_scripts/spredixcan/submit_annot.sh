@@ -8,5 +8,5 @@ fi
 
 for i in `cat ../../misc/trait_list.txt`
 do
-  qsub -v TRAIT=$i,CONFIG=$1,MODELTAG=$2 -N spredixcan-$i run.qsub
+  qsub -v TRAIT=$i -N annot-$i run_annot.qsub
 done

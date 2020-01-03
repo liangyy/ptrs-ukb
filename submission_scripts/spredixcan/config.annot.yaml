@@ -1,3 +1,4 @@
+outdir: '/scratch/t.cri.yliang/PTRS/gwas_table_annot_with_gtexv8'
 gwas_table: '/gpfs/data/im-lab/nas40t2/yanyul/PTRS/gwas_in_tsv/gwas_in_tsv_{gwas_table_name}.tsv'
 gwas_table_ncol: 14
 lookup_table: '/gpfs/data/im-lab/nas40t2/abarbeira/projects/gtex_v8/data/GTEx_Analysis_2017-06-05_v8_WholeGenomeSeq_838Indiv_Analysis_Freeze.lookup_table.txt.gz'

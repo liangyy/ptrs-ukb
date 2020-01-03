@@ -1,0 +1,12 @@
+outdir: '/scratch/t.cri.yliang/PTRS/ptrs_ldblock_r2'
+populations: 'Chinese:Indian:African:British-test-{num}:British-validation-{num}'
+trait_list: 'basophil,bmi,dbp,eosinophil,hb,height,ht,lymphocyte,mch,mchc,mcv,monocyte,neutrophil,platelet,rbc,sbp,wbc'
+# ptrs_name: 'subset1_x_bmi'
+ptrs: 
+  prefix: /scratch/t.cri.yliang/PTRS/ptrs/ptrs_ldblock_spredixcan_subset{num}_x_{trait_name}_x_ctimp_Whole_Blood_x_
+  suffix: .tsv.gz
+phenotype: 
+  table: '/scratch/t.cri.yliang/PTRS/output/query_phenotypes_cleaned_up.csv'
+  yaml: '/gpfs/data/im-lab/nas40t2/yanyul/GitHub/ptrs-ukb/misc/gwas_full_pheno_covar.yaml'
+indiv_col: 'indiv'
+bootstrap: 'No'

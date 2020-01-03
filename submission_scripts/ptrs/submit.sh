@@ -21,7 +21,7 @@ spredixcanList=`for i in $traitlist; do echo 'subset'$NUM'_x_'$i; done|tr '\n' '
 
 if [[ -z $PREDMODEL ]]
 then
-  qsub -v INDIVLIST=$INDIVLIST,SPREDIXCANLIST=$spredixcanList,NUM=$NUM,CONFIG=$CONFIG -N $NUM-$INDIVLIST-$CONFIG run.qsub
+  qsub -v INDIVLIST=$INDIVLIST,SPREDIXCANLIST=$spredixcanList,NUM=$NUM,CONFIG=$CONFIG,PREDMODEL='' -N $NUM-$INDIVLIST-$CONFIG run.qsub
 else
   qsub -v INDIVLIST=$INDIVLIST,SPREDIXCANLIST=$spredixcanList,NUM=$NUM,CONFIG=$CONFIG,PREDMODEL=$PREDMODEL -N $NUM-$INDIVLIST-$CONFIG-$PREDMODEL run.qsub
 fi
