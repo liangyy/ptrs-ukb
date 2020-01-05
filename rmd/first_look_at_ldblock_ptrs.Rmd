@@ -1,5 +1,5 @@
 ---
-title: "First look at PTRS with LD block based pruning"
+title: "First look at PTRS with LD block based pruning or mashr p-value"
 ---
 
 ```{r setup}
@@ -54,7 +54,25 @@ df_result2 = do.call(rbind, result)
 df_result2$population = parse_pop(df_result$population)
 df_result2$ptrs_col = factor(df_result$ptrs_col, levels = unique(df_result$ptrs_col))
 
-df_ptrs = rbind(df_result %>% select(-SSE.wo, -SSE.with) %>% mutate(type = 'ldblock'), df_result2 %>% mutate(type = 'naive'))
+# df_ptrs = rbind(df_result %>% select(-SSE.wo, -SSE.with) %>% mutate(type = 'ldblock'), df_result2 %>% mutate(type = 'naive'))
+```
+
+## PTRS with mashr p-value
+
+```{r load3}
+result = list()
+for(i in 1 : 17) {
+  for(t in traits) {
+    filename = paste0('~/Desktop/tmp/ptrs_mashr_r2/ptrs-r2_subset', i, '_x_', t, '.txt')
+    tmp = read.table(filename, header = T, sep = '\t')
+    result[[length(result) + 1]] = tmp %>% mutate(subset = i, trait = t)
+  }
+}
+df_result3 = do.call(rbind, result)
+df_result3$population = parse_pop(df_result$population)
+df_result3$ptrs_col = factor(df_result$ptrs_col, levels = unique(df_result$ptrs_col))
+
+df_ptrs = rbind(df_result %>% select(-SSE.wo, -SSE.with) %>% mutate(type = 'ldblock'), df_result2 %>% mutate(type = 'naive'), df_result3 %>% select(-SSE.wo, -SSE.with) %>% mutate(type = 'mashr'))
 ```
 
 # Plot
@@ -66,7 +84,15 @@ df_side_by_side = df_ptrs %>% dcast(population + ptrs_col + subset + trait ~ typ
 ```
 
 ```{r plot1, fig.height=18, fig.width=8}
-df_side_by_side %>% ggplot() + geom_point(aes(x = naive, y = ldblock), alpha = .5) + facet_grid(trait~population, scales = 'free') + geom_abline(slope = 1, intercept = 0)
+df_side_by_side %>% ggplot() + geom_point(aes(x = naive, y = ldblock, color = ptrs_col), alpha = .5) + facet_grid(trait~population, scales = 'free') + geom_abline(slope = 1, intercept = 0)
+```
+
+```{r plot2, fig.height=18, fig.width=8}
+df_side_by_side %>% ggplot() + geom_point(aes(x = naive, y = mashr, color = ptrs_col), alpha = .5) + facet_grid(trait~population, scales = 'free') + geom_abline(slope = 1, intercept = 0)
+```
+
+```{r plot3, fig.height=18, fig.width=8}
+df_side_by_side %>% ggplot() + geom_point(aes(x = ldblock, y = mashr, color = ptrs_col), alpha = .5) + facet_grid(trait~population, scales = 'free') + geom_abline(slope = 1, intercept = 0)
 ```
 
 ## Best British model
@@ -82,7 +108,12 @@ df_best_british = do.call(rbind, tmp)
 ```
 
 ```{r plot-best-british}
-df_best_british %>% dcast(trait + population + subset ~ type, value.var = 'r2') %>% mutate(diff = ldblock - naive) %>% ggplot() + geom_boxplot(aes(x = trait, y = diff, color = population)) + theme(legend.position = 'bottom', axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))# + scale_y_log10()
+tmp = df_best_british %>% dcast(trait + population + subset ~ type, value.var = 'r2') # %>% mutate(diff = ldblock - naive) %>% ggplot() + geom_boxplot(aes(x = trait, y = diff, color = population)) + theme(legend.position = 'bottom', axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))# + scale_y_log10()
+for(pop in unique(tmp$population)) {
+  p = myggpairs(tmp %>% filter(population == pop) %>% select(ldblock, naive, mashr), tmp %>% filter(population == pop) %>% pull(trait)) + geom_abline(slope = 1, intercept = 0)
+  print(p + ggtitle(pop))
+}
+tmp %>% ggplot() + geom_point(aes(x = naive, mashr, color = trait)) + facet_wrap(~population, scales = 'free') + geom_abline(slope = 1, intercept = 0)
 ```
 
 ## Best within each population model
@@ -98,7 +129,12 @@ df_best_each = do.call(rbind, tmp)
 ```
 
 ```{r plot-each-british}
-df_best_each %>% dcast(trait + population + subset ~ type, value.var = 'r2') %>% mutate(diff = ldblock - naive) %>% ggplot() + geom_boxplot(aes(x = trait, y = diff, color = population)) + theme(legend.position = 'bottom', axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))# + scale_y_log10()
+tmp = df_best_each %>% dcast(trait + population + subset ~ type, value.var = 'r2') # %>% mutate(diff = ldblock - naive) %>% ggplot() + geom_boxplot(aes(x = trait, y = diff, color = population)) + theme(legend.position = 'bottom', axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))# + scale_y_log10()
+for(pop in unique(tmp$population)) {
+  p = myggpairs(tmp %>% filter(population == pop) %>% select(ldblock, naive, mashr), tmp %>% filter(population == pop) %>% pull(trait)) + geom_abline(slope = 1, intercept = 0)
+  print(p + ggtitle(pop))
+}
+tmp %>% ggplot() + geom_point(aes(x = naive, mashr, color = trait)) + facet_wrap(~population, scales = 'free') + geom_abline(slope = 1, intercept = 0)
 ```
 
 

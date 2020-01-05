@@ -11,7 +11,7 @@
 
 
 
-<title>First look at MESA PTRS</title>
+<title>First look at MESA PTRS along with PTRS with LD block pruning</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -421,7 +421,7 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">First look at MESA PTRS</h1>
+<h1 class="title toc-ignore">First look at MESA PTRS along with PTRS with LD block pruning</h1>
 
 </div>
 
@@ -466,8 +466,25 @@ df_mesa = do.call(rbind, result)
 df_mesa$population = parse_pop(df_mesa$population)
 df_mesa$ptrs_col = factor(df_mesa$ptrs_col, levels = unique(df_mesa$ptrs_col))</code></pre>
 </div>
+<div id="mesa-ptrs-with-ld-block-based-pruning" class="section level2">
+<h2><span class="header-section-number">2.2</span> MESA PTRS with LD block based pruning</h2>
+<pre class="r"><code>mesa_models = c(&#39;AFHI&#39;, &#39;CAU&#39;, &#39;ALL&#39;)
+result = list()
+for(m in mesa_models) {
+  for(i in 1 : 17) {
+    for(t in traits) {
+      filename = paste0(&#39;~/Desktop/tmp/ptrs_mesa_ldblock_r2/ptrs_mesa_ldblock_r2_&#39;, m, &#39;/ptrs-r2_subset&#39;, i, &#39;_x_&#39;, t, &#39;.txt&#39;)
+      tmp = read.table(filename, header = T, sep = &#39;\t&#39;)
+      result[[length(result) + 1]] = tmp %&gt;% mutate(subset = i, trait = t, model = m)
+    }
+  }
+}
+df_mesa_ld = do.call(rbind, result)
+df_mesa_ld$population = parse_pop(df_mesa_ld$population)
+df_mesa_ld$ptrs_col = factor(df_mesa_ld$ptrs_col, levels = unique(df_mesa_ld$ptrs_col))</code></pre>
+</div>
 <div id="gtex-v8-ctimp-whole-blood-ptrs" class="section level2">
-<h2><span class="header-section-number">2.2</span> GTEx V8 CTIMP whole blood PTRS</h2>
+<h2><span class="header-section-number">2.3</span> GTEx V8 CTIMP whole blood PTRS</h2>
 <pre class="r"><code>result = list()
 for(i in 1 : 17) {
   for(t in traits) {
@@ -481,8 +498,9 @@ df_gtex$population = parse_pop(df_gtex$population)
 df_gtex$ptrs_col = factor(df_gtex$ptrs_col, levels = unique(df_gtex$ptrs_col))</code></pre>
 </div>
 <div id="merge" class="section level2">
-<h2><span class="header-section-number">2.3</span> Merge</h2>
-<pre class="r"><code>df_ptrs = rbind(df_mesa %&gt;% select(-SSE.wo, -SSE.with), df_gtex)</code></pre>
+<h2><span class="header-section-number">2.4</span> Merge</h2>
+<pre class="r"><code>df_ptrs = rbind(df_mesa %&gt;% select(-SSE.wo, -SSE.with), df_gtex)
+df_ld = rbind(df_mesa %&gt;% filter(model %in% mesa_models) %&gt;% select(-SSE.wo, -SSE.with) %&gt;% mutate(type = &#39;naive&#39;), df_mesa_ld %&gt;% filter(model %in% mesa_models) %&gt;% select(-SSE.wo, -SSE.with) %&gt;% mutate(type = &#39;ldblock&#39;))</code></pre>
 </div>
 </div>
 <div id="plot" class="section level1">
@@ -594,6 +612,27 @@ best_for_each = inner_join(best_for_each, regu, by = c(&#39;trait&#39;, &#39;pop
   ggplot() + geom_point(aes(x = h_sq, y = max_r2)) + 
   facet_grid(model~population, scales = &#39;free&#39;) </code></pre>
 <p><img src="first_look_at_mesa_ptrs_files/figure-html/ptrs-pve-vs-r2-best-each-1.png" width="576" /></p>
+</div>
+</div>
+<div id="comparing-naive-ptrs-and-ldblock-based-ptrs" class="section level1">
+<h1><span class="header-section-number">4</span> Comparing naive PTRS and ldblock based PTRS</h1>
+<div id="overview-1" class="section level2">
+<h2><span class="header-section-number">4.1</span> Overview</h2>
+<pre class="r"><code>df_ld %&gt;% dcast(population + ptrs_col + subset + trait + model ~ type, value.var = &#39;r2&#39;) %&gt;% ggplot() + geom_point(aes(x = naive, y = ldblock, color = trait)) + facet_grid(population~model, scales = &#39;free&#39;) + geom_abline(slope = 1, intercept = 0)</code></pre>
+<p><img src="first_look_at_mesa_ptrs_files/figure-html/plot1-1.png" width="576" /></p>
+</div>
+<div id="best-with-each-model" class="section level2">
+<h2><span class="header-section-number">4.2</span> Best with each model</h2>
+<pre class="r"><code>df_ld_best_each = df_ld %&gt;% group_by(population, subset, trait, model, type) %&gt;% summarize(max_r2 = max(r2)) %&gt;% ungroup()
+df_ld_best_each %&gt;% dcast(population + subset + trait + model ~ type, value.var = &#39;max_r2&#39;) %&gt;% ggplot() + geom_point(aes(x = naive, y = ldblock, color = trait)) + facet_grid(population ~ model) + geom_abline(slope = 1, intercept = 0)</code></pre>
+<p><img src="first_look_at_mesa_ptrs_files/figure-html/best-british-vs-1.png" width="576" /></p>
+<pre class="r"><code>df_ld_best_each$pop = df_ld_best_each$population
+df_ld_best_each$pop[df_ld_best_each$pop %in% c(&#39;British-test&#39;, &#39;British-validation&#39;)] = &#39;British&#39;
+df_ld_best_each = inner_join(df_ld_best_each, regu, by = c(&#39;trait&#39;, &#39;pop&#39; = &#39;population&#39;, &#39;model&#39;))</code></pre>
+<pre class="r"><code>df_ld_best_each %&gt;% 
+  ggplot() + geom_point(aes(x = h_sq, y = max_r2, color = type), alpha = .3) + 
+  facet_grid(model~population, scales = &#39;free&#39;) </code></pre>
+<p><img src="first_look_at_mesa_ptrs_files/figure-html/vs-pve-plot-1.png" width="672" /></p>
 </div>
 </div>
 

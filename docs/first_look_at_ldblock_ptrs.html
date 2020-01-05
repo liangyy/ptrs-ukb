@@ -11,7 +11,7 @@
 
 
 
-<title>First look at PTRS with LD block based pruning</title>
+<title>First look at PTRS with LD block based pruning or mashr p-value</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -421,7 +421,7 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">First look at PTRS with LD block based pruning</h1>
+<h1 class="title toc-ignore">First look at PTRS with LD block based pruning or mashr p-value</h1>
 
 </div>
 
@@ -472,7 +472,23 @@ df_result2 = do.call(rbind, result)
 df_result2$population = parse_pop(df_result$population)
 df_result2$ptrs_col = factor(df_result$ptrs_col, levels = unique(df_result$ptrs_col))
 
-df_ptrs = rbind(df_result %&gt;% select(-SSE.wo, -SSE.with) %&gt;% mutate(type = &#39;ldblock&#39;), df_result2 %&gt;% mutate(type = &#39;naive&#39;))</code></pre>
+# df_ptrs = rbind(df_result %&gt;% select(-SSE.wo, -SSE.with) %&gt;% mutate(type = &#39;ldblock&#39;), df_result2 %&gt;% mutate(type = &#39;naive&#39;))</code></pre>
+</div>
+<div id="ptrs-with-mashr-p-value" class="section level2">
+<h2><span class="header-section-number">1.3</span> PTRS with mashr p-value</h2>
+<pre class="r"><code>result = list()
+for(i in 1 : 17) {
+  for(t in traits) {
+    filename = paste0(&#39;~/Desktop/tmp/ptrs_mashr_r2/ptrs-r2_subset&#39;, i, &#39;_x_&#39;, t, &#39;.txt&#39;)
+    tmp = read.table(filename, header = T, sep = &#39;\t&#39;)
+    result[[length(result) + 1]] = tmp %&gt;% mutate(subset = i, trait = t)
+  }
+}
+df_result3 = do.call(rbind, result)
+df_result3$population = parse_pop(df_result$population)
+df_result3$ptrs_col = factor(df_result$ptrs_col, levels = unique(df_result$ptrs_col))
+
+df_ptrs = rbind(df_result %&gt;% select(-SSE.wo, -SSE.with) %&gt;% mutate(type = &#39;ldblock&#39;), df_result2 %&gt;% mutate(type = &#39;naive&#39;), df_result3 %&gt;% select(-SSE.wo, -SSE.with) %&gt;% mutate(type = &#39;mashr&#39;))</code></pre>
 </div>
 </div>
 <div id="plot" class="section level1">
@@ -480,8 +496,12 @@ df_ptrs = rbind(df_result %&gt;% select(-SSE.wo, -SSE.with) %&gt;% mutate(type =
 <div id="side-by-side-comparison" class="section level2">
 <h2><span class="header-section-number">2.1</span> Side-by-side comparison</h2>
 <pre class="r"><code>df_side_by_side = df_ptrs %&gt;% dcast(population + ptrs_col + subset + trait ~ type, value.var = &#39;r2&#39;)</code></pre>
-<pre class="r"><code>df_side_by_side %&gt;% ggplot() + geom_point(aes(x = naive, y = ldblock), alpha = .5) + facet_grid(trait~population, scales = &#39;free&#39;) + geom_abline(slope = 1, intercept = 0)</code></pre>
+<pre class="r"><code>df_side_by_side %&gt;% ggplot() + geom_point(aes(x = naive, y = ldblock, color = ptrs_col), alpha = .5) + facet_grid(trait~population, scales = &#39;free&#39;) + geom_abline(slope = 1, intercept = 0)</code></pre>
 <p><img src="first_look_at_ldblock_ptrs_files/figure-html/plot1-1.png" width="768" /></p>
+<pre class="r"><code>df_side_by_side %&gt;% ggplot() + geom_point(aes(x = naive, y = mashr, color = ptrs_col), alpha = .5) + facet_grid(trait~population, scales = &#39;free&#39;) + geom_abline(slope = 1, intercept = 0)</code></pre>
+<p><img src="first_look_at_ldblock_ptrs_files/figure-html/plot2-1.png" width="768" /></p>
+<pre class="r"><code>df_side_by_side %&gt;% ggplot() + geom_point(aes(x = ldblock, y = mashr, color = ptrs_col), alpha = .5) + facet_grid(trait~population, scales = &#39;free&#39;) + geom_abline(slope = 1, intercept = 0)</code></pre>
+<p><img src="first_look_at_ldblock_ptrs_files/figure-html/plot3-1.png" width="768" /></p>
 </div>
 <div id="best-british-model" class="section level2">
 <h2><span class="header-section-number">2.2</span> Best British model</h2>
@@ -492,8 +512,14 @@ for(t in unique(df_ptrs$type)) {
   tmp[[length(tmp) + 1]] = o$perf_in_all %&gt;% mutate(type = t)
 }
 df_best_british = do.call(rbind, tmp)</code></pre>
-<pre class="r"><code>df_best_british %&gt;% dcast(trait + population + subset ~ type, value.var = &#39;r2&#39;) %&gt;% mutate(diff = ldblock - naive) %&gt;% ggplot() + geom_boxplot(aes(x = trait, y = diff, color = population)) + theme(legend.position = &#39;bottom&#39;, axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))# + scale_y_log10()</code></pre>
-<p><img src="first_look_at_ldblock_ptrs_files/figure-html/plot-best-british-1.png" width="672" /></p>
+<pre class="r"><code>tmp = df_best_british %&gt;% dcast(trait + population + subset ~ type, value.var = &#39;r2&#39;) # %&gt;% mutate(diff = ldblock - naive) %&gt;% ggplot() + geom_boxplot(aes(x = trait, y = diff, color = population)) + theme(legend.position = &#39;bottom&#39;, axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))# + scale_y_log10()
+for(pop in unique(tmp$population)) {
+  p = myggpairs(tmp %&gt;% filter(population == pop) %&gt;% select(ldblock, naive, mashr), tmp %&gt;% filter(population == pop) %&gt;% pull(trait)) + geom_abline(slope = 1, intercept = 0)
+  print(p + ggtitle(pop))
+}</code></pre>
+<p><img src="first_look_at_ldblock_ptrs_files/figure-html/plot-best-british-1.png" width="672" /><img src="first_look_at_ldblock_ptrs_files/figure-html/plot-best-british-2.png" width="672" /><img src="first_look_at_ldblock_ptrs_files/figure-html/plot-best-british-3.png" width="672" /><img src="first_look_at_ldblock_ptrs_files/figure-html/plot-best-british-4.png" width="672" /><img src="first_look_at_ldblock_ptrs_files/figure-html/plot-best-british-5.png" width="672" /></p>
+<pre class="r"><code>tmp %&gt;% ggplot() + geom_point(aes(x = naive, mashr, color = trait)) + facet_wrap(~population, scales = &#39;free&#39;) + geom_abline(slope = 1, intercept = 0)</code></pre>
+<p><img src="first_look_at_ldblock_ptrs_files/figure-html/plot-best-british-6.png" width="672" /></p>
 </div>
 <div id="best-within-each-population-model" class="section level2">
 <h2><span class="header-section-number">2.3</span> Best within each population model</h2>
@@ -504,8 +530,14 @@ for(t in unique(df_ptrs$type)) {
   tmp[[length(tmp) + 1]] = o$perf_in_all %&gt;% mutate(type = t)
 }
 df_best_each = do.call(rbind, tmp)</code></pre>
-<pre class="r"><code>df_best_each %&gt;% dcast(trait + population + subset ~ type, value.var = &#39;r2&#39;) %&gt;% mutate(diff = ldblock - naive) %&gt;% ggplot() + geom_boxplot(aes(x = trait, y = diff, color = population)) + theme(legend.position = &#39;bottom&#39;, axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))# + scale_y_log10()</code></pre>
-<p><img src="first_look_at_ldblock_ptrs_files/figure-html/plot-each-british-1.png" width="672" /></p>
+<pre class="r"><code>tmp = df_best_each %&gt;% dcast(trait + population + subset ~ type, value.var = &#39;r2&#39;) # %&gt;% mutate(diff = ldblock - naive) %&gt;% ggplot() + geom_boxplot(aes(x = trait, y = diff, color = population)) + theme(legend.position = &#39;bottom&#39;, axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))# + scale_y_log10()
+for(pop in unique(tmp$population)) {
+  p = myggpairs(tmp %&gt;% filter(population == pop) %&gt;% select(ldblock, naive, mashr), tmp %&gt;% filter(population == pop) %&gt;% pull(trait)) + geom_abline(slope = 1, intercept = 0)
+  print(p + ggtitle(pop))
+}</code></pre>
+<p><img src="first_look_at_ldblock_ptrs_files/figure-html/plot-each-british-1.png" width="672" /><img src="first_look_at_ldblock_ptrs_files/figure-html/plot-each-british-2.png" width="672" /><img src="first_look_at_ldblock_ptrs_files/figure-html/plot-each-british-3.png" width="672" /><img src="first_look_at_ldblock_ptrs_files/figure-html/plot-each-british-4.png" width="672" /><img src="first_look_at_ldblock_ptrs_files/figure-html/plot-each-british-5.png" width="672" /></p>
+<pre class="r"><code>tmp %&gt;% ggplot() + geom_point(aes(x = naive, mashr, color = trait)) + facet_wrap(~population, scales = &#39;free&#39;) + geom_abline(slope = 1, intercept = 0)</code></pre>
+<p><img src="first_look_at_ldblock_ptrs_files/figure-html/plot-each-british-6.png" width="672" /></p>
 </div>
 </div>
 <div id="regulabilityheritability-vs.ptrsprs" class="section level1">
