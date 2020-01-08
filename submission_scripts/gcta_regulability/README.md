@@ -60,7 +60,7 @@ do
 done
 ```
 
-To run one population for many models, do
+To run one population for many models, do (formatting as an example)
 
 ```
 mylist=('African' 'British-test-1' 'Indian' 'Chinese')
