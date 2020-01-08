@@ -56,6 +56,6 @@ Run `hail`
 mylist=('African' 'British-test-1' 'Indian' 'Chinese')
 for i in "${mylist[@]}"
 do 
-  screen -dmS hail-$i bash run_hail.screen $i $GENEMODEL $OUTDIR
+  screen -dmS hail-$i-$GENEMODEL bash run_hail.screen $i $GENEMODEL $OUTDIR
 done
 ```
