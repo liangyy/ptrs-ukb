@@ -59,3 +59,14 @@ do
   screen -dmS hail-$i-$GENEMODEL bash run_hail.screen $i $GENEMODEL $OUTDIR
 done
 ```
+
+To run one population for many models, do
+
+```
+mylist=('African' 'British-test-1' 'Indian' 'Chinese')
+modellist='path_to_list_here'
+for i in "${mylist[@]}"
+do 
+  screen -dmS format-batch-$i bash batch_run_format.screen $i $modellist $OUTDIR
+done
+```
