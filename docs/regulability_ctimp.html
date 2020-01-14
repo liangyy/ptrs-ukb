@@ -11,7 +11,7 @@
 
 
 
-<title>Home</title>
+<title>Regulability based on predicted expression: GTEx v8 UTMOST models in ten tissues</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -381,48 +381,101 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Home</h1>
+<h1 class="title toc-ignore">Regulability based on predicted expression: GTEx v8 UTMOST models in ten tissues</h1>
 
 </div>
 
 
-<div id="query-phenotypes" class="section level1">
-<h1><span class="header-section-number">1</span> Query phenotypes</h1>
-<ul>
-<li>First attempt <a href="first_query.html">link</a></li>
-</ul>
+<pre class="r"><code>library(ggplot2)
+library(dplyr)
+library(pander)
+options(stringsAsFactors = F)
+source(&#39;../code/rlib_doc.R&#39;)
+source(&#39;https://gist.githubusercontent.com/liangyy/43912b3ecab5d10c89f9d4b2669871c9/raw/8151c6fe70e3d4ee43d9ce340ecc0eb65172e616/my_ggplot_theme.R&#39;)
+th$panel.border = element_rect(colour = th$axis.line$colour)
+theme_set(theme_bw(base_size = 10))
+gtex_color = read.csv(&#39;~/Documents/repo/bitbucket/rotation-at-imlab/data/gtex_tissue_colors.csv&#39;)
+gtex_color$tissue_site_detail_id[gtex_color$tissue_site_detail_id == &#39;Cells_Transformed_fibroblasts&#39;] = &#39;Cells_Cultured_fibroblasts&#39;
+color_board = paste0(&#39;#&#39;, gtex_color$tissue_color_hex)
+names(color_board) = gtex_color$tissue_site_detail_id
+trait_info = read.table(&#39;../external_data/martin_et_al_2019ng_table_s6_trait_description.tsv&#39;, header = T, sep = &#39;\t&#39;)
+trait_info$short = tolower(trait_info$short)</code></pre>
+<div id="load-results" class="section level1">
+<h1><span class="header-section-number">1</span> Load results</h1>
+<p>Load CTIMP results.</p>
+<pre class="r"><code>tissues = read.table(&#39;~/Desktop/tmp/tissue_list.txt&#39;, header = F)$V1
+pops = c(&#39;African&#39;, &#39;British-test-1&#39;, &#39;Chinese&#39;, &#39;Indian&#39;)
+df = list()
+for(t in tissues) {
+  for(p in pops) {
+    t = stringr::str_remove(t, &#39;ctimp_&#39;)
+    filename = paste0(&#39;/Users/yanyul/Desktop/tmp/gcta_regu/reml_from_hail_martin_et_al_traits_x_ctimp_&#39;, t, &#39;_x_&#39;, p, &#39;.tsv&#39;)
+    df[[length(df) + 1]] = read.table(filename, header = T, sep = &#39;\t&#39;) %&gt;% mutate(population = p, tissue = t)
+  }
+}
+df = do.call(rbind, df)
+df = left_join(df, trait_info, by = c(&#39;trait&#39; = &#39;short&#39;))</code></pre>
 </div>
-<div id="quality-control" class="section level1">
-<h1><span class="header-section-number">2</span> Quality control</h1>
-<ul>
-<li>Population QC (based on UKB label and filter out outliers in PC space (10 PC’s)) <a href="population_assignment.html">link</a></li>
-<li>Phenotype QC <a href="phenotype_qc.html">link</a></li>
-<li>Monocyte technical covariates and multiple modes in monocyte count <a href="query_monocyte_covar.html">link</a></li>
-</ul>
-</div>
-<div id="gwas-tries" class="section level1">
-<h1><span class="header-section-number">3</span> GWAS tries</h1>
-<ul>
-<li>First attempt <a href="first_gwas_compare.html">link</a></li>
-<li>Sanity check of GWAS runs using GCP <a href="check_gwas_run.html">link</a></li>
-</ul>
-</div>
-<div id="misc-analysis" class="section level1">
-<h1><span class="header-section-number">4</span> Misc analysis</h1>
-<ul>
-<li>Splitting data into training, validation, and test sets <a href="split_individuals.html">link</a></li>
-<li>REML <a href="regulability_gcta.html">link</a></li>
-<li>REML on MESA models <a href="regulability_mesa.html">link</a></li>
-<li>REML on 10 tissues CTIMP models (GTEx V8) <a href="regulability_ctimp.html">link</a></li>
-</ul>
-</div>
-<div id="prsptrs-results" class="section level1">
-<h1><span class="header-section-number">5</span> PRS/PTRS results</h1>
-<ul>
-<li>First look at PTRS/PRS on GTEx V8 whole blood CTIMP model <a href="first_look_at_ptrs_prs.html">link</a></li>
-<li>MESA PTRS <a href="first_look_at_mesa_ptrs.html">link</a></li>
-<li>PTRS with LD block based pruning or mashr p-value <a href="first_look_at_ldblock_ptrs.html">link</a></li>
-</ul>
+<div id="results" class="section level1">
+<h1><span class="header-section-number">2</span> Results</h1>
+<pre class="r"><code>df %&gt;% select(num_predictors, tissue) %&gt;% filter(!duplicated(tissue)) %&gt;% pander</code></pre>
+<table style="width:64%;">
+<colgroup>
+<col width="23%" />
+<col width="40%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">num_predictors</th>
+<th align="center">tissue</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">9228</td>
+<td align="center">Adipose_Subcutaneous</td>
+</tr>
+<tr class="even">
+<td align="center">9027</td>
+<td align="center">Artery_Tibial</td>
+</tr>
+<tr class="odd">
+<td align="center">8127</td>
+<td align="center">Breast_Mammary_Tissue</td>
+</tr>
+<tr class="even">
+<td align="center">8731</td>
+<td align="center">Cells_Cultured_fibroblasts</td>
+</tr>
+<tr class="odd">
+<td align="center">8954</td>
+<td align="center">Lung</td>
+</tr>
+<tr class="even">
+<td align="center">7671</td>
+<td align="center">Muscle_Skeletal</td>
+</tr>
+<tr class="odd">
+<td align="center">10184</td>
+<td align="center">Nerve_Tibial</td>
+</tr>
+<tr class="even">
+<td align="center">9474</td>
+<td align="center">Skin_Sun_Exposed_Lower_leg</td>
+</tr>
+<tr class="odd">
+<td align="center">9827</td>
+<td align="center">Thyroid</td>
+</tr>
+<tr class="even">
+<td align="center">7041</td>
+<td align="center">Whole_Blood</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>df %&gt;% filter(population == &#39;British-test-1&#39;) %&gt;% ggplot() + geom_bar(aes(x = tissue, y = h_sq, fill = tissue), stat = &#39;identity&#39;) + facet_wrap(~long, ncol = 3, scales = &#39;free_y&#39;) + scale_fill_manual(values = color_board) + theme(legend.position = &#39;bottom&#39;, axis.text.x = element_blank())</code></pre>
+<pre><code>## Warning: Removed 8 rows containing missing values (position_stack).</code></pre>
+<p><img src="regulability_ctimp_files/figure-html/pve-in-british-1.png" width="960" /></p>
 </div>
 
 

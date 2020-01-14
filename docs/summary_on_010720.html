@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Brief summary on PRS/PTRS analysis in UK Biobank data</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">PTRS UKB</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/liangyy/ptrs-ukb">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Brief summary on PRS/PTRS analysis in UK Biobank data</h1>
+
+</div>
+
+
+<pre class="r"><code>library(dplyr)
+library(data.table)
+library(pander)
+library(ggplot2)
+source(&#39;../code/rlib_doc.R&#39;)
+panderOptions(&#39;table.split.table&#39;, Inf)
+theme_set(theme_bw(base_size=12))
+source(&#39;https://gist.githubusercontent.com/liangyy/43912b3ecab5d10c89f9d4b2669871c9/raw/8151c6fe70e3d4ee43d9ce340ecc0eb65172e616/my_ggplot_theme.R&#39;)
+th$panel.border = element_rect(colour = th$axis.line$colour)</code></pre>
+<div id="analysis-overview" class="section level1">
+<h1><span class="header-section-number">1</span> Analysis overview</h1>
+<p>Here we are interested in surveying the performance of PRS and PTRS in four populations (African, British, Chinese, and Indian) in UK Biobank data. As most of the GWAS and transcritpome studies were done in Europeans, we are specifically interested in the out-of-sample performance of PRS/PTRS predictor obtained from European samples.</p>
+<p>The analysis contained two stages: 1) training PRS/PTRS models; 2) test performance on held-out samples. For PRS, we built the LD-clumping based predictor (parameters: 250kb, R2 = 0.1). For PTRS, we learned the gene level effect size using S-PrediXcan with or without small variation. To implement the two-stage analysis pipeline, we split British individuals into three parts: 1) training set; 2) validation set; 3) test set. Training set was used to run GWAS followed by LD-clumping. Validation set was used to select the best-performing predictor (tuning hyperparameters). And test set was used to evaluate the predictor performance just as other populations.</p>
+<p>After population assignment QC (removing individuals far from the mode of self-reported ancestry) and phenotype QC, the sample size of each population included in the analysis is shown below. As stated above, British population was further split into three parts with 5000 each for validation and testing along with the rest as training set.</p>
+<pre class="r"><code>pheno = fread(&#39;../output/query_phenotypes_cleaned_up.csv&#39;, header = T, sep = &#39;,&#39;, data.table = F)
+pheno %&gt;% group_by(meaning) %&gt;% summarize(nsample = n()) %&gt;% pander(caption = &#39;Sample size by population in the analysis&#39;)</code></pre>
+<table style="width:28%;">
+<caption>Sample size by population in the analysis</caption>
+<colgroup>
+<col width="13%" />
+<col width="13%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">meaning</th>
+<th align="center">nsample</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">African</td>
+<td align="center">2835</td>
+</tr>
+<tr class="even">
+<td align="center">British</td>
+<td align="center">356476</td>
+</tr>
+<tr class="odd">
+<td align="center">Chinese</td>
+<td align="center">1326</td>
+</tr>
+<tr class="even">
+<td align="center">Indian</td>
+<td align="center">4789</td>
+</tr>
+</tbody>
+</table>
+<p>We surveyed the same set of 17 quantitative traits as <span class="citation">Martin et al. (2019)</span>. For each trait, we made one data splitting on British individuals. For each splitting, we ran all 17 traits. So that we had 17 x 17 PRS and PTRS predictors, where each trait had 17 independent replications (but for the same data splitting, the results across traits were not independent due to correlation between traits). The list of traits are listed below.</p>
+<pre class="r"><code>d = read.table(&#39;../external_data/martin_et_al_2019ng_table_s6_trait_description.tsv&#39;, sep = &#39;\t&#39;, header = T)
+traits = tolower(d$short)
+d %&gt;% pander(caption = &#39;17 quantitative traits included in the analysis&#39;)</code></pre>
+<table style="width:60%;">
+<caption>17 quantitative traits included in the analysis</caption>
+<colgroup>
+<col width="18%" />
+<col width="41%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">short</th>
+<th align="center">long</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">BMI</td>
+<td align="center">body mass index</td>
+</tr>
+<tr class="even">
+<td align="center">DBP</td>
+<td align="center">diastolic blood pressure</td>
+</tr>
+<tr class="odd">
+<td align="center">Hb</td>
+<td align="center">hemoglobin</td>
+</tr>
+<tr class="even">
+<td align="center">Ht</td>
+<td align="center">Hematocrit</td>
+</tr>
+<tr class="odd">
+<td align="center">MCH</td>
+<td align="center">mean corpuscular hemoglobin</td>
+</tr>
+<tr class="even">
+<td align="center">MCHC</td>
+<td align="center">mean corpuscular hemoglobin concentration</td>
+</tr>
+<tr class="odd">
+<td align="center">MCV</td>
+<td align="center">mean corpuscular volume</td>
+</tr>
+<tr class="even">
+<td align="center">RBC</td>
+<td align="center">red blood cell count</td>
+</tr>
+<tr class="odd">
+<td align="center">SBP</td>
+<td align="center">systolic blood pressure</td>
+</tr>
+<tr class="even">
+<td align="center">WBC</td>
+<td align="center">white blood cell count</td>
+</tr>
+<tr class="odd">
+<td align="center">Basophil</td>
+<td align="center">basophil count</td>
+</tr>
+<tr class="even">
+<td align="center">Eosinophil</td>
+<td align="center">eosinophil count</td>
+</tr>
+<tr class="odd">
+<td align="center">Height</td>
+<td align="center">standing height</td>
+</tr>
+<tr class="even">
+<td align="center">Lymphocyte</td>
+<td align="center">lymphocyte count</td>
+</tr>
+<tr class="odd">
+<td align="center">Monocyte</td>
+<td align="center">monocyte count</td>
+</tr>
+<tr class="even">
+<td align="center">Neutrophil</td>
+<td align="center">neutrophil count</td>
+</tr>
+<tr class="odd">
+<td align="center">Platelet</td>
+<td align="center">platelet count</td>
+</tr>
+</tbody>
+</table>
+<p>Regarding the data sources of gene expression prediction models, we used GTEx v8 based models which are European based and MESA models which have African, Hispanic populations additionally. Specifically, we included GTEx v8 whole blood CTIMP models and mashr models and MESA models elastic net models which are from monocyte. The sample size of the models are listed below.</p>
+<pre class="r"><code>f2 = &#39;African American (AFA, n = 233), Hispanic (HIS, n = 352), and European (CAU, n = 578)&#39;
+f = do.call(rbind, sapply(strsplit(f2, &#39;),&#39;)[[1]], function(x) {
+  x = strsplit(x, &#39; \\(&#39;)[[1]]
+  meta = strsplit(x[2], &#39;, &#39;)[[1]]
+  abbr = meta[1]
+  sample_size = stringr::str_remove(meta[2], &#39;n = &#39;)
+  sample_size = as.numeric(stringr::str_remove(sample_size, &#39;\\)&#39;))
+  data.frame(population = stringr::str_remove(x[1], &#39;and &#39;), abbreviation = abbr, sample_size = sample_size)
+}, simplify = F))
+rownames(f) = NULL
+f = f %&gt;% mutate(source = &#39;MESA&#39;, tissue = &#39;Monocyte&#39;)
+f = rbind(f, data.frame(population = &#39;European&#39;, abbreviation = &#39;gtex_v8&#39;, sample_size = 573, source = &#39;GTEx_v8&#39;, tissue = &#39;Whole_Blood&#39;))
+f %&gt;% pander(&#39;Sample size of gene expression prediction models in the analysis&#39;)</code></pre>
+<table>
+<caption>Sample size of gene expression prediction models in the analysis</caption>
+<colgroup>
+<col width="26%" />
+<col width="20%" />
+<col width="19%" />
+<col width="13%" />
+<col width="19%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">population</th>
+<th align="center">abbreviation</th>
+<th align="center">sample_size</th>
+<th align="center">source</th>
+<th align="center">tissue</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">African American</td>
+<td align="center">AFA</td>
+<td align="center">233</td>
+<td align="center">MESA</td>
+<td align="center">Monocyte</td>
+</tr>
+<tr class="even">
+<td align="center">Hispanic</td>
+<td align="center">HIS</td>
+<td align="center">352</td>
+<td align="center">MESA</td>
+<td align="center">Monocyte</td>
+</tr>
+<tr class="odd">
+<td align="center">European</td>
+<td align="center">CAU</td>
+<td align="center">578</td>
+<td align="center">MESA</td>
+<td align="center">Monocyte</td>
+</tr>
+<tr class="even">
+<td align="center">European</td>
+<td align="center">gtex_v8</td>
+<td align="center">573</td>
+<td align="center">GTEx_v8</td>
+<td align="center">Whole_Blood</td>
+</tr>
+</tbody>
+</table>
+<p>Note that the non-European models were only used to calculate the predicted expression. The S-PrediXcan runs to obtain gene-level effect size and p-values were based on European models only. To improve clarity, we refer the latter as the part of PTRS predictor but not the former.</p>
+<div id="measuring-performance-and-transferability" class="section level2">
+<h2><span class="header-section-number">1.1</span> Measuring performance and transferability</h2>
+<p>Let <span class="math inline">\(\hat{y}\)</span> be the predicted/estimated outcome and <span class="math inline">\(y\)</span> be the observed one. We measure the predictive power of <span class="math inline">\(\hat{y}\)</span> using partial <span class="math inline">\(R^2\)</span>. Specifically, we compute sum of squared error (SSE) for <span class="math inline">\(\hat{y}^{\text{null}}\)</span> and <span class="math inline">\(\hat{y}^{\text{full}}\)</span> where null model is least squared predictor of <span class="math inline">\(y\)</span> using covariates only and full model is least squared predictor using both covariates and <span class="math inline">\(\hat{y}\)</span>. So that <span class="math display">\[R^2 = 1 - \frac{SSE^{\text{full}}}{SSE^{\text{null}}}\]</span>.</p>
+<p>To measure transferability, we use the best performing model within each population. <strong>Note that</strong> it is different from the previous setting where we used the model with p-value cutoff that is best performing model in European. The current setting is consistent with <span class="citation">Martin et al. (2019)</span>. Transferability is defined as the ratio of <span class="math inline">\(R^2\)</span>’s for the population of interest over the British-validation.</p>
+</div>
+<div id="building-ptrs-models" class="section level2">
+<h2><span class="header-section-number">1.2</span> Building PTRS models</h2>
+<p>To make it clear, here we describe how we obtain gene weight and how we decide if a gene should be included in the PTRS model. The gene weights are obtained from S-PrediXcan runs using GWAS summary statistics from British-training and GTEx V8 EUR/MESA CAU models (PredictDB). To determine which genes to include, we implemented the following three strategies:</p>
+<ol style="list-style-type: decimal">
+<li><code>naive</code>: P-value from the same S-PrediXcan runs.</li>
+<li><code>ldblock</code>: Top gene within each European LD block (<span class="citation">Berisa and Pickrell (2016)</span> formatted by GTEx GWAS subgroup).</li>
+<li><code>mashr</code>: For GTEx V8 data, we also trained MASHR models, so we used P-value from the S-PrediXcan runs using MASHR models in the same tissue.</li>
+</ol>
+</div>
+</div>
+<div id="proportion-of-variation-explained-pve-of-predicted-expression" class="section level1">
+<h1><span class="header-section-number">2</span> Proportion of variation explained (PVE) of predicted expression</h1>
+<p>First of all, we are interested in PVE of predicted expression. It gives us a sense on how much variation could be captured by a linear predictor. In the case of genotype being predictor, PVE is heritability.</p>
+<p>Here we calculate PVE using GCTA approach with first 20 PCs and some age and sex variables (age^2, age * sex, etc) as covariates. And the analysis was done one population at a time. For British, we used 5000 individuals (one of the test set). Here we compare the PVE results in all populations with predicted expression calculated from different models.</p>
+<pre class="r"><code>pops = c(&#39;African&#39;, &#39;British-test-1&#39;, &#39;Chinese&#39;, &#39;Indian&#39;)
+models = c(&#39;AFHI&#39;, &#39;CAU&#39;, &#39;ctimp_Whole_Blood&#39;)
+df_pve = list()
+for(p in pops) {
+  for(m in models) {
+    filename = paste0(&#39;~/Desktop/tmp/gcta_regu/reml_from_hail_martin_et_al_traits_x_&#39;, m, &#39;_x_&#39;, p, &#39;.tsv&#39;)
+    df_pve[[length(df_pve) + 1]] = read.table(filename, header = T, sep = &#39;\t&#39;) %&gt;% mutate(model = m, population = p)
+  }
+}
+df_pve = do.call(rbind, df_pve)
+df_pve %&gt;% select(model, num_predictors) %&gt;% filter(!duplicated(model)) %&gt;% pander(caption = &#39;The rough number of predictors (genes) for each model&#39;)</code></pre>
+<table style="width:51%;">
+<caption>The rough number of predictors (genes) for each model</caption>
+<colgroup>
+<col width="27%" />
+<col width="23%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">model</th>
+<th align="center">num_predictors</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">AFHI</td>
+<td align="center">5554</td>
+</tr>
+<tr class="even">
+<td align="center">CAU</td>
+<td align="center">4670</td>
+</tr>
+<tr class="odd">
+<td align="center">ctimp_Whole_Blood</td>
+<td align="center">7041</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>df_pve$h_sq[is.na(df_pve$h_sq)] = 0
+df_pve$h_sq_se[is.na(df_pve$h_sq_se)] = 0</code></pre>
+<div id="comparing-between-prediction-models" class="section level2">
+<h2><span class="header-section-number">2.1</span> Comparing between prediction models</h2>
+<p>Models could differ by tissue, population, predictor, and etc. To simplify the comparison, we focus on three models: GTEx v8 whole blood CTIMP model, MESA AFA + HIS EN model, and MESA CAU EN model. These models has similar sample size.</p>
+<pre class="r"><code>for(p in pops) {
+  tmp = df_pve %&gt;% filter(population == p) %&gt;% reshape2::dcast(trait ~ model, value.var = &#39;h_sq&#39;)
+  pp = myggpairs(tmp %&gt;% select(AFHI, CAU, ctimp_Whole_Blood), tmp$trait) + 
+    th + 
+    theme(legend.title = element_blank()) + 
+    geom_abline(slope = 1, intercept = 0)
+  print(pp + ggtitle(p))
+}</code></pre>
+<p><img src="summary_on_010720_files/figure-html/pve-model-1.png" width="576" /><img src="summary_on_010720_files/figure-html/pve-model-2.png" width="576" /><img src="summary_on_010720_files/figure-html/pve-model-3.png" width="576" /><img src="summary_on_010720_files/figure-html/pve-model-4.png" width="576" /></p>
+<p><strong>Take-away</strong>:</p>
+<ul>
+<li><strong>Comparing GTEx v8 whole blood and MESA CAU models</strong>, the PVEs are quite comparable for British and GTEx v8 whole is slightly better. Note that the tissues are different (whole blood vs. monocyte) and the predictor is also different (CTIMP vs. elastic net) and the number of genes included are different. So that we cannot conclude which tissue is better or which prediction model is better. The message is that they are equally informative in terms of predicting trait of interest.</li>
+<li><strong>Comparing MESA AFHI (AFA + HIS) models and MESA CAU models</strong>, they have quite comparable PVEs in British, Chinese, and Indian with CAU being slighly better. However, in African, AFHI has higher PVE than CAU in almost all trait. If the predicted expression is really contributing to complex trait variation which is intended to be captured by PVE, the improved PVE in AFHI model could be attributed to improved ability to capture the genetically determined gene expression.</li>
+</ul>
+</div>
+<div id="comparing-between-populations" class="section level2">
+<h2><span class="header-section-number">2.2</span> Comparing between populations</h2>
+<pre class="r"><code>df_pve %&gt;% ggplot() + geom_bar(aes(x = trait, y = h_sq, fill = population), stat = &#39;identity&#39;, position = position_dodge(0.5), width = 0.5) + facet_wrap(~model, ncol = 1) + theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) + th</code></pre>
+<p><img src="summary_on_010720_files/figure-html/pve-pop-1.png" width="576" /></p>
+<p><strong>Take-away</strong>:</p>
+<ul>
+<li>From the comparison between models we can see that the predictive power of predicted expression in African could be under-estimated in models other than AFHI. So that we could focus more on AFHI when comparing across populations.</li>
+<li>Height and wbc are the two traits which have similar PVE across all four populations. Whereas, for other traits, the PVEs differ a lot across populations.</li>
+<li>For monocyte and basophil, they have very high PVE in Chinese regardless of the model.</li>
+</ul>
+</div>
+<div id="comparing-against-heritability" class="section level2">
+<h2><span class="header-section-number">2.3</span> Comparing against heritability</h2>
+<p>Heritability estimates were from Neale’s lab using LDSC regression (on the basis of Europeans in UK Biobank).</p>
+<pre class="r"><code>df_h2 = readRDS(&#39;../analysis_output/hsq_neale_lab.rds&#39;)
+df_pve_tmp = inner_join(df_pve, df_h2 %&gt;% select(h2_observed, h2_observed_se, trait), by = &#39;trait&#39;)
+df_pve_tmp %&gt;% ggplot() +
+  geom_abline(slope = 0.2, intercept = 0, color = &#39;red&#39;) + 
+  geom_point(aes(x = h2_observed, y = h_sq), alpha = .5, size = 0.1) + 
+  geom_errorbar(aes(x = h2_observed, ymin = h_sq - 1.96 * h_sq_se, ymax = h_sq + 1.96 * h_sq_se), alpha = .5) +
+  geom_errorbarh(aes(xmin = h2_observed - 1.96 * h2_observed_se, xmax = h2_observed + 1.96 * h2_observed_se, y = h_sq), alpha = .5) +
+  facet_grid(model~population) +
+  th</code></pre>
+<p><img src="summary_on_010720_files/figure-html/pve-h2-1.png" width="576" /></p>
+<p><strong>Take-away</strong>:</p>
+<ul>
+<li>Note that the reference line in red has slope 0.2.</li>
+<li>Roughly PVE of predicted expression is 20% of heritability. In other word, regulability is about 20%.</li>
+</ul>
+</div>
+</div>
+<div id="prs-and-its-transferability" class="section level1">
+<h1><span class="header-section-number">3</span> PRS and its transferability</h1>
+<pre class="r"><code>collector = list()
+for(i in 1 : 3) {
+  filename1 = paste0(&#39;~/Desktop/tmp/prs_r2/ptrs_r2_subset&#39;, i, &#39;.txt&#39;)  # I used the wrong name ptrs* for some runs ... but the runs themselves are correct 
+  filename2 = paste0(&#39;~/Desktop/tmp/prs_r2/prs_r2_subset&#39;, i, &#39;.txt&#39;)
+  if(file.exists(filename1)) {
+    tmp = read.table(filename1, header = T, sep = &#39;\t&#39;)
+  } else if(file.exists(filename2)) {
+    tmp = read.table(filename2, header = T, sep = &#39;\t&#39;)
+  }
+  collector[[length(collector) + 1]] = tmp %&gt;% mutate(subset = i)
+}
+for(i in 4 : 17) {
+  for(t in traits) {
+    filename1 = paste0(&#39;~/Desktop/tmp/prs_r2/ptrs_r2_subset&#39;, i, &#39;_x_&#39;, t, &#39;.txt&#39;)  # I used the wrong name ptrs* for some runs ... but the runs themselves are correct  
+    filename2 = paste0(&#39;~/Desktop/tmp/prs_r2/prs_r2_subset&#39;, i, &#39;_x_&#39;, t, &#39;.txt&#39;)
+    if(file.exists(filename1)) {
+      tmp = read.table(filename1, header = T, sep = &#39;\t&#39;)
+    } else if(file.exists(filename2)) {
+      tmp = read.table(filename2, header = T, sep = &#39;\t&#39;)
+    }
+    collector[[length(collector) + 1]] = tmp %&gt;% mutate(subset = i)
+  }
+}
+df_result_prs = do.call(rbind, collector)
+df_result_prs$population = parse_pop(df_result_prs$population)
+df_result_prs$pval_cutoff = factor(df_result_prs$pval_cutoff, levels = sort(unique(df_result_prs$pval_cutoff)))</code></pre>
+<div id="variation-of-r2-among-replicates" class="section level2">
+<h2><span class="header-section-number">3.1</span> Variation of <span class="math inline">\(R^2\)</span> among replicates</h2>
+<pre class="r"><code>for(pop in unique(df_result_prs$population)) {
+  p = df_result_prs %&gt;% filter(population == pop) %&gt;% ggplot() + geom_boxplot(aes(x = pval_cutoff, y = r2)) + facet_wrap(~trait, ncol = 4, scales = &#39;free_y&#39;) + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) + ggtitle(pop) + th  # 
+  print(p)
+}</code></pre>
+<p><img src="summary_on_010720_files/figure-html/prs-replicate-1.png" width="864" /><img src="summary_on_010720_files/figure-html/prs-replicate-2.png" width="864" /><img src="summary_on_010720_files/figure-html/prs-replicate-3.png" width="864" /><img src="summary_on_010720_files/figure-html/prs-replicate-4.png" width="864" /><img src="summary_on_010720_files/figure-html/prs-replicate-5.png" width="864" /></p>
+<p><strong>Take-away</strong>:</p>
+<ul>
+<li>Each box summarizes the <span class="math inline">\(R^2\)</span> across 17 replicates. The performance measure, <span class="math inline">\(R^2\)</span>, is generally consistent.</li>
+<li>So, we use the median <span class="math inline">\(R^2\)</span> among replications as the <span class="math inline">\(R^2\)</span> for each (population, trait, p-value cutoff) tuple.</li>
+</ul>
+</div>
+<div id="how-prs-r2-changes-with-p-value-cutoff-among-populations" class="section level2">
+<h2><span class="header-section-number">3.2</span> How PRS <span class="math inline">\(R^2\)</span> changes with p-value cutoff among populations?</h2>
+<pre class="r"><code>df_median_prs = df_result_prs %&gt;% group_by(population, trait, pval_cutoff) %&gt;% summarize(median_r2 = median(r2)) %&gt;% ungroup()
+df_median_prs %&gt;% ggplot() + 
+  geom_point(aes(x = pval_cutoff, y = median_r2, color = population), alpha = 0.5, size = 5) + 
+  geom_line(aes(x = pval_cutoff, y = median_r2, group = population, color = population)) +
+  facet_wrap(~trait, ncol = 3, scales = &#39;free_y&#39;) + 
+  th +
+  theme(legend.position = &#39;bottom&#39;, axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) </code></pre>
+<p><img src="summary_on_010720_files/figure-html/prs-r2-vs-cutoff-1.png" width="864" /></p>
+<p><strong>Take-away</strong>:</p>
+<ul>
+<li>The two replications “British-test” and “British-validation” are quite consistent.</li>
+<li>In most of the traits, British models achieves the best performance at looser p-value cutoff. It is consistent with the assumption that higher significance enriches for causal variants.</li>
+</ul>
+</div>
+<div id="prs-transferability" class="section level2">
+<h2><span class="header-section-number">3.3</span> PRS transferability</h2>
+<pre class="r"><code>df_best_prs = df_median_prs %&gt;% group_by(population, trait) %&gt;% summarize(best_r2 = max(median_r2)) %&gt;% ungroup()
+df_best_prs = left_join(df_best_prs, df_best_prs %&gt;% filter(population == &#39;British-validation&#39;), by = &#39;trait&#39;, suffix = c(&#39;&#39;, &#39;_reference&#39;))
+df_best_prs = df_best_prs %&gt;% mutate(transferability = best_r2 / best_r2_reference)
+df_best_prs %&gt;% filter(population != &#39;British-validation&#39;) %&gt;% ggplot() + geom_hline(yintercept = 1, linetype = 2) + geom_violin(aes(x = population, y = transferability)) + geom_boxplot(aes(x = population, y = transferability), width = 0.05) + th</code></pre>
+<p><img src="summary_on_010720_files/figure-html/prs-transferability-1.png" width="672" /></p>
+<p><strong>Take-away</strong>:</p>
+<ul>
+<li>The transferability is consistent with <span class="citation">Martin et al. (2019)</span>.</li>
+</ul>
+</div>
+</div>
+<div id="ptrs-and-its-transferability" class="section level1">
+<h1><span class="header-section-number">4</span> PTRS and its transferability</h1>
+<p>Here, we load the results of</p>
+<pre class="r"><code>gtex = data.frame(
+  source = c(&#39;GTEx V8 Whole Blood&#39;),
+  population_spredixcan = c(&#39;EUR&#39;),
+  population_prediction_model = c(&#39;EUR&#39;),
+  selection_of_gene = c(&#39;naive&#39;, &#39;ldblock&#39;, &#39;mashr&#39;)
+)
+mesa = data.frame(
+  source = c(&#39;MESA monocyte&#39;),
+  population_spredixcan = c(&#39;CAU&#39;),
+  population_prediction_model = c(&#39;CAU&#39;, &#39;AFHI&#39;)
+)
+overview_ptrs = rbind(
+  gtex,
+  mesa %&gt;% mutate(selection_of_gene = &#39;naive&#39;),
+  mesa %&gt;% mutate(selection_of_gene = &#39;ldblock&#39;)
+)
+overview_ptrs %&gt;% pander(caption = &#39;PTRS models being shown in this report&#39;)</code></pre>
+<table>
+<caption>PTRS models being shown in this report</caption>
+<colgroup>
+<col width="22%" />
+<col width="25%" />
+<col width="31%" />
+<col width="20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">source</th>
+<th align="center">population_spredixcan</th>
+<th align="center">population_prediction_model</th>
+<th align="center">selection_of_gene</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">GTEx V8 Whole Blood</td>
+<td align="center">EUR</td>
+<td align="center">EUR</td>
+<td align="center">naive</td>
+</tr>
+<tr class="even">
+<td align="center">GTEx V8 Whole Blood</td>
+<td align="center">EUR</td>
+<td align="center">EUR</td>
+<td align="center">ldblock</td>
+</tr>
+<tr class="odd">
+<td align="center">GTEx V8 Whole Blood</td>
+<td align="center">EUR</td>
+<td align="center">EUR</td>
+<td align="center">mashr</td>
+</tr>
+<tr class="even">
+<td align="center">MESA monocyte</td>
+<td align="center">CAU</td>
+<td align="center">CAU</td>
+<td align="center">naive</td>
+</tr>
+<tr class="odd">
+<td align="center">MESA monocyte</td>
+<td align="center">CAU</td>
+<td align="center">AFHI</td>
+<td align="center">naive</td>
+</tr>
+<tr class="even">
+<td align="center">MESA monocyte</td>
+<td align="center">CAU</td>
+<td align="center">CAU</td>
+<td align="center">ldblock</td>
+</tr>
+<tr class="odd">
+<td align="center">MESA monocyte</td>
+<td align="center">CAU</td>
+<td align="center">AFHI</td>
+<td align="center">ldblock</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>type_folders = list(naive = &#39;ptrs_r2&#39;, ldblock = &#39;ptrs_ldblock_r2&#39;, mashr = &#39;ptrs_mashr_r2&#39;)
+result = list()
+# naive
+for(i in 1 : 17) {
+  for(t in traits) {
+    for(type in names(type_folders)) {
+      filename = paste0(&#39;~/Desktop/tmp/&#39;, type_folders[[type]], &#39;/ptrs-r2_subset&#39;, i, &#39;_x_&#39;, t, &#39;.txt&#39;)
+      tmp = read.table(filename, header = T, sep = &#39;\t&#39;)
+      if(&#39;SSE.with&#39; %in% colnames(tmp)) {
+        tmp = tmp %&gt;% select(-SSE.wo, -SSE.with)
+      }
+      result[[length(result) + 1]] = tmp %&gt;% mutate(subset = i, trait = t, model = &#39;GTExV8&#39;, type = type)
+    }
+  }
+}
+df_gtex = do.call(rbind, result)
+df_gtex$population = parse_pop(df_gtex$population)
+df_gtex$ptrs_col = stringr::str_remove(df_gtex$ptrs_col, &#39;pval_&#39;)
+df_gtex$ptrs_col = factor(df_gtex$ptrs_col, levels = unique(df_gtex$ptrs_col))</code></pre>
+<pre class="r"><code>mesa_models = c(&#39;AFHI&#39;, &#39;CAU&#39;)
+type_folders = list(naive = &#39;ptrs_mesa_r2&#39;, ldblock = &#39;ptrs_mesa_ldblock_r2&#39;)
+result = list()
+for(m in mesa_models) {
+  for(i in 1 : 17) {
+    for(t in traits) {
+      for(type in names(type_folders)) {
+        filename = paste0(&#39;~/Desktop/tmp/&#39;, type_folders[[type]], &#39;/&#39;, type_folders[[type]], &#39;_&#39;, m, &#39;/ptrs-r2_subset&#39;, i, &#39;_x_&#39;, t, &#39;.txt&#39;)
+        tmp = read.table(filename, header = T, sep = &#39;\t&#39;)
+        result[[length(result) + 1]] = tmp %&gt;% mutate(subset = i, trait = t, model = m, type = type)
+      }
+    }
+  }
+}
+df_mesa = do.call(rbind, result)
+df_mesa = df_mesa %&gt;% select(-SSE.wo, -SSE.with)
+df_mesa$population = parse_pop(df_mesa$population)
+df_mesa$ptrs_col = stringr::str_remove(df_mesa$ptrs_col, &#39;pval_&#39;)
+df_mesa$ptrs_col = factor(df_mesa$ptrs_col, levels = unique(df_mesa$ptrs_col))</code></pre>
+<pre class="r"><code>df_ptrs = rbind(df_gtex, df_mesa)</code></pre>
+<p>From the brief examination of <span class="math inline">\(R^2\)</span> among replications, the variation is a little bigger than PRS (results not shown). But still British-validation and British-test are quite consistent. For the subsequent analysis, we use the median <span class="math inline">\(R^2\)</span> for each (population, trait, cutoff, model, type) combination so that it is consistent with PRS. And similarly, we take the best performing model within each population (for each model and PTRS type).</p>
+<pre class="r"><code>df_median_ptrs = df_ptrs %&gt;% group_by(population, trait, ptrs_col, model, type) %&gt;% summarize(median_r2 = median(r2)) %&gt;% ungroup()
+df_best_ptrs = df_median_ptrs %&gt;% group_by(population, trait, model, type) %&gt;% summarize(best_r2 = max(median_r2)) %&gt;% ungroup()</code></pre>
+<div id="predictive-power-of-best-performing-models" class="section level2">
+<h2><span class="header-section-number">4.1</span> Predictive power of best performing models</h2>
+<div id="naive-vs.ld-block" class="section level3">
+<h3><span class="header-section-number">4.1.1</span> Naive vs. LD block</h3>
+<pre class="r"><code>df_best_ptrs %&gt;% filter(type != &#39;mashr&#39;) %&gt;% 
+  reshape2::dcast(population + trait + model ~ type, value.var = &#39;best_r2&#39;) %&gt;% 
+  ggplot() + 
+  geom_abline(slope = 1, intercept = 0) +
+  geom_point(aes(x = naive, y = ldblock)) + facet_grid(population ~ model) +
+  th</code></pre>
+<p><img src="summary_on_010720_files/figure-html/ptrs-naive-vs-ldblock-1.png" width="576" /></p>
+<p><strong>Take-away</strong>:</p>
+<ul>
+<li>Comparing the approach including all genes exceeding a threshold against the approach using only the top gene for each LD block (essentially taking one of these genes by LD block), their performances are quite comparable.</li>
+<li>It suggests that for each LD block, the predictive power of genes are somewhat redundent.</li>
+</ul>
+</div>
+<div id="naive-vs.mashr" class="section level3">
+<h3><span class="header-section-number">4.1.2</span> Naive vs. mashr</h3>
+<pre class="r"><code>df_best_ptrs %&gt;% filter(model == &#39;GTExV8&#39;, type != &#39;ldblock&#39;) %&gt;% 
+  reshape2::dcast(population + trait + model ~ type, value.var = &#39;best_r2&#39;) %&gt;% 
+  ggplot() + 
+  geom_abline(slope = 1, intercept = 0) +
+  geom_point(aes(x = naive, y = mashr)) + facet_wrap(~population, scales = &#39;free&#39;) +
+  th</code></pre>
+<p><img src="summary_on_010720_files/figure-html/ptrs-naive-vs-mashr-1.png" width="576" /></p>
+<p><strong>Take-away</strong>:</p>
+<ul>
+<li>Models based on mashr p-value perform slightly better in British individuals and African.</li>
+</ul>
+</div>
+<div id="cau-vs.afhi" class="section level3">
+<h3><span class="header-section-number">4.1.3</span> CAU vs. AFHI</h3>
+<p>Another important thing to examine is whether the population-matched prediction model could improve the predicitive power. To do so, we look at MESA results (PTRS-naive and PTRS-ldblock) and compare CAU to AFHI.</p>
+<pre class="r"><code>df_best_ptrs %&gt;% filter(model != &#39;GTExV8&#39;) %&gt;% 
+  reshape2::dcast(population + trait + type ~ model, value.var = &#39;best_r2&#39;) %&gt;% 
+  ggplot() + 
+  geom_abline(slope = 1, intercept = 0) +
+  geom_point(aes(x = CAU, y = AFHI)) + facet_grid(type~population, scales = &#39;free&#39;) +
+  th + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))</code></pre>
+<p><img src="summary_on_010720_files/figure-html/ptrs-cau-vs-afhi-1.png" width="768" /></p>
+<p><strong>Take-away</strong>:</p>
+<ul>
+<li>The performance of PTRS is roughly the same when using AFHI as prediction model comparing to the case using CAU.</li>
+<li>But the performance of AFHI models on Europeans is worse than CAU.</li>
+<li>This suggests that to use population-matched prediction model does not significantly improve the predictive power of PTRS.</li>
+<li>In other word, the missing predictive power is not mainly driven by bad prediction model but could be potentially bad gene level model (gene weights)</li>
+</ul>
+</div>
+</div>
+<div id="ptrs-transferability" class="section level2">
+<h2><span class="header-section-number">4.2</span> PTRS transferability</h2>
+<p>For MESA results, we take the best performing model across all prediction models.</p>
+<pre class="r"><code>df_median_ptrs$source = &#39;GTExV8&#39;
+df_median_ptrs$source[df_median_ptrs$model != &#39;GTExV8&#39;] = &#39;MESA&#39;
+df_best_ptrs_trans = df_median_ptrs %&gt;% group_by(population, trait, source, type) %&gt;% summarize(best_r2 = max(median_r2)) %&gt;% ungroup()
+df_best_ptrs_trans = left_join(df_best_ptrs_trans, df_best_ptrs_trans %&gt;% filter(population == &#39;British-validation&#39;), by = c(&#39;trait&#39;, &#39;source&#39;, &#39;type&#39;), suffix = c(&#39;&#39;, &#39;_reference&#39;))
+df_best_ptrs_trans = df_best_ptrs_trans %&gt;% mutate(transferability = best_r2 / best_r2_reference)
+df_best_ptrs_trans %&gt;% filter(population != &#39;British-validation&#39;) %&gt;% ggplot() + geom_hline(yintercept = 1, linetype = 2) + geom_violin(aes(x = population, y = transferability, color = type), position = position_dodge(width = 0.6)) + geom_boxplot(aes(x = population, y = transferability, fill = type), width = 0.05, position = position_dodge(width = 0.6)) + facet_wrap(~source, ncol = 1) + th</code></pre>
+<p><img src="summary_on_010720_files/figure-html/ptrs-transferability-1.png" width="672" /></p>
+<p><strong>Take-away</strong>:</p>
+<ul>
+<li>In terms of transferability, <code>naive</code>, <code>ldblock</code>, and <code>mashr</code> approach perform similar to each other.</li>
+<li>To improve the predictive power in any population, we can further take the best performing model among all approaches.</li>
+</ul>
+<pre class="r"><code>df_best_ptrs_trans2 = df_median_ptrs %&gt;% group_by(population, trait, source) %&gt;% summarize(best_r2 = max(median_r2)) %&gt;% ungroup()
+df_best_ptrs_trans2 = left_join(df_best_ptrs_trans2, df_best_ptrs_trans2 %&gt;% filter(population == &#39;British-validation&#39;), by = c(&#39;trait&#39;, &#39;source&#39;), suffix = c(&#39;&#39;, &#39;_reference&#39;))
+df_best_ptrs_trans2 = df_best_ptrs_trans2 %&gt;% mutate(transferability = best_r2 / best_r2_reference)
+df_best_ptrs_combine = rbind(
+  df_best_ptrs_trans %&gt;% select(population, trait, transferability, best_r2, source, type),
+  df_best_ptrs_trans2 %&gt;% select(population, trait, transferability, best_r2, source) %&gt;% mutate(type = &#39;collapse&#39;)
+)
+df_best_ptrs_combine %&gt;% filter(population != &#39;British-validation&#39;) %&gt;% ggplot() + geom_hline(yintercept = 1, linetype = 2) + geom_violin(aes(x = population, y = transferability, color = type), position = position_dodge(width = 0.6)) + geom_boxplot(aes(x = population, y = transferability, fill = type), width = 0.05, position = position_dodge(width = 0.6)) + facet_wrap(~source, ncol = 1) + th</code></pre>
+<p><img src="summary_on_010720_files/figure-html/ptrs-transferability-collapse-all-1.png" width="672" /></p>
+<p><strong>Take-away</strong>:</p>
+<ul>
+<li>By collapsing across all prediction models and approaches to include a gene (but here we keep the gene weights the same), the transferabilty is futher improved.</li>
+<li>This improvement is as expected, since AFHI model mostly improves PTRS for African but not British.</li>
+</ul>
+</div>
+</div>
+<div id="prs-vs.ptrs" class="section level1">
+<h1><span class="header-section-number">5</span> PRS vs. PTRS</h1>
+<pre class="r"><code>prs = df_best_prs %&gt;% select(population, trait, transferability, best_r2) %&gt;% mutate(type = &#39;PRS&#39;)
+ptrs = rbind(
+  df_best_ptrs_combine %&gt;% filter(type == &#39;collapse&#39;) %&gt;% mutate(type = paste0(&#39;PTRS-&#39;, source, &#39;-&#39;, type)) %&gt;% select(-source),
+  df_best_ptrs_trans %&gt;% filter(type == &#39;naive&#39;) %&gt;% mutate(type = paste0(&#39;PTRS-&#39;, source, &#39;-&#39;, type)) %&gt;% select(population, trait, transferability, best_r2, type)
+)
+rbind(
+  prs,
+  ptrs
+) %&gt;% filter(population != &#39;British-validation&#39;) %&gt;% 
+  ggplot() + geom_hline(yintercept = 1, linetype = 2) + geom_violin(aes(x = population, y = transferability, color = type), position = position_dodge(width = 0.6), width = 1) + geom_boxplot(aes(x = population, y = transferability, fill = type), width = 0.05, position = position_dodge(width = 0.6)) + th + theme(legend.position = &#39;bottom&#39;)</code></pre>
+<p><img src="summary_on_010720_files/figure-html/prs-vs-ptrs-1.png" width="768" /></p>
+<pre class="r"><code>left_join(ptrs, prs %&gt;% select(-type), by = c(&#39;trait&#39;, &#39;population&#39;), suffix = c(&#39;_ptrs&#39;, &#39;_prs&#39;))  %&gt;% filter(population != &#39;British-validation&#39;) %&gt;% 
+  ggplot() + geom_abline(slope = 1, intercept = 0) +
+  geom_point(aes(x = transferability_prs, transferability_ptrs)) + facet_grid(type ~ population, scales = &#39;free&#39;) + th</code></pre>
+<p><img src="summary_on_010720_files/figure-html/prs-vs-ptrs-scatter-1.png" width="768" /></p>
+<p><strong>Take-away</strong>:</p>
+<ul>
+<li>In African and Chinese, the transferability of PTRS is increased as comparing to PRS. But no improvement on Indian.</li>
+<li>Both collapsing across multiple gene inclusion methods and including more population-specific prediction model can improve the transferability of PTRS.</li>
+</ul>
+</div>
+<div id="prs-vs.heritability-and-ptrs-vs.pve" class="section level1">
+<h1><span class="header-section-number">6</span> PRS vs. heritability and PTRS vs. PVE</h1>
+<pre class="r"><code>inner_join(df_h2, prs, by = &#39;trait&#39;) %&gt;% 
+  ggplot() +
+  geom_point(aes(x = h2_observed, y = best_r2)) + facet_wrap(~population) + th +
+  ggtitle(&#39;PTRS R2 vs. heritability&#39;)</code></pre>
+<p><img src="summary_on_010720_files/figure-html/prs-vs-h2-1.png" width="576" /></p>
+<pre class="r"><code>df_pve = df_pve %&gt;% mutate(population = parse_pop(population)) 
+df_pve$type = &#39;GTExV8&#39;
+df_pve$type[df_pve$model != &#39;ctimp_Whole_Blood&#39;] = &#39;MESA&#39;
+df_pve_collapse = df_pve %&gt;% group_by(trait, population, type) %&gt;% summarize(pve = max(h_sq)) %&gt;% ungroup()
+df_pve_collapse = rbind(
+  df_pve_collapse, 
+  df_pve %&gt;% filter(model == &#39;AFHI&#39;) %&gt;% mutate(type = paste0(&#39;MESA-&#39;, model)) %&gt;% select(trait, population, type, h_sq) %&gt;% rename(pve = h_sq), 
+  df_pve %&gt;% filter(model == &#39;CAU&#39;) %&gt;% mutate(type = paste0(&#39;MESA-&#39;, model)) %&gt;% select(trait, population, type, h_sq) %&gt;% rename(pve = h_sq)
+)
+
+ptrs_collapse = ptrs %&gt;% filter(type %in% c(&#39;PTRS-GTExV8-collapse&#39;, &#39;PTRS-MESA-collapse&#39;))
+ptrs_collapse$type_clean = &#39;GTExV8&#39;
+ptrs_collapse$type_clean[ptrs_collapse$type == &#39;PTRS-MESA-collapse&#39;] = &#39;MESA&#39;
+ptrs_mesa = df_median_ptrs %&gt;% filter(source == &#39;MESA&#39;) %&gt;% group_by(population, trait, model) %&gt;% summarize(best_r2 = max(median_r2)) %&gt;% ungroup() %&gt;% mutate(type = paste0(&#39;MESA-&#39;, model)) %&gt;% select(-model) %&gt;% mutate(type_clean = type)
+ptrs_collapse = rbind(
+  ptrs_collapse %&gt;% select(-transferability), 
+  ptrs_mesa
+)
+
+
+inner_join(
+  df_pve_collapse,
+  ptrs_collapse,
+  by = c(&#39;type&#39; = &#39;type_clean&#39;, &#39;trait&#39;, &#39;population&#39;)
+) %&gt;% ggplot() + geom_point(aes(x = pve, y = best_r2)) + facet_wrap(~population) + th + facet_grid(type ~ population) +
+  ggtitle(&#39;PTRS R2 vs. PVE \n MESA model takes the max between AFHI and CAU&#39;)</code></pre>
+<p><img src="summary_on_010720_files/figure-html/ptrs-vs-pve-1.png" width="768" /></p>
+<p><strong>Take-away</strong>:</p>
+<ul>
+<li>For British, <span class="math inline">\(R^2\)</span> scales linearly as heritability or PVE. Indian has similar trend.</li>
+<li>For African and Chinese, we cannot see clear linear scaling even when using population-matched prediction model.</li>
+<li>This results suggests that the current strategies to build PTRS is still biased towards European.</li>
+</ul>
+</div>
+<div id="references" class="section level1 unnumbered">
+<h1>References</h1>
+<div id="refs" class="references">
+<div id="ref-berisa2016">
+<p>Berisa, Tomaz, and Joseph K Pickrell. 2016. “Approximately Independent Linkage Disequilibrium Blocks in Human Populations.” <em>Bioinformatics</em> 32 (2). Oxford University Press: 283.</p>
+</div>
+<div id="ref-martin2019">
+<p>Martin, Alicia R, Masahiro Kanai, Yoichiro Kamatani, Yukinori Okada, Benjamin M Neale, and Mark J Daly. 2019. “Clinical Use of Current Polygenic Risk Scores May Exacerbate Health Disparities.” <em>Nature Genetics</em> 51 (4). Nature Publishing Group: 584.</p>
+</div>
+</div>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
