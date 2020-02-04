@@ -81,3 +81,15 @@ do
   screen -dmS hail-batch-$i bash batch_run_hail.screen $i $modellist $OUTDIR
 done
 ```
+
+Run `hail` with multiple tissues
+
+```
+CONFIGNAME=ctimp_top10
+OUTDIR=/vol/bmd/yanyul/UKB/gcta_regulability
+mylist=('African' 'British-test-1' 'Indian' 'Chinese')
+for i in "${mylist[@]}"
+do 
+  screen -dmS hail-$i-$CONFIGNAME bash run_hail_multi.screen $i $CONFIGNAME $OUTDIR
+done
+```
