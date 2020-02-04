@@ -104,6 +104,37 @@ if args.mode == 'naive':
             piled_pred_expr = pd.concat((piled_pred_expr, df_pred_expr), ignore_index = True)
         indiv_pool = np.intersect1d(indiv_pool, piled_pred_expr.columns.to_list())
         logging.info('--> MODE {}, {}/{}, Current sample size = {}'.format(args.mode, i + 1, ntotal, indiv_pool.shape[0]))
+elif args.mode == 'tissue_svd':
+    # loop over all genes and do svd for each gene.
+    # first of all, collect pred expr and genes
+    list_pred_expr = []
+    col_order = None
+    genes = set()
+    for i in range(ntotal):
+        filename = predictor_tables[i]
+        colname = args.predictor_gene_column
+        df_pred_expr = ghelper.tsv_to_pd_df(filename, indiv_col = colname)
+        # df_pred_expr = df_pred_expr.drop(columns = [colname])
+        if col_order is None:
+            col_order = list(df_pred_expr.columns)
+            gene_idx = col_order.index(colname)
+            col_order.pop(gene_idx)
+            col_order.append(colname)
+        else:
+            df_pred_expr = df_pred_expr[col_order]
+        list_pred_expr.append(df_pred_expr)
+        genes.union(set(df_pred_expr[colname].to_list()))
+    # second, loop over gene and do svd
+    piled_pred_expr = None
+    for g in genes:
+        _mat = []
+        for ele in list_pred_expr:
+            _tmp = list(ele.loc[ele[colname] == g])
+            _tmp.pop(-1)
+            _mat.append(_tmp)
+        _mat = np.array(_mat)
+        
+        
 
 # organize tables and matrix so that they match by individual ordering
 logging.info('Organizing tables and matrix by individual ordering')

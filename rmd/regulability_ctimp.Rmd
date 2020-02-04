@@ -36,14 +36,47 @@ for(t in tissues) {
 }
 df = do.call(rbind, df)
 df = left_join(df, trait_info, by = c('trait' = 'short'))
+df[is.na(df)] = 0
 ```
 
 # Results
+
+## By tissue REML
 
 ```{r num-predictor}
 df %>% select(num_predictors, tissue) %>% filter(!duplicated(tissue)) %>% pander
 ```
 
 ```{r pve-in-british, fig.height=8, fig.width=10}
-df %>% filter(population == 'British-test-1') %>% ggplot() + geom_bar(aes(x = tissue, y = h_sq, fill = tissue), stat = 'identity') + facet_wrap(~long, ncol = 3, scales = 'free_y') + scale_fill_manual(values = color_board) + theme(legend.position = 'bottom', axis.text.x = element_blank())
+df %>% filter(population == 'British-test-1') %>% ggplot() + geom_bar(aes(x = tissue, y = h_sq, fill = tissue), stat = 'identity') + facet_wrap(~long, ncol = 3, scales = 'free_y') + scale_fill_manual(values = color_board) + theme(legend.position = 'bottom', axis.text.x = element_blank()) + th
 ```
+
+
+## Combining tissues naively
+
+Let $[X_1, \cdots, X_k]$ be the "genotype matrix".
+The assumption is that $\beta \sim N(0, \sigma^2)$ is the same for all genes in all tissues. 
+
+```{r multi-naive, fig.height=4, fig.width=8}
+df_naive = list()
+for(pop in pops) {
+  tmp = read.table(paste0('~/Desktop/tmp/gcta_regu/reml_from_hail-multi-tissue-naive_x_martin_et_al_traits_x_ctimp_x_', pop, '.tsv'), header = T, stringsAsFactors = F, sep = '\t')
+  df_naive[[length(df_naive) + 1]] = tmp %>% mutate(population = pop)
+}
+df_naive = do.call(rbind, df_naive)
+df_naive[is.na(df_naive)] = 0
+df_naive %>% ggplot() + geom_bar(aes(x = trait, y = h_sq, fill = population), stat = 'identity', position = 'dodge') + theme(legend.position = 'bottom') + th + ggtitle('REML analysis: combining tissues naively')
+```
+
+Combined vs. Whole blood.
+
+```{r multi-naive-vs, fig.height=4, fig.width=4}
+merge = inner_join(
+  df_naive %>% select(trait, population, h_sq, h_sq_se),
+  df %>% filter(tissue == 'Whole_Blood') %>% select(trait, population, h_sq, h_sq_se),
+  by = c('trait', 'population'),
+  suffix = c('.combined', '.whole_blood')
+)
+merge %>% ggplot() + geom_point(aes(x = h_sq.whole_blood, y = h_sq.combined)) + facet_wrap(~population) + geom_abline(slope = 1, intercept = 0) + th
+```
+

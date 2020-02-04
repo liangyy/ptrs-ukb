@@ -414,10 +414,13 @@ for(t in tissues) {
   }
 }
 df = do.call(rbind, df)
-df = left_join(df, trait_info, by = c(&#39;trait&#39; = &#39;short&#39;))</code></pre>
+df = left_join(df, trait_info, by = c(&#39;trait&#39; = &#39;short&#39;))
+df[is.na(df)] = 0</code></pre>
 </div>
 <div id="results" class="section level1">
 <h1><span class="header-section-number">2</span> Results</h1>
+<div id="by-tissue-reml" class="section level2">
+<h2><span class="header-section-number">2.1</span> By tissue REML</h2>
 <pre class="r"><code>df %&gt;% select(num_predictors, tissue) %&gt;% filter(!duplicated(tissue)) %&gt;% pander</code></pre>
 <table style="width:64%;">
 <colgroup>
@@ -473,9 +476,31 @@ df = left_join(df, trait_info, by = c(&#39;trait&#39; = &#39;short&#39;))</code>
 </tr>
 </tbody>
 </table>
-<pre class="r"><code>df %&gt;% filter(population == &#39;British-test-1&#39;) %&gt;% ggplot() + geom_bar(aes(x = tissue, y = h_sq, fill = tissue), stat = &#39;identity&#39;) + facet_wrap(~long, ncol = 3, scales = &#39;free_y&#39;) + scale_fill_manual(values = color_board) + theme(legend.position = &#39;bottom&#39;, axis.text.x = element_blank())</code></pre>
-<pre><code>## Warning: Removed 8 rows containing missing values (position_stack).</code></pre>
+<pre class="r"><code>df %&gt;% filter(population == &#39;British-test-1&#39;) %&gt;% ggplot() + geom_bar(aes(x = tissue, y = h_sq, fill = tissue), stat = &#39;identity&#39;) + facet_wrap(~long, ncol = 3, scales = &#39;free_y&#39;) + scale_fill_manual(values = color_board) + theme(legend.position = &#39;bottom&#39;, axis.text.x = element_blank()) + th</code></pre>
 <p><img src="regulability_ctimp_files/figure-html/pve-in-british-1.png" width="960" /></p>
+</div>
+<div id="combining-tissues-naively" class="section level2">
+<h2><span class="header-section-number">2.2</span> Combining tissues naively</h2>
+<p>Let <span class="math inline">\([X_1, \cdots, X_k]\)</span> be the “genotype matrix”. The assumption is that <span class="math inline">\(\beta \sim N(0, \sigma^2)\)</span> is the same for all genes in all tissues.</p>
+<pre class="r"><code>df_naive = list()
+for(pop in pops) {
+  tmp = read.table(paste0(&#39;~/Desktop/tmp/gcta_regu/reml_from_hail-multi-tissue-naive_x_martin_et_al_traits_x_ctimp_x_&#39;, pop, &#39;.tsv&#39;), header = T, stringsAsFactors = F, sep = &#39;\t&#39;)
+  df_naive[[length(df_naive) + 1]] = tmp %&gt;% mutate(population = pop)
+}
+df_naive = do.call(rbind, df_naive)
+df_naive[is.na(df_naive)] = 0
+df_naive %&gt;% ggplot() + geom_bar(aes(x = trait, y = h_sq, fill = population), stat = &#39;identity&#39;, position = &#39;dodge&#39;) + theme(legend.position = &#39;bottom&#39;) + th + ggtitle(&#39;REML analysis: combining tissues naively&#39;)</code></pre>
+<p><img src="regulability_ctimp_files/figure-html/multi-naive-1.png" width="768" /></p>
+<p>Combined vs. Whole blood.</p>
+<pre class="r"><code>merge = inner_join(
+  df_naive %&gt;% select(trait, population, h_sq, h_sq_se),
+  df %&gt;% filter(tissue == &#39;Whole_Blood&#39;) %&gt;% select(trait, population, h_sq, h_sq_se),
+  by = c(&#39;trait&#39;, &#39;population&#39;),
+  suffix = c(&#39;.combined&#39;, &#39;.whole_blood&#39;)
+)
+merge %&gt;% ggplot() + geom_point(aes(x = h_sq.whole_blood, y = h_sq.combined)) + facet_wrap(~population) + geom_abline(slope = 1, intercept = 0) + th</code></pre>
+<p><img src="regulability_ctimp_files/figure-html/multi-naive-vs-1.png" width="384" /></p>
+</div>
 </div>
 
 
