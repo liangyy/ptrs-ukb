@@ -13,30 +13,42 @@ phenotypes = get_pheno(config)
 ## Important note:
 ## when I say with *** as key, it is not required but optional
 
-rule all_format:
-    input:
-        '{outdir}/pheno_{table_name}_x_{pop_name}.tsv'.format(outdir = config['outdir'], table_name = config['table_name'], pop_name = config['pop_name']),
-        '{outdir}/covar_{table_name}_x_{pop_name}.tsv'.format(outdir = config['outdir'], table_name = config['table_name'], pop_name = config['pop_name']),
-        '{outdir}/pred_expr_{gene_model}_x_{pop_name}.tsv'.format(outdir = config['outdir'], gene_model = config['gene_model'], pop_name = config['pop_name'])
+if 'gene_model' in config:
+    rule all_format:
+        input:
+            '{outdir}/pheno_{table_name}_x_{pop_name}.tsv'.format(outdir = config['outdir'], table_name = config['table_name'], pop_name = config['pop_name']),
+            '{outdir}/covar_{table_name}_x_{pop_name}.tsv'.format(outdir = config['outdir'], table_name = config['table_name'], pop_name = config['pop_name']),
+            '{outdir}/pred_expr_{gene_model}_x_{pop_name}.tsv'.format(outdir = config['outdir'], gene_model = config['gene_model'], pop_name = config['pop_name'])
 
-rule all_gcta:
-    input:
-        [ '{outdir}/reml_from_gcta_{table_name}_x_{gene_model}_x_{pop_name}_x_{pheno}.hsq'.format(
-            outdir = config['outdir'],
-            table_name = config['table_name'],
-            gene_model = config['gene_model'],
-            pop_name = config['pop_name'],
-            pheno = p
-            ) for p in phenotypes ]
+    rule all_gcta:
+        input:
+            [ '{outdir}/reml_from_gcta_{table_name}_x_{gene_model}_x_{pop_name}_x_{pheno}.hsq'.format(
+                outdir = config['outdir'],
+                table_name = config['table_name'],
+                gene_model = config['gene_model'],
+                pop_name = config['pop_name'],
+                pheno = p
+                ) for p in phenotypes ]
 
-rule all_hail:
-    input:
-        '{outdir}/reml_from_hail_{table_name}_x_{gene_model}_x_{pop_name}.tsv'.format(
-            outdir = config['outdir'],
-            table_name = config['table_name'],
-            gene_model = config['gene_model'],
-            pop_name = config['pop_name']
-        )
+    rule all_hail:
+        input:
+            '{outdir}/reml_from_hail_{table_name}_x_{gene_model}_x_{pop_name}.tsv'.format(
+                outdir = config['outdir'],
+                table_name = config['table_name'],
+                gene_model = config['gene_model'],
+                pop_name = config['pop_name']
+            )
+elif 'gene_model_list' in config:
+    rule all_hail_multi:
+        input:
+            '{outdir}/reml_from_hail-multi-tissue-{mode}_{table_name}_x_{gene_model_list_name}_x_{pop_name}.tsv'.format(
+                outdir = config['outdir'],
+                table_name = config['table_name'],
+                gene_model_list_name = config['gene_model_list_name'],
+                pop_name = config['pop_name'],
+                mode = config['mode']
+            )
+
 
 rule subset_pred_expr_by_indiv:
     input:
@@ -122,3 +134,26 @@ rule run_hail:
           --output {output[0]} \
           --inv-norm-predictor \
           --with-intercept'
+
+## For multi-tissue analysis
+if 'gene_model_list' in config:
+    rule run_multi:
+        input:
+            mat = [ '{{outdir}}/pred_expr_{gene_model}_x_{{pop_name}}.tsv'.format(gene_model = g) for g in config['gene_model_list'] ]
+            pheno = '{outdir}/pheno_{table_name}_x_{pop_name}.tsv',
+            covar = '{outdir}/covar_{table_name}_x_{pop_name}.tsv'
+        params:
+            tables = '::'.join(mat)
+        output:
+            '{outdir}/reml_from_hail-multi-tissue-{mode}_{table_name}_x_{gene_model_list_name}_x_{pop_name}.tsv'
+        shell:
+            'python ../../code/estimate_hsq_multi_tissue.py \
+              --trait-table {input.pheno}::eid \
+              --covar-table {input.covar}::eid \
+              --predictor-table-list {input.mat} \
+              --predictor-gene-column gene \
+              --output {output[0]} \
+              --inv-norm-predictor \
+              --with-intercept \
+              --mode {wildcards.mode}'
+             
