@@ -22,6 +22,7 @@ title: "Home"
 * Splitting data into training, validation, and test sets [link](split_individuals.html)
 * REML [link](regulability_gcta.html)
 * REML on MESA models [link](regulability_mesa.html)
+* REML on 10 tissues CTIMP models (GTEx V8) [link](regulability_ctimp.html)
 
 # PRS/PTRS results
 

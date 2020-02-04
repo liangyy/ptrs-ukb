@@ -1,0 +1,49 @@
+---
+title: "Regulability based on predicted expression: GTEx v8 UTMOST models in ten tissues"
+---
+
+```{r setup}
+library(ggplot2)
+library(dplyr)
+library(pander)
+options(stringsAsFactors = F)
+source('../code/rlib_doc.R')
+source('https://gist.githubusercontent.com/liangyy/43912b3ecab5d10c89f9d4b2669871c9/raw/8151c6fe70e3d4ee43d9ce340ecc0eb65172e616/my_ggplot_theme.R')
+th$panel.border = element_rect(colour = th$axis.line$colour)
+theme_set(theme_bw(base_size = 10))
+gtex_color = read.csv('~/Documents/repo/bitbucket/rotation-at-imlab/data/gtex_tissue_colors.csv')
+gtex_color$tissue_site_detail_id[gtex_color$tissue_site_detail_id == 'Cells_Transformed_fibroblasts'] = 'Cells_Cultured_fibroblasts'
+color_board = paste0('#', gtex_color$tissue_color_hex)
+names(color_board) = gtex_color$tissue_site_detail_id
+trait_info = read.table('../external_data/martin_et_al_2019ng_table_s6_trait_description.tsv', header = T, sep = '\t')
+trait_info$short = tolower(trait_info$short)
+```
+
+# Load results
+
+Load CTIMP results.
+
+```{r load}
+tissues = read.table('~/Desktop/tmp/tissue_list.txt', header = F)$V1
+pops = c('African', 'British-test-1', 'Chinese', 'Indian')
+df = list()
+for(t in tissues) {
+  for(p in pops) {
+    t = stringr::str_remove(t, 'ctimp_')
+    filename = paste0('/Users/yanyul/Desktop/tmp/gcta_regu/reml_from_hail_martin_et_al_traits_x_ctimp_', t, '_x_', p, '.tsv')
+    df[[length(df) + 1]] = read.table(filename, header = T, sep = '\t') %>% mutate(population = p, tissue = t)
+  }
+}
+df = do.call(rbind, df)
+df = left_join(df, trait_info, by = c('trait' = 'short'))
+```
+
+# Results
+
+```{r num-predictor}
+df %>% select(num_predictors, tissue) %>% filter(!duplicated(tissue)) %>% pander
+```
+
+```{r pve-in-british, fig.height=8, fig.width=10}
+df %>% filter(population == 'British-test-1') %>% ggplot() + geom_bar(aes(x = tissue, y = h_sq, fill = tissue), stat = 'identity') + facet_wrap(~long, ncol = 3, scales = 'free_y') + scale_fill_manual(values = color_board) + theme(legend.position = 'bottom', axis.text.x = element_blank())
+```
