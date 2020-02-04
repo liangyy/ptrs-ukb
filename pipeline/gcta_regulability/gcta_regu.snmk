@@ -41,7 +41,7 @@ if 'gene_model' in config:
 elif 'gene_model_list' in config:
     rule all_hail_multi:
         input:
-            '{outdir}/reml_from_hail-multi-tissue-{mode}_{table_name}_x_{gene_model_list_name}_x_{pop_name}.tsv'.format(
+            '{outdir}/reml_from_hail-multi-tissue-{mode}_x_{table_name}_x_{gene_model_list_name}_x_{pop_name}.tsv'.format(
                 outdir = config['outdir'],
                 table_name = config['table_name'],
                 gene_model_list_name = config['gene_model_list_name'],
@@ -139,18 +139,18 @@ rule run_hail:
 if 'gene_model_list' in config:
     rule run_multi:
         input:
-            mat = [ '{{outdir}}/pred_expr_{gene_model}_x_{{pop_name}}.tsv'.format(gene_model = g) for g in config['gene_model_list'] ]
+            mat = [ '{{outdir}}/pred_expr_{gene_model}_x_{{pop_name}}.tsv'.format(gene_model = g) for g in config['gene_model_list'] ],
             pheno = '{outdir}/pheno_{table_name}_x_{pop_name}.tsv',
             covar = '{outdir}/covar_{table_name}_x_{pop_name}.tsv'
         params:
-            tables = '::'.join(mat)
+            tables = lambda wildcards, input: '::'.join(input.mat)
         output:
-            '{outdir}/reml_from_hail-multi-tissue-{mode}_{table_name}_x_{gene_model_list_name}_x_{pop_name}.tsv'
+            '{outdir}/reml_from_hail-multi-tissue-{mode}_x_{table_name}_x_{gene_model_list_name}_x_{pop_name}.tsv'
         shell:
             'python ../../code/estimate_hsq_multi_tissue.py \
               --trait-table {input.pheno}::eid \
               --covar-table {input.covar}::eid \
-              --predictor-table-list {input.mat} \
+              --predictor-table-list {params.tables} \
               --predictor-gene-column gene \
               --output {output[0]} \
               --inv-norm-predictor \

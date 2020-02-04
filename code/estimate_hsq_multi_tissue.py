@@ -93,6 +93,7 @@ logging.info('Loading predictor matrice. Looping over all inputs')
 predictor_tables = args.predictor_table_list.split('::')
 if args.mode == 'naive':
     piled_pred_expr = None
+    ntotal = len(predictor_tables)
     for i in range(ntotal):
         filename = predictor_tables[i]
         colname = args.predictor_gene_column
