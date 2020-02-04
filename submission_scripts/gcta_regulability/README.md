@@ -70,3 +70,14 @@ do
   screen -dmS format-batch-$i bash batch_run_format.screen $i $modellist $OUTDIR
 done
 ```
+
+or do hail GCTA
+
+```
+mylist=('African' 'British-test-1' 'Indian' 'Chinese')
+modellist='path_to_list_here'
+for i in "${mylist[@]}"
+do
+  screen -dmS hail-batch-$i bash batch_run_hail.screen $i $modellist $OUTDIR
+done
+```
