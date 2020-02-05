@@ -162,7 +162,10 @@ elif args.mode == 'tissue_svd_train' or args.mode == 'tissue_svd':
             for g in genes:
                 if g not in avail_genes:
                     continue
-                for ele_key in list_pred_expr.keys():
+                g_tissues = model_handle['{}/tissues'.format(g)][...].astype(str)
+                for ele_key in g_tissues:  # list_pred_expr.keys():
+                    if ele_key not in list_pred_expr:
+                        raise ValueError('key {} is not in input pred expr tables'.format(ele_key))
                     ele = list_pred_expr[ele_key]
                     _tmp = ele.loc[ele[colname] == g].to_numpy()
                     if _tmp.size != 0:
