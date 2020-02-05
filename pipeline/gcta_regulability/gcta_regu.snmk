@@ -38,7 +38,7 @@ if 'gene_model' in config:
                 gene_model = config['gene_model'],
                 pop_name = config['pop_name']
             )
-elif 'gene_model_list' in config:
+elif 'gene_model_yaml' in config:
     rule all_hail_multi:
         input:
             '{outdir}/reml_from_hail-multi-tissue-{mode}_x_{table_name}_x_{gene_model_list_name}_x_{pop_name}.tsv'.format(
@@ -136,24 +136,41 @@ rule run_hail:
           --with-intercept'
 
 ## For multi-tissue analysis
-if 'gene_model_list' in config:
-    rule run_multi:
-        input:
-            mat = [ '{{outdir}}/pred_expr_{gene_model}_x_{{pop_name}}.tsv'.format(gene_model = g) for g in config['gene_model_list'] ],
-            pheno = '{outdir}/pheno_{table_name}_x_{pop_name}.tsv',
-            covar = '{outdir}/covar_{table_name}_x_{pop_name}.tsv'
-        params:
-            tables = lambda wildcards, input: '::'.join(input.mat)
-        output:
-            '{outdir}/reml_from_hail-multi-tissue-{mode}_x_{table_name}_x_{gene_model_list_name}_x_{pop_name}.tsv'
-        shell:
-            'python ../../code/estimate_hsq_multi_tissue.py \
-              --trait-table {input.pheno}::eid \
-              --covar-table {input.covar}::eid \
-              --predictor-table-list {params.tables} \
-              --predictor-gene-column gene \
-              --output {output[0]} \
-              --inv-norm-predictor \
-              --with-intercept \
-              --mode {wildcards.mode}'
+if 'gene_model_yaml' in config:
+    if config['mode'] == 'naive' or config['mode'] == 'tissue_svd':
+        rule run_multi:
+            input:
+                mat = [ '{{outdir}}/pred_expr_{gene_model}_x_{{pop_name}}.tsv'.format(gene_model = g) for g in config['gene_model_list'] ],
+                pheno = '{outdir}/pheno_{table_name}_x_{pop_name}.tsv',
+                covar = '{outdir}/covar_{table_name}_x_{pop_name}.tsv',
+                yaml = config['gene_model_yaml']
+            output:
+                '{outdir}/reml_from_hail-multi-tissue-{mode}_x_{table_name}_x_{gene_model_list_name}_x_{pop_name}.tsv'
+            shell:
+                'python ../../code/estimate_hsq_multi_tissue.py \
+                  --trait-table {input.pheno}::eid \
+                  --covar-table {input.covar}::eid \
+                  --predictor-table-yaml {params.tables} \
+                  --predictor-gene-column gene \
+                  --output {output[0]} \
+                  --inv-norm-predictor \
+                  --with-intercept \
+                  --mode {wildcards.mode}'
+    elif config['mode'] == 'tissue_svd_train':
+        rule run_multi_train:
+            input:
+                mat = [ '{{outdir}}/pred_expr_{gene_model}_x_{{pop_name}}.tsv'.format(gene_model = g) for g in config['gene_model_list'] ],
+                pheno = '{outdir}/pheno_{table_name}_x_{pop_name}.tsv',
+                covar = '{outdir}/covar_{table_name}_x_{pop_name}.tsv',
+                yaml = config['gene_model_yaml']
+            output:
+                '{outdir}/PCA-multi-tissue-{mode}_x_{table_name}_x_{gene_model_list_name}_x_{pop_name}.hdf5'
+            shell:
+                'python ../../code/estimate_hsq_multi_tissue.py \
+                  --trait-table {input.pheno}::eid \
+                  --covar-table {input.covar}::eid \
+                  --predictor-table-yaml {params.tables} \
+                  --predictor-gene-column gene \
+                  --output {output[0]} \
+                  --mode {wildcards.mode}'
              

@@ -1,8 +1,6 @@
 # predicted expression
 pred_expr: '/vol/bmd/yanyul/UKB/predicted_expression/predicted_expression.ukb_imp_x_{gene_model}.h5'
-gene_model_list: 
-  - 'ctimp_Whole_Blood'
-  - 'ctimp_Muscle_Skeletal'
+gene_model_yaml: 'test_configs/multi_tissue.yaml'
 gene_model_list_name: 'ctimp'
 mode: 'naive'
   
