@@ -68,6 +68,19 @@ df_naive[is.na(df_naive)] = 0
 df_naive %>% ggplot() + geom_bar(aes(x = trait, y = h_sq, fill = population), stat = 'identity', position = 'dodge') + theme(legend.position = 'bottom') + th + ggtitle('REML analysis: combining tissues naively')
 ```
 
+## Combining tissues with PCA
+
+```{r multi-pca, fig.height=4, fig.width=8}
+df_pca = list()
+for(pop in pops) {
+  tmp = read.table(paste0('~/Desktop/tmp/gcta_regu/reml_from_hail-multi-tissue-tissue_svd_x_martin_et_al_traits_x_ctimp_x_', pop, '.tsv'), header = T, stringsAsFactors = F, sep = '\t')
+  df_pca[[length(df_pca) + 1]] = tmp %>% mutate(population = pop)
+}
+df_pca = do.call(rbind, df_pca)
+df_pca[is.na(df_pca)] = 0
+df_pca %>% ggplot() + geom_bar(aes(x = trait, y = h_sq, fill = population), stat = 'identity', position = 'dodge') + theme(legend.position = 'bottom') + th + ggtitle('REML analysis: combining tissues naively')
+```
+
 Combined vs. Whole blood.
 
 ```{r multi-naive-vs, fig.height=4, fig.width=4}
@@ -77,6 +90,35 @@ merge = inner_join(
   by = c('trait', 'population'),
   suffix = c('.combined', '.whole_blood')
 )
-merge %>% ggplot() + geom_point(aes(x = h_sq.whole_blood, y = h_sq.combined)) + facet_wrap(~population) + geom_abline(slope = 1, intercept = 0) + th
+merge %>% ggplot() + geom_point(aes(x = h_sq.whole_blood, y = h_sq.combined)) + facet_wrap(~population) + geom_abline(slope = 1, intercept = 0) + th + ggtitle('Combining naively')
+```
+
+```{r ratio-multi-naive-vs, fig.height=4, fig.width=4}
+merge_eur = merge %>% filter(population == 'British-test-1')
+tmp = delta_mtd(merge_eur$h_sq.combined, merge_eur$h_sq_se.combined ^ 2, merge_eur$h_sq.whole_blood, merge_eur$h_sq_se.whole_blood ^ 2)
+merge_eur$ratio = tmp$m
+merge_eur$ratio_se = sqrt(tmp$v)
+data.frame(meta_fixed(merge_eur$ratio, merge_eur$ratio_se)) %>% pander(caption = 'PVE in multi-tissue (naive approach) over PVE in whole blood')
+```
+
+
+```{r multi-pca-vs, fig.height=4, fig.width=4}
+merge = inner_join(
+  df_pca %>% select(trait, population, h_sq, h_sq_se),
+  df %>% filter(tissue == 'Whole_Blood') %>% select(trait, population, h_sq, h_sq_se),
+  by = c('trait', 'population'),
+  suffix = c('.combined', '.whole_blood')
+)
+merge %>% ggplot() + geom_point(aes(x = h_sq.whole_blood, y = h_sq.combined)) + facet_wrap(~population) + geom_abline(slope = 1, intercept = 0) + th + ggtitle('Combining with PCA')
+```
+
+<!-- Ratio of PVE (single tissue whole blood over multi-tissue with PCA or naive approach). -->
+
+```{r ratio-multi-pca-vs, fig.height=4, fig.width=4}
+merge_eur = merge %>% filter(population == 'British-test-1')
+tmp = delta_mtd(merge_eur$h_sq.combined, merge_eur$h_sq_se.combined ^ 2, merge_eur$h_sq.whole_blood, merge_eur$h_sq_se.whole_blood ^ 2)
+merge_eur$ratio = tmp$m
+merge_eur$ratio_se = sqrt(tmp$v)
+data.frame(meta_fixed(merge_eur$ratio, merge_eur$ratio_se)) %>% pander(caption = 'PVE in multi-tissue (PCA) over PVE in whole blood')
 ```
 

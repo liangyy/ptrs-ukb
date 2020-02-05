@@ -491,6 +491,18 @@ df_naive = do.call(rbind, df_naive)
 df_naive[is.na(df_naive)] = 0
 df_naive %&gt;% ggplot() + geom_bar(aes(x = trait, y = h_sq, fill = population), stat = &#39;identity&#39;, position = &#39;dodge&#39;) + theme(legend.position = &#39;bottom&#39;) + th + ggtitle(&#39;REML analysis: combining tissues naively&#39;)</code></pre>
 <p><img src="regulability_ctimp_files/figure-html/multi-naive-1.png" width="768" /></p>
+</div>
+<div id="combining-tissues-with-pca" class="section level2">
+<h2><span class="header-section-number">2.3</span> Combining tissues with PCA</h2>
+<pre class="r"><code>df_pca = list()
+for(pop in pops) {
+  tmp = read.table(paste0(&#39;~/Desktop/tmp/gcta_regu/reml_from_hail-multi-tissue-tissue_svd_x_martin_et_al_traits_x_ctimp_x_&#39;, pop, &#39;.tsv&#39;), header = T, stringsAsFactors = F, sep = &#39;\t&#39;)
+  df_pca[[length(df_pca) + 1]] = tmp %&gt;% mutate(population = pop)
+}
+df_pca = do.call(rbind, df_pca)
+df_pca[is.na(df_pca)] = 0
+df_pca %&gt;% ggplot() + geom_bar(aes(x = trait, y = h_sq, fill = population), stat = &#39;identity&#39;, position = &#39;dodge&#39;) + theme(legend.position = &#39;bottom&#39;) + th + ggtitle(&#39;REML analysis: combining tissues naively&#39;)</code></pre>
+<p><img src="regulability_ctimp_files/figure-html/multi-pca-1.png" width="768" /></p>
 <p>Combined vs. Whole blood.</p>
 <pre class="r"><code>merge = inner_join(
   df_naive %&gt;% select(trait, population, h_sq, h_sq_se),
@@ -498,8 +510,65 @@ df_naive %&gt;% ggplot() + geom_bar(aes(x = trait, y = h_sq, fill = population),
   by = c(&#39;trait&#39;, &#39;population&#39;),
   suffix = c(&#39;.combined&#39;, &#39;.whole_blood&#39;)
 )
-merge %&gt;% ggplot() + geom_point(aes(x = h_sq.whole_blood, y = h_sq.combined)) + facet_wrap(~population) + geom_abline(slope = 1, intercept = 0) + th</code></pre>
+merge %&gt;% ggplot() + geom_point(aes(x = h_sq.whole_blood, y = h_sq.combined)) + facet_wrap(~population) + geom_abline(slope = 1, intercept = 0) + th + ggtitle(&#39;Combining naively&#39;)</code></pre>
 <p><img src="regulability_ctimp_files/figure-html/multi-naive-vs-1.png" width="384" /></p>
+<pre class="r"><code>merge_eur = merge %&gt;% filter(population == &#39;British-test-1&#39;)
+tmp = delta_mtd(merge_eur$h_sq.combined, merge_eur$h_sq_se.combined ^ 2, merge_eur$h_sq.whole_blood, merge_eur$h_sq_se.whole_blood ^ 2)
+merge_eur$ratio = tmp$m
+merge_eur$ratio_se = sqrt(tmp$v)
+data.frame(meta_fixed(merge_eur$ratio, merge_eur$ratio_se)) %&gt;% pander(caption = &#39;PVE in multi-tissue (naive approach) over PVE in whole blood&#39;)</code></pre>
+<table style="width:24%;">
+<caption>PVE in multi-tissue (naive approach) over PVE in whole blood</caption>
+<colgroup>
+<col width="11%" />
+<col width="12%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">m</th>
+<th align="center">se</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">1.197</td>
+<td align="center">0.1586</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>merge = inner_join(
+  df_pca %&gt;% select(trait, population, h_sq, h_sq_se),
+  df %&gt;% filter(tissue == &#39;Whole_Blood&#39;) %&gt;% select(trait, population, h_sq, h_sq_se),
+  by = c(&#39;trait&#39;, &#39;population&#39;),
+  suffix = c(&#39;.combined&#39;, &#39;.whole_blood&#39;)
+)
+merge %&gt;% ggplot() + geom_point(aes(x = h_sq.whole_blood, y = h_sq.combined)) + facet_wrap(~population) + geom_abline(slope = 1, intercept = 0) + th + ggtitle(&#39;Combining with PCA&#39;)</code></pre>
+<p><img src="regulability_ctimp_files/figure-html/multi-pca-vs-1.png" width="384" /></p>
+<!-- Ratio of PVE (single tissue whole blood over multi-tissue with PCA or naive approach). -->
+<pre class="r"><code>merge_eur = merge %&gt;% filter(population == &#39;British-test-1&#39;)
+tmp = delta_mtd(merge_eur$h_sq.combined, merge_eur$h_sq_se.combined ^ 2, merge_eur$h_sq.whole_blood, merge_eur$h_sq_se.whole_blood ^ 2)
+merge_eur$ratio = tmp$m
+merge_eur$ratio_se = sqrt(tmp$v)
+data.frame(meta_fixed(merge_eur$ratio, merge_eur$ratio_se)) %&gt;% pander(caption = &#39;PVE in multi-tissue (PCA) over PVE in whole blood&#39;)</code></pre>
+<table style="width:24%;">
+<caption>PVE in multi-tissue (PCA) over PVE in whole blood</caption>
+<colgroup>
+<col width="11%" />
+<col width="12%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">m</th>
+<th align="center">se</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">1.481</td>
+<td align="center">0.1956</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 

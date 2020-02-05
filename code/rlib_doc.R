@@ -151,3 +151,18 @@ best_model_for_each = function(df, reference_pop, model_col, score_col) {
   perf_in_all = change_colname(perf_in_all, 'score', score_col)
   return(list(best_model = best_model, perf_in_all = perf_in_all))
 }
+
+delta_mtd = function(mx, vx, my, vy) {
+  m = mx / my
+  v = vx / (my ^ 2) + vy * (mx ^ 2) / (my ^ 4)
+  return(list(m = m, v = v))
+}
+meta_fixed = function(m, se) {
+  keep_ind = !is.na(m) & !is.infinite(m) & !is.nan(m) & se != 0
+  m = m[keep_ind]
+  se = se[keep_ind]
+  w = 1 / (se^2)
+  mfe = sum(m * w) / sum(w)
+  vfe = 1 / sum(w)
+  return(list(m = mfe, se = sqrt(vfe)))
+}
