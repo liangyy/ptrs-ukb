@@ -197,5 +197,30 @@ if 'gene_model_yaml' in config:
                   --output {output[0]} \
                   --mode {wildcards.mode}'
     elif  config['mode'] == 'tissue_svd':
-        # TODO
-        pass          
+        if 'pc_model' not in config:
+            raise ValueError('When running with mode=tissue_svd, please specify pc_model in config')
+        rule run_multi:
+            input:
+                mat = [ '{{outdir}}/pred_expr_{gene_model}_x_{{pop_name}}.tsv'.format(gene_model = g) for g in gene_model_list ],
+                pheno = '{outdir}/pheno_{table_name}_x_{pop_name}.tsv',
+                covar = '{outdir}/covar_{table_name}_x_{pop_name}.tsv',
+                yaml = config['gene_model_yaml'],
+                pc = config['pc_model']
+            params:
+                prefix = '{outdir}/pred_expr_',
+                suffix = '_x_{pop_name}.tsv'
+            output:
+                '{outdir}/reml_from_hail-multi-tissue-{mode}_x_{table_name}_x_{gene_model_list_name}_x_{pop_name}.tsv'
+            shell:
+                'python ../../code/estimate_hsq_multi_tissue.py \
+                  --trait-table {input.pheno}::eid \
+                  --covar-table {input.covar}::eid \
+                  --predictor-table-prefix {params.prefix} \
+                  --predictor-table-suffix {params.suffix} \
+                  --predictor-table-yaml {input.yaml} \
+                  --predictor-gene-column gene \
+                  --output {output[0]} \
+                  --inv-norm-predictor \
+                  --with-intercept \
+                  --mode {wildcards.mode} \
+                  --pc-model {input.pc}'     

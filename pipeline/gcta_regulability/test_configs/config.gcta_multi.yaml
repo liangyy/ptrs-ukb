@@ -3,6 +3,7 @@ pred_expr: '/vol/bmd/yanyul/UKB/predicted_expression/predicted_expression.ukb_im
 gene_model_yaml: 'test_configs/multi_tissue.yaml'
 gene_model_list_name: 'ctimp'
 mode: 'naive'
+pc_model: '/vol/bmd/yanyul/UKB/gcta_regulability/PCA-multi-tissue-tissue_svd_train_x_martin_et_al_traits_x_ctimp_x_British-test-1.hdf5'
   
 
 # individual list
