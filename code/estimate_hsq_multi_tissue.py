@@ -151,6 +151,7 @@ elif args.mode == 'tissue_svd_train' or args.mode == 'tissue_svd':
             col_order = list(df_pred_expr.columns)
             gene_idx = col_order.index(colname)
             col_order.pop(gene_idx)
+            # col_order_no_gene = col_order.copy()
             col_order.append(colname)
         else:
             df_pred_expr = df_pred_expr[col_order]
@@ -161,10 +162,17 @@ elif args.mode == 'tissue_svd_train' or args.mode == 'tissue_svd':
         piled_pred_expr = []
         with h5py.File(args.pc_model, 'r') as model_handle:
             avail_genes = set(model_handle.keys())
+            counter = 0
+            ngene = len(genes)
+            check_n = int(ngene / 50)
             for g in genes:
+                counter += 1
+                if counter % check_n == 1 or ngene == counter:
+                    logging.info('----> MODE {}, working on gene {}/{}'.format(args.mode, counter, ngene))
                 if g not in avail_genes:
                     continue
                 g_tissues = model_handle['{}/tissues'.format(g)][...].astype(str)
+                _mat = []
                 for ele_key in g_tissues:  # list_pred_expr.keys():
                     if ele_key not in list_pred_expr:
                         raise ValueError('key {} is not in input pred expr tables'.format(ele_key))
@@ -173,7 +181,6 @@ elif args.mode == 'tissue_svd_train' or args.mode == 'tissue_svd':
                     if _tmp.size != 0:
                         _tmp = _tmp[0, :][: (_tmp.shape[1] - 1)]
                         _mat.append(_tmp)
-                        _tissues.append(ele_key)
                     else:
                         continue
                 _mat = np.array(_mat)
@@ -182,7 +189,8 @@ elif args.mode == 'tissue_svd_train' or args.mode == 'tissue_svd':
                     v =  model_handle['{}/v'.format(g)][...]
                     _p_mat = np.matmul(v.T, _mat)
                     piled_pred_expr.append(_p_mat)
-        piled_pred_expr = pd.DataFrame(np.concatenate(piled_pred_expr), columns = col_order)
+        col_order.pop(-1)
+        piled_pred_expr = pd.DataFrame(np.concatenate(piled_pred_expr).astype(float), columns = col_order)
     elif args.mode == 'tissue_svd_train':
         ngene = len(genes)
         check_n = int(ngene / 50)
