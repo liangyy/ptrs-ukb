@@ -39,15 +39,25 @@ if 'gene_model' in config:
                 pop_name = config['pop_name']
             )
 elif 'gene_model_yaml' in config:
-    rule all_hail_multi:
-        input:
-            '{outdir}/reml_from_hail-multi-tissue-{mode}_x_{table_name}_x_{gene_model_list_name}_x_{pop_name}.tsv'.format(
-                outdir = config['outdir'],
-                table_name = config['table_name'],
-                gene_model_list_name = config['gene_model_list_name'],
-                pop_name = config['pop_name'],
-                mode = config['mode']
-            )
+    if config['mode'] in ('naive', 'tissue_svd'):
+        rule all_hail_multi:
+            input:
+                '{outdir}/reml_from_hail-multi-tissue-{mode}_x_{table_name}_x_{gene_model_list_name}_x_{pop_name}.tsv'.format(
+                    outdir = config['outdir'],
+                    table_name = config['table_name'],
+                    gene_model_list_name = config['gene_model_list_name'],
+                    pop_name = config['pop_name'],
+                    mode = config['mode']
+                )
+        rule all_hail_multi_train:
+            input:
+                '{outdir}/PCA-multi-tissue-{mode}_x_{table_name}_x_{gene_model_list_name}_x_{pop_name}.hdf5'.format(
+                    outdir = config['outdir'],
+                    table_name = config['table_name'],
+                    gene_model_list_name = config['gene_model_list_name'],
+                    pop_name = config['pop_name'],
+                    mode = config['mode']
+                )
 
 
 rule subset_pred_expr_by_indiv:
@@ -139,7 +149,7 @@ rule run_hail:
 if 'gene_model_yaml' in config:
     tmp = read_yaml(config['gene_model_yaml'])
     gene_model_list = tmp.values()
-    if config['mode'] == 'naive' or config['mode'] == 'tissue_svd':
+    if config['mode'] == 'naive':
         rule run_multi:
             input:
                 mat = [ '{{outdir}}/pred_expr_{gene_model}_x_{{pop_name}}.tsv'.format(gene_model = g) for g in gene_model_list ],
@@ -166,10 +176,13 @@ if 'gene_model_yaml' in config:
     elif config['mode'] == 'tissue_svd_train':
         rule run_multi_train:
             input:
-                mat = [ '{{outdir}}/pred_expr_{gene_model}_x_{{pop_name}}.tsv'.format(gene_model = g) for g in config['gene_model_list'] ],
+                mat = [ '{{outdir}}/pred_expr_{gene_model}_x_{{pop_name}}.tsv'.format(gene_model = g) for g in gene_model_list ],
                 pheno = '{outdir}/pheno_{table_name}_x_{pop_name}.tsv',
                 covar = '{outdir}/covar_{table_name}_x_{pop_name}.tsv',
                 yaml = config['gene_model_yaml']
+            params:
+                prefix = '{outdir}/pred_expr_',
+                suffix = '_x_{pop_name}.tsv'
             output:
                 '{outdir}/PCA-multi-tissue-{mode}_x_{table_name}_x_{gene_model_list_name}_x_{pop_name}.hdf5'
             shell:
@@ -180,4 +193,6 @@ if 'gene_model_yaml' in config:
                   --predictor-gene-column gene \
                   --output {output[0]} \
                   --mode {wildcards.mode}'
-             
+    elif  config['mode'] == 'tissue_svd':
+        # TODO
+        pass          
