@@ -137,20 +137,27 @@ rule run_hail:
 
 ## For multi-tissue analysis
 if 'gene_model_yaml' in config:
+    tmp = read_yaml(config['gene_model_yaml'])
+    gene_model_list = tmp.values()
     if config['mode'] == 'naive' or config['mode'] == 'tissue_svd':
         rule run_multi:
             input:
-                mat = [ '{{outdir}}/pred_expr_{gene_model}_x_{{pop_name}}.tsv'.format(gene_model = g) for g in config['gene_model_list'] ],
+                mat = [ '{{outdir}}/pred_expr_{gene_model}_x_{{pop_name}}.tsv'.format(gene_model = g) for g in gene_model_list ],
                 pheno = '{outdir}/pheno_{table_name}_x_{pop_name}.tsv',
                 covar = '{outdir}/covar_{table_name}_x_{pop_name}.tsv',
                 yaml = config['gene_model_yaml']
+            params:
+                prefix = '{outdir}/pred_expr_',
+                suffix = '_x_{pop_name}.tsv'
             output:
                 '{outdir}/reml_from_hail-multi-tissue-{mode}_x_{table_name}_x_{gene_model_list_name}_x_{pop_name}.tsv'
             shell:
                 'python ../../code/estimate_hsq_multi_tissue.py \
                   --trait-table {input.pheno}::eid \
                   --covar-table {input.covar}::eid \
-                  --predictor-table-yaml {params.tables} \
+                  --predictor-table-prefix {params.prefix} \
+                  --predictor-table-suffix {params.suffix} \
+                  --predictor-table-yaml {input.yaml} \
                   --predictor-gene-column gene \
                   --output {output[0]} \
                   --inv-norm-predictor \

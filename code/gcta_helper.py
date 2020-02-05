@@ -90,7 +90,7 @@ def standardize_row(mat):
 def standardize_vec(vec):
     return _divide(vec - np.mean(vec), np.std(vec))
 def _divide(a, b):
-    return np.divide(a, b, out = np.zeros_like(a), where = (b! = 0))
+    return np.divide(a, b, out = np.zeros_like(a), where = (b != 0))
 def truncate_evd(w, v, lambda_max_over_lambda = 1 / 30):
     w_max = np.max(w)
     w_scaled = w / w_max

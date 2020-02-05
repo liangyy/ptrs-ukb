@@ -21,6 +21,12 @@ parser.add_argument('--covar-table', required=True, help='''
     quantitative variables and will be included
     in the analysis.
 ''')
+parser.add_argument('--predictor-table-prefix', required=True, help='''
+    To use --predictor-table-yaml, this should be specified.
+''')
+parser.add_argument('--predictor-table-suffix', required=True, help='''
+    To use --predictor-table-yaml, this should be specified.
+''')
 parser.add_argument('--predictor-table-yaml', required=True, help='''
     A YAML file containing the list of predictor matrix in TSV format 
     along with the name
@@ -103,13 +109,14 @@ logging.info('--> Current sample size = {}'.format(indiv_pool.shape[0]))
 # read in predictor matrix
 logging.info('Loading predictor matrice. Looping over all inputs')
 predictor_tables_dic = gwas_helper.read_yaml(args.predictor_table_yaml)  # args.predictor_table_list.split('::')
-predictor_table_keys = predictor_tables_dic.keys()
+print(predictor_tables_dic)
+predictor_table_keys = list(predictor_tables_dic.keys())
 ntotal = len(predictor_table_keys)
 if args.mode == 'naive':
     piled_pred_expr = None
     ntotal = len(predictor_table_keys)
     for i in range(ntotal):
-        filename = predictor_tables_dic[predictor_table_keys[i]]
+        filename = args.predictor_table_prefix + predictor_tables_dic[predictor_table_keys[i]] + args.predictor_table_suffix
         colname = args.predictor_gene_column
         df_pred_expr = ghelper.tsv_to_pd_df(filename, indiv_col = colname)
         df_pred_expr = df_pred_expr.drop(columns = [colname])
@@ -127,7 +134,7 @@ elif args.mode == 'tissue_svd':
     genes = set()
     for i in range(ntotal):
         logging.info('--> MODE {}, read in tissue {}/{}'.format(args.mode, i + 1, ntotal))
-        filename = predictor_tables_dic[predictor_table_keys[i]]
+        filename = args.predictor_table_prefix + predictor_tables_dic[predictor_table_keys[i]] + args.predictor_table_suffix
         colname = args.predictor_gene_column
         df_pred_expr = ghelper.tsv_to_pd_df(filename, indiv_col = colname)
         # df_pred_expr = df_pred_expr.drop(columns = [colname])
@@ -148,7 +155,7 @@ elif args.mode == 'tissue_svd':
         out_handle.create_dataset('tissue_list_in_order', data = predictor_table_keys.astype('S'))
         for g in genes:
             counter += 1
-            if counter % check_n = 1 or ngene == counter:
+            if counter % check_n == 1 or ngene == counter:
                 logging.info('----> MODE {}, working on gene {}/{}'.format(args.mode, counter, ngene))
             _mat = []
             _tissues = []
