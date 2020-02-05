@@ -82,14 +82,25 @@ do
 done
 ```
 
-Run `hail` with multiple tissues
+Run `hail` with multiple tissues (naive mode)
 
 ```
 CONFIGNAME=ctimp_top10
 OUTDIR=/vol/bmd/yanyul/UKB/gcta_regulability
+MODE=naive
 mylist=('African' 'British-test-1' 'Indian' 'Chinese')
 for i in "${mylist[@]}"
 do 
-  screen -dmS hail-$i-$CONFIGNAME bash run_hail_multi.screen $i $CONFIGNAME $OUTDIR
+  screen -dmS hail-$i-$CONFIGNAME bash run_hail_multi.screen $i $CONFIGNAME $OUTDIR $MODE
 done
+```
+
+Run `hail` with multiple tissues (train EVD by gene)
+
+```
+CONFIGNAME=ctimp_top10
+OUTDIR=/vol/bmd/yanyul/UKB/gcta_regulability
+MODE=tissue_svd_train
+POP='British-test-1'
+screen -dmS hail-$i-$CONFIGNAME bash run_hail_multi.screen $POP $CONFIGNAME $OUTDIR $MODE
 ```

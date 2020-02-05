@@ -1,18 +1,8 @@
 # predicted expression
 pred_expr: '/vol/bmd/yanyul/UKB/predicted_expression/predicted_expression.ukb_imp_x_{gene_model}.h5'
-gene_model_list:
-  - 'ctimp_Adipose_Subcutaneous'
-  - 'ctimp_Artery_Tibial'
-  - 'ctimp_Breast_Mammary_Tissue'
-  - 'ctimp_Cells_Cultured_fibroblasts'
-  - 'ctimp_Lung'
-  - 'ctimp_Muscle_Skeletal'
-  - 'ctimp_Nerve_Tibial'
-  - 'ctimp_Skin_Sun_Exposed_Lower_leg'
-  - 'ctimp_Thyroid'
-  - 'ctimp_Whole_Blood'
+gene_model_yaml: '/vol/bmd/yanyul/GitHub/ptrs-ukb/submission_scripts/gcta_regulability/ctimp_top10.yaml'
 gene_model_list_name: 'ctimp'
-mode: 'naive'
+# mode: 'naive'
 
 # individual list
 indiv_list: '/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/{pop_name}.txt'
