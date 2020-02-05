@@ -158,7 +158,7 @@ delta_mtd = function(mx, vx, my, vy) {
   return(list(m = m, v = v))
 }
 meta_fixed = function(m, se) {
-  keep_ind = !is.na(m) & !is.infinite(m) & !is.nan(m) & se != 0
+  keep_ind = !is.na(m) & !is.infinite(m) & !is.nan(m) & se != 0 & !is.na(se)
   m = m[keep_ind]
   se = se[keep_ind]
   w = 1 / (se^2)
