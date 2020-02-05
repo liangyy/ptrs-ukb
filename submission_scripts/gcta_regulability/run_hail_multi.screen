@@ -17,11 +17,11 @@ if [[ ! -d $SUBDIR/logs ]]; then
   mkdir -p $SUBDIR/logs
 fi
 
-if [[ $4=='tissue_svd_train' ]]
+if [[ $4 == 'tissue_svd_train' ]]  
 then
   rule=all_hail_multi_train
 fi
-if [[ $4=='tissue_svd' || $4=='naive' ]]
+if [[ $4 == 'tissue_svd' || $4 == 'naive' ]]
 then
   rule=all_hail_multi
 fi

@@ -102,5 +102,5 @@ CONFIGNAME=ctimp_top10
 OUTDIR=/vol/bmd/yanyul/UKB/gcta_regulability
 MODE=tissue_svd_train
 POP='British-test-1'
-screen -dmS hail-$i-$CONFIGNAME bash run_hail_multi.screen $POP $CONFIGNAME $OUTDIR $MODE
+screen -dmS hail-$POP-$CONFIGNAME bash run_hail_multi.screen $POP $CONFIGNAME $OUTDIR $MODE
 ```
