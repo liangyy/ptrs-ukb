@@ -82,12 +82,12 @@ do
 done
 ```
 
-Run `hail` with multiple tissues (naive mode)
+Run `hail` with multiple tissues (`naive` mode or `tissue_svd` mode)
 
 ```
 CONFIGNAME=ctimp_top10
 OUTDIR=/vol/bmd/yanyul/UKB/gcta_regulability
-MODE=naive
+MODE=naive  # or tissue_svd
 mylist=('African' 'British-test-1' 'Indian' 'Chinese')
 for i in "${mylist[@]}"
 do 
@@ -95,7 +95,7 @@ do
 done
 ```
 
-Run `hail` with multiple tissues (train EVD by gene)
+Run `hail` with multiple tissues (train EVD by gene, `tissue_svd_train` mode)
 
 ```
 CONFIGNAME=ctimp_top10

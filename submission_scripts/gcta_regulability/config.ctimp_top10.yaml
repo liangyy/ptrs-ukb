@@ -2,6 +2,7 @@
 pred_expr: '/vol/bmd/yanyul/UKB/predicted_expression/predicted_expression.ukb_imp_x_{gene_model}.h5'
 gene_model_yaml: '/vol/bmd/yanyul/GitHub/ptrs-ukb/submission_scripts/gcta_regulability/ctimp_top10.yaml'
 gene_model_list_name: 'ctimp'
+pc_model: '/vol/bmd/yanyul/UKB/gcta_regulability/PCA-multi-tissue-tissue_svd_train_x_martin_et_al_traits_x_ctimp_x_British-test-1.hdf5'
 # mode: 'naive'
 
 # individual list
