@@ -49,6 +49,7 @@ elif 'gene_model_yaml' in config:
                     pop_name = config['pop_name'],
                     mode = config['mode']
                 )
+    elif config['mode'] == 'tissue_svd_train':
         rule all_hail_multi_train:
             input:
                 '{outdir}/PCA-multi-tissue-{mode}_x_{table_name}_x_{gene_model_list_name}_x_{pop_name}.hdf5'.format(
@@ -189,7 +190,9 @@ if 'gene_model_yaml' in config:
                 'python ../../code/estimate_hsq_multi_tissue.py \
                   --trait-table {input.pheno}::eid \
                   --covar-table {input.covar}::eid \
-                  --predictor-table-yaml {params.tables} \
+                  --predictor-table-prefix {params.prefix} \
+                  --predictor-table-suffix {params.suffix} \
+                  --predictor-table-yaml {input.yaml} \
                   --predictor-gene-column gene \
                   --output {output[0]} \
                   --mode {wildcards.mode}'

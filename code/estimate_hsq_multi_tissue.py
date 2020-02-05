@@ -126,7 +126,7 @@ if args.mode == 'naive':
             piled_pred_expr = pd.concat((piled_pred_expr, df_pred_expr), ignore_index = True)
         indiv_pool = np.intersect1d(indiv_pool, piled_pred_expr.columns.to_list())
         logging.info('--> MODE {}, {}/{}, Current sample size = {}'.format(args.mode, i + 1, ntotal, indiv_pool.shape[0]))
-elif args.mode == 'tissue_svd':
+elif args.mode == 'tissue_svd_train':
     # loop over all genes and do svd for each gene.
     # first of all, collect pred expr and genes
     list_pred_expr = {}
@@ -146,13 +146,13 @@ elif args.mode == 'tissue_svd':
         else:
             df_pred_expr = df_pred_expr[col_order]
         list_pred_expr[predictor_table_keys[i]] = df_pred_expr
-        genes.union(set(df_pred_expr[colname].to_list()))
+        genes = genes.union(set(df_pred_expr[colname].to_list()))
     # second, loop over gene and do svd
     ngene = len(genes)
     check_n = int(ngene / 50)
     counter = 0
     with h5py.File(args.output, 'w') as out_handle:
-        out_handle.create_dataset('tissue_list_in_order', data = predictor_table_keys.astype('S'))
+        out_handle.create_dataset('tissue_list_in_order', data = np.array(predictor_table_keys).astype('S'))
         for g in genes:
             counter += 1
             if counter % check_n == 1 or ngene == counter:
@@ -176,9 +176,9 @@ elif args.mode == 'tissue_svd':
                 w, v = ghelper.truncate_evd(w, v)
                 if w is not None:
                     grp_handle = out_handle.create_group(g)
-                    grp_handle.create_dataset('tissues', data = _tissues.astype('S'))
+                    grp_handle.create_dataset('tissues', data = np.array(_tissues).astype('S'))
                     grp_handle.create_dataset('w', data = w)
-                    grp_handle.create_dataset('w', data = v)
+                    grp_handle.create_dataset('v', data = v)
     sys.exit(0)  # this mode stops here
                     
             
