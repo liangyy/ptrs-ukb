@@ -389,9 +389,12 @@ div.tocify {
 <pre class="r"><code>rm(list = ls())
 library(data.table)
 options(datatable.fread.datatable = F)
+options(stringsAsFactors = F)
 library(SilverStandardPerformance)
 library(dplyr)
-library(ggplot2)</code></pre>
+library(ggplot2)
+library(patchwork)
+theme_set(theme_bw(base_size=15)) </code></pre>
 <pre class="r"><code>fast_corr = function(x) {
   x = as.matrix(x)
   mean_ = apply(x, 1, mean)
@@ -445,6 +448,12 @@ get_partition = function(indiv_list, test_size) {
 
 mat_dist = function(m1, m2) {
   sqrt(sum((m1 - m2) ^ 2))
+}
+
+mat_cor = function(m1, m2) {
+  v1 = m1[upper.tri(m1)]
+  v2 = m2[upper.tri(m2)]
+  cor(v1, v2)
 }</code></pre>
 <pre class="r"><code>candidate_colors = c(&quot;#999999&quot;, &quot;#E69F00&quot;, &quot;#56B4E9&quot;, &quot;#009E73&quot;, &quot;#F0E442&quot;, &quot;#0072B2&quot;, &quot;#D55E00&quot;, &quot;#CC79A7&quot;)</code></pre>
 <div id="load-data" class="section level1">
@@ -465,6 +474,84 @@ indiv_meta = indiv_meta %&gt;% filter(analysis_freeze, race != &#39;&#39;) %&gt;
 indiv_meta = indiv_meta[order(indiv_meta$race), ]
 
 df = fread(&#39;zcat &lt; ~/Desktop/tmp/TOPMed_MESA/TOPMed_MESA_RNAseq_Pilot_RNASeQCv2.0.0.gene_rpkm.gct.gz&#39;, header = T)
+df_indiv = colnames(df)[c(-1, -2)]
+df_cleaned = df[, c(T, T, df_indiv %in% indiv_meta$tor_id)]
+rownames(df_cleaned) = df$Name</code></pre>
+<p>After discussing with Haky, I need to check whether the remaining samples are from the same individuals (since some individual may have two samples measured at different time points). To do so, I need to load the wide MESA meta table where each row is one individual.</p>
+<pre class="r"><code>mesa_wide = read.csv(&#39;~/Desktop/tmp/TOPMed_MESA/MESA_TOPMed_WideID_20190517.csv&#39;)
+# the first two rows are for another column id naming
+meta_columns = data.frame(name = as.character(colnames(mesa_wide)), tag = as.character(mesa_wide[2, ]))
+mesa_wide = mesa_wide[c(-1, -2), ] 
+# get column index for TOR ID
+tor_id_cols_idx = which(!is.na(stringr::str_match(meta_columns$tag, &#39;tor_id&#39;)))
+# and get column index for TOR specimen
+tor_specimen_cols = stringr::str_replace(meta_columns$tag[tor_id_cols_idx], &#39;id&#39;, &#39;specimen&#39;)
+tor_specimen_cols_idx = sapply(tor_specimen_cols, function(x) {
+  which(meta_columns$tag == x)
+})
+
+mesa_tor_unfold = list()
+for(i in 1 : nrow(mesa_wide)) {
+  indiv_ = mesa_wide[i, ]
+  for(k in 1 : length(tor_id_cols_idx)) {
+    tor_id = as.character(indiv_[tor_id_cols_idx[k]])
+    tor_specimen = as.character(indiv_[tor_specimen_cols_idx[k]])
+    if(tor_id == &#39;&#39;) {
+      next
+    } else {
+      mesa_tor_unfold[[length(mesa_tor_unfold) + 1]] = data.frame(share_id = mesa_wide$SHARe.Participant.ID[i], tor_id = tor_id, tor_specimen = tor_specimen)
+    }
+  }
+}
+mesa_tor_unfold = do.call(rbind, mesa_tor_unfold)
+# check if there are any duplicated individuals
+tmp_ = indiv_meta %&gt;% left_join(mesa_tor_unfold, by = &#39;tor_id&#39;) 
+tmp_ %&gt;% group_by(share_id) %&gt;% summarize(nsample = n()) %&gt;% arrange(desc(nsample))</code></pre>
+<pre><code>## # A tibble: 606 x 2
+##    share_id nsample
+##    &lt;chr&gt;      &lt;int&gt;
+##  1 &lt;NA&gt;          27
+##  2 10020          2
+##  3 10052          2
+##  4 10055          2
+##  5 10131          2
+##  6 10139          2
+##  7 10167          2
+##  8 10195          2
+##  9 10226          2
+## 10 10248          2
+## # … with 596 more rows</code></pre>
+<pre class="r"><code># suppose we limit to exam 1
+indiv_meta_exam_1 = indiv_meta %&gt;% filter(exam == &#39;1&#39;) # 
+indiv_meta_exam_1 %&gt;% group_by(race) %&gt;% summarize(n())</code></pre>
+<pre><code>## # A tibble: 4 x 2
+##   race     `n()`
+##   &lt;chr&gt;    &lt;int&gt;
+## 1 Asian       40
+## 2 Black      124
+## 3 Hispanic   117
+## 4 White      180</code></pre>
+<pre class="r"><code># check again the duplicated individuals
+tmp_ = indiv_meta_exam_1 %&gt;% left_join(mesa_tor_unfold, by = &#39;tor_id&#39;) 
+tmp_ %&gt;% group_by(share_id) %&gt;% summarize(nsample = n()) %&gt;% arrange(desc(nsample))</code></pre>
+<pre><code>## # A tibble: 450 x 2
+##    share_id nsample
+##    &lt;chr&gt;      &lt;int&gt;
+##  1 &lt;NA&gt;          12
+##  2 10020          1
+##  3 10028          1
+##  4 10043          1
+##  5 10052          1
+##  6 10055          1
+##  7 10061          1
+##  8 10125          1
+##  9 10131          1
+## 10 10139          1
+## # … with 440 more rows</code></pre>
+<pre class="r"><code># we further remove individuals without share ID
+indiv_meta_exam_1_w_shareid = tmp_ %&gt;% filter(!is.na(share_id)) # %&gt;% group_by(race) %&gt;% summarize(n())
+# ok, filter the original transcriptome matrix
+indiv_meta = indiv_meta_exam_1_w_shareid
 df_indiv = colnames(df)[c(-1, -2)]
 df_cleaned = df[, c(T, T, df_indiv %in% indiv_meta$tor_id)]
 rownames(df_cleaned) = df$Name</code></pre>
@@ -495,11 +582,11 @@ df_protein_or_linc_non_zero = cbind(df_protein_or_linc_non_zero[, 1:2], tmp)
 indiv_meta %&gt;% group_by(race) %&gt;% summarize(n = n())</code></pre>
 <pre><code>## # A tibble: 4 x 2
 ##   race         n
-##   &lt;fct&gt;    &lt;int&gt;
+##   &lt;chr&gt;    &lt;int&gt;
 ## 1 Asian       40
-## 2 Black      231
-## 3 Hispanic   267
-## 4 White      384</code></pre>
+## 2 Black      121
+## 3 Hispanic   108
+## 4 White      180</code></pre>
 <pre class="r"><code>color_panel = data.frame(pop = unique(indiv_meta$race), color = candidate_colors[1 : length(unique(indiv_meta$race))])
 indiv_color_panel = indiv_meta %&gt;% left_join(color_panel, by = c(&#39;race&#39; = &#39;pop&#39;)) %&gt;% pull(color)
 names(indiv_color_panel) = indiv_meta$tor_id</code></pre>
@@ -524,8 +611,8 @@ for(rr in unique(indiv_meta$race)) {
 }</code></pre>
 <pre><code>## Asian start = 1</code></pre>
 <pre><code>## Black start = 41</code></pre>
-<pre><code>## Hispanic start = 272</code></pre>
-<pre><code>## White start = 539</code></pre>
+<pre><code>## Hispanic start = 162</code></pre>
+<pre><code>## White start = 270</code></pre>
 <pre class="r"><code>colnames(normalized_mat_by_pop) = names_
 rownames(normalized_mat_by_pop) = rownames(normalized_mat)</code></pre>
 </div>
@@ -536,18 +623,16 @@ cor_indiv_by_pop = fast_corr(t(as.matrix(normalized_mat_by_pop)))</code></pre>
 <p>Visualization.</p>
 <pre class="r"><code># image Asian 
 myimage(cor_indiv[1:90, 1:90], indiv_color_panel)</code></pre>
-<pre><code>## Warning in melt(cor_mat): The melt generic in data.table has been passed a matrix and will attempt to
-## redirect to the relevant reshape2 method; please note that reshape2 is deprecated, and this redirection is
-## now deprecated as well. To continue using melt methods from reshape2 while both libraries are attached, e.g.
-## melt.list, you can prepend the namespace like reshape2::melt(cor_mat). In the next version, this warning
-## will become an error.</code></pre>
+<pre><code>## Warning in melt(cor_mat): The melt generic in data.table has been passed a matrix and will attempt to redirect to the
+## relevant reshape2 method; please note that reshape2 is deprecated, and this redirection is now deprecated as well.
+## To continue using melt methods from reshape2 while both libraries are attached, e.g. melt.list, you can prepend the
+## namespace like reshape2::melt(cor_mat). In the next version, this warning will become an error.</code></pre>
 <p><img src="coregulation_mesa_files/figure-html/vis-1.png" width="672" /></p>
 <pre class="r"><code>myimage(cor_indiv_by_pop[1:90, 1:90], indiv_color_panel)</code></pre>
-<pre><code>## Warning in melt(cor_mat): The melt generic in data.table has been passed a matrix and will attempt to
-## redirect to the relevant reshape2 method; please note that reshape2 is deprecated, and this redirection is
-## now deprecated as well. To continue using melt methods from reshape2 while both libraries are attached, e.g.
-## melt.list, you can prepend the namespace like reshape2::melt(cor_mat). In the next version, this warning
-## will become an error.</code></pre>
+<pre><code>## Warning in melt(cor_mat): The melt generic in data.table has been passed a matrix and will attempt to redirect to the
+## relevant reshape2 method; please note that reshape2 is deprecated, and this redirection is now deprecated as well.
+## To continue using melt methods from reshape2 while both libraries are attached, e.g. melt.list, you can prepend the
+## namespace like reshape2::melt(cor_mat). In the next version, this warning will become an error.</code></pre>
 <p><img src="coregulation_mesa_files/figure-html/vis-2.png" width="672" /></p>
 <pre class="r"><code># each taking 40
 indexes = c()
@@ -555,229 +640,216 @@ for(i in starts) {
   indexes = c(indexes, i : (i + 40 - 1))
 }
 myimage(cor_indiv[indexes, indexes], indiv_color_panel)</code></pre>
-<pre><code>## Warning in melt(cor_mat): The melt generic in data.table has been passed a matrix and will attempt to
-## redirect to the relevant reshape2 method; please note that reshape2 is deprecated, and this redirection is
-## now deprecated as well. To continue using melt methods from reshape2 while both libraries are attached, e.g.
-## melt.list, you can prepend the namespace like reshape2::melt(cor_mat). In the next version, this warning
-## will become an error.</code></pre>
+<pre><code>## Warning in melt(cor_mat): The melt generic in data.table has been passed a matrix and will attempt to redirect to the
+## relevant reshape2 method; please note that reshape2 is deprecated, and this redirection is now deprecated as well.
+## To continue using melt methods from reshape2 while both libraries are attached, e.g. melt.list, you can prepend the
+## namespace like reshape2::melt(cor_mat). In the next version, this warning will become an error.</code></pre>
 <p><img src="coregulation_mesa_files/figure-html/vis-3.png" width="672" /></p>
 <pre class="r"><code>myimage(cor_indiv_by_pop[indexes, indexes], indiv_color_panel)</code></pre>
-<pre><code>## Warning in melt(cor_mat): The melt generic in data.table has been passed a matrix and will attempt to
-## redirect to the relevant reshape2 method; please note that reshape2 is deprecated, and this redirection is
-## now deprecated as well. To continue using melt methods from reshape2 while both libraries are attached, e.g.
-## melt.list, you can prepend the namespace like reshape2::melt(cor_mat). In the next version, this warning
-## will become an error.</code></pre>
+<pre><code>## Warning in melt(cor_mat): The melt generic in data.table has been passed a matrix and will attempt to redirect to the
+## relevant reshape2 method; please note that reshape2 is deprecated, and this redirection is now deprecated as well.
+## To continue using melt methods from reshape2 while both libraries are attached, e.g. melt.list, you can prepend the
+## namespace like reshape2::melt(cor_mat). In the next version, this warning will become an error.</code></pre>
 <p><img src="coregulation_mesa_files/figure-html/vis-4.png" width="672" /></p>
 </div>
 <div id="between-gene-correlation-using-black-as-an-example" class="section level1">
 <h1><span class="header-section-number">4</span> Between gene correlation (using Black as an example)</h1>
 <p>As a test case, I calculate the gene correlation matrix within Black (using inverse normalized expression within each population). Here we are interested in measuring the similarity between Black’s gene correlation and White’s gene correlation. To account for the sample standard error, we partition the White samples into two parts: 1) <strong>test part</strong>: with equal size to Black samples; 2) <strong>reference part</strong>: the rest (it should be larger part). For the first partition, we calculate the distance between Black and <strong>reference part</strong>. And for the other partitions, we calcualte the distance between <strong>test part</strong> and <strong>reference part</strong>. Here the distance is the test statistic.</p>
-<pre class="r"><code>set.seed(1)
-### The following notes are deprecated!
-### IMPORTANT!!!
-# for fast testing, I randomly select 500 genes. 
-# it is just for testing code!
-normalized_mat_by_pop_debug = normalized_mat_by_pop # [sample(nrow(normalized_mat_by_pop), size = 500), ]
-### END
-
-num_partitions = 100
-
-test_pop = &#39;Black&#39;
-test_indiv_here = indiv_meta$tor_id[indiv_meta$race == test_pop]
-expr_test = normalized_mat_by_pop_debug[, colnames(normalized_mat_by_pop_debug) %in% test_indiv_here]
-mat_test = fast_corr(expr_test)
-
-ref_pop = &#39;White&#39;
-ref_indiv_here = indiv_meta$tor_id[indiv_meta$race == ref_pop]
-partition_here = get_partition(ref_indiv_here, test_size = length(test_indiv_here))
-expr_ref = normalized_mat_by_pop_debug[, colnames(normalized_mat_by_pop_debug) %in% partition_here$reference]
-mat_ref = fast_corr(expr_ref)
-
-test_u = mat_dist(mat_test, mat_ref)
-
-test_null = c()
-for(i in 1 : num_partitions) {
+<p><strong>Pack it up as a dirty magic function</strong>.</p>
+<pre class="r"><code>test_gene_cor_between_pop = function(test_pop, ref_pop, expr_mat) {
+  set.seed(1)
+  ### The following notes are deprecated!
+  ### IMPORTANT!!!
+  # for fast testing, I randomly select 500 genes. 
+  # it is just for testing code!
+  # normalized_mat_by_pop_debug = normalized_mat_by_pop # [sample(nrow(normalized_mat_by_pop), size = 500), ]
+  ### END
+  
+  ## for lazy pack up
+  normalized_mat_by_pop_debug = expr_mat
+  test_indiv_here = test_pop
+  ref_indiv_here = ref_pop
+  ## END
+  
+  num_partitions = 100
+  
+  # test_pop = &#39;Asian&#39;
+  # test_indiv_here = indiv_meta$tor_id[indiv_meta$race == test_pop]
+  
+  expr_test = normalized_mat_by_pop_debug[, colnames(normalized_mat_by_pop_debug) %in% test_indiv_here]
+  mat_test = fast_corr(expr_test)
+  
+  # ref_pop = &#39;White&#39;
+  # ref_indiv_here = indiv_meta$tor_id[indiv_meta$race == ref_pop]
   partition_here = get_partition(ref_indiv_here, test_size = length(test_indiv_here))
   expr_ref = normalized_mat_by_pop_debug[, colnames(normalized_mat_by_pop_debug) %in% partition_here$reference]
   mat_ref = fast_corr(expr_ref)
-  expr_tref = normalized_mat_by_pop_debug[, colnames(normalized_mat_by_pop_debug) %in% partition_here$test]
-  mat_tref = fast_corr(expr_tref)
-  test_null = c(test_null, mat_dist(mat_tref, mat_ref))
-}
+  
+  test_u = mat_dist(mat_test, mat_ref)
+  test_u2 = mat_cor(mat_test, mat_ref)
+  
+  test_null = c()
+  test_null2 = c()
+  for(i in 1 : num_partitions) {
+    partition_here = get_partition(ref_indiv_here, test_size = length(test_indiv_here))
+    expr_ref = normalized_mat_by_pop_debug[, colnames(normalized_mat_by_pop_debug) %in% partition_here$reference]
+    mat_ref = fast_corr(expr_ref)
+    expr_tref = normalized_mat_by_pop_debug[, colnames(normalized_mat_by_pop_debug) %in% partition_here$test]
+    mat_tref = fast_corr(expr_tref)
+    test_null = c(test_null, mat_dist(mat_tref, mat_ref))
+    test_null2 = c(test_null2, mat_cor(mat_tref, mat_ref))
+  }
+  
+  # 
+  # myimage(mat_test[1:100, 1:100])
+  # myimage(mat_ref[1:100, 1:100])
+  p1 = ggplot(data.frame(mat_dist = test_null)) + geom_histogram(aes(x = mat_dist)) + geom_vline(xintercept = test_u) + ggtitle(&#39;matrix 2-norm distance&#39;)
+  p2 = ggplot(data.frame(mat_cor = test_null2)) + geom_histogram(aes(x = mat_cor)) + geom_vline(xintercept = test_u2) + ggtitle(&#39;matrix upper triangular correlation&#39;)
+  return(list(p1, p2))
+}</code></pre>
+<pre class="r"><code>test_pop = &#39;Black&#39;
+test_indiv_here = indiv_meta$tor_id[indiv_meta$race == test_pop]
+ref_pop = &#39;White&#39;
+ref_indiv_here = indiv_meta$tor_id[indiv_meta$race == ref_pop]
 
-# 
-# myimage(mat_test[1:100, 1:100])
-# myimage(mat_ref[1:100, 1:100])
-hist(test_null, xlim = c(min(c(test_null, test_u)), max(c(test_null, test_u)))); abline(v = test_u, col = &#39;red&#39;)</code></pre>
+po = test_gene_cor_between_pop(
+  test_pop = test_indiv_here,
+  ref_pop = ref_indiv_here,
+  expr_mat = normalized_mat_by_pop
+)
+
+po[[1]] / po[[2]]</code></pre>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
 <p><img src="coregulation_mesa_files/figure-html/cor%20gene-1.png" width="672" /></p>
 </div>
 <div id="how-about-hispanic" class="section level1">
 <h1><span class="header-section-number">5</span> How about Hispanic?</h1>
-<pre class="r"><code>set.seed(1)
-### The following notes are deprecated!
-### IMPORTANT!!!
-# for fast testing, I randomly select 500 genes. 
-# it is just for testing code!
-normalized_mat_by_pop_debug = normalized_mat_by_pop # [sample(nrow(normalized_mat_by_pop), size = 500), ]
-### END
-
-num_partitions = 100
-
-test_pop = &#39;Hispanic&#39;
+<pre class="r"><code>test_pop = &#39;Hispanic&#39;
 test_indiv_here = indiv_meta$tor_id[indiv_meta$race == test_pop]
-expr_test = normalized_mat_by_pop_debug[, colnames(normalized_mat_by_pop_debug) %in% test_indiv_here]
-mat_test = fast_corr(expr_test)
-
 ref_pop = &#39;White&#39;
 ref_indiv_here = indiv_meta$tor_id[indiv_meta$race == ref_pop]
-partition_here = get_partition(ref_indiv_here, test_size = length(test_indiv_here))
-expr_ref = normalized_mat_by_pop_debug[, colnames(normalized_mat_by_pop_debug) %in% partition_here$reference]
-mat_ref = fast_corr(expr_ref)
 
-test_u = mat_dist(mat_test, mat_ref)
+po = test_gene_cor_between_pop(
+  test_pop = test_indiv_here,
+  ref_pop = ref_indiv_here,
+  expr_mat = normalized_mat_by_pop
+)
 
-test_null = c()
-for(i in 1 : num_partitions) {
-  partition_here = get_partition(ref_indiv_here, test_size = length(test_indiv_here))
-  expr_ref = normalized_mat_by_pop_debug[, colnames(normalized_mat_by_pop_debug) %in% partition_here$reference]
-  mat_ref = fast_corr(expr_ref)
-  expr_tref = normalized_mat_by_pop_debug[, colnames(normalized_mat_by_pop_debug) %in% partition_here$test]
-  mat_tref = fast_corr(expr_tref)
-  test_null = c(test_null, mat_dist(mat_tref, mat_ref))
-}
-
-# 
-# myimage(mat_test[1:100, 1:100])
-# myimage(mat_ref[1:100, 1:100])
-hist(test_null, xlim = c(min(c(test_null, test_u)), max(c(test_null, test_u)))); abline(v = test_u, col = &#39;red&#39;)</code></pre>
+po[[1]] / po[[2]]</code></pre>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
 <p><img src="coregulation_mesa_files/figure-html/cor%20gene%20hispanic-1.png" width="672" /></p>
 </div>
 <div id="how-about-asian" class="section level1">
 <h1><span class="header-section-number">6</span> How about Asian?</h1>
-<pre class="r"><code>set.seed(1)
-### The following notes are deprecated!
-### IMPORTANT!!!
-# for fast testing, I randomly select 500 genes. 
-# it is just for testing code!
-normalized_mat_by_pop_debug = normalized_mat_by_pop # [sample(nrow(normalized_mat_by_pop), size = 500), ]
-### END
-
-num_partitions = 100
-
-test_pop = &#39;Asian&#39;
+<pre class="r"><code>test_pop = &#39;Asian&#39;
 test_indiv_here = indiv_meta$tor_id[indiv_meta$race == test_pop]
-expr_test = normalized_mat_by_pop_debug[, colnames(normalized_mat_by_pop_debug) %in% test_indiv_here]
-mat_test = fast_corr(expr_test)
-
 ref_pop = &#39;White&#39;
 ref_indiv_here = indiv_meta$tor_id[indiv_meta$race == ref_pop]
-partition_here = get_partition(ref_indiv_here, test_size = length(test_indiv_here))
-expr_ref = normalized_mat_by_pop_debug[, colnames(normalized_mat_by_pop_debug) %in% partition_here$reference]
-mat_ref = fast_corr(expr_ref)
 
-test_u = mat_dist(mat_test, mat_ref)
+po = test_gene_cor_between_pop(
+  test_pop = test_indiv_here,
+  ref_pop = ref_indiv_here,
+  expr_mat = normalized_mat_by_pop
+)
 
-test_null = c()
-for(i in 1 : num_partitions) {
-  partition_here = get_partition(ref_indiv_here, test_size = length(test_indiv_here))
-  expr_ref = normalized_mat_by_pop_debug[, colnames(normalized_mat_by_pop_debug) %in% partition_here$reference]
-  mat_ref = fast_corr(expr_ref)
-  expr_tref = normalized_mat_by_pop_debug[, colnames(normalized_mat_by_pop_debug) %in% partition_here$test]
-  mat_tref = fast_corr(expr_tref)
-  test_null = c(test_null, mat_dist(mat_tref, mat_ref))
-}
-
-# 
-# myimage(mat_test[1:100, 1:100])
-# myimage(mat_ref[1:100, 1:100])
-hist(test_null, xlim = c(min(c(test_null, test_u)), max(c(test_null, test_u)))); abline(v = test_u, col = &#39;red&#39;)</code></pre>
+po[[1]] / po[[2]]</code></pre>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
 <p><img src="coregulation_mesa_files/figure-html/cor%20gene%20asian-1.png" width="672" /></p>
 </div>
 <div id="how-about-black-with-downsample-to-40" class="section level1">
 <h1><span class="header-section-number">7</span> How about Black with downsample to 40?</h1>
 <pre class="r"><code>set.seed(1)
-### The following notes are deprecated!
-### IMPORTANT!!!
-# for fast testing, I randomly select 500 genes. 
-# it is just for testing code!
-normalized_mat_by_pop_debug = normalized_mat_by_pop # [sample(nrow(normalized_mat_by_pop), size = 500), ]
-### END
-
-num_partitions = 100
 downsample_size = 40
-
 test_pop = &#39;Black&#39;
 test_indiv_here = indiv_meta$tor_id[indiv_meta$race == test_pop]
 test_indiv_here = test_indiv_here[sample(length(test_indiv_here), size = downsample_size)]
-expr_test = normalized_mat_by_pop_debug[, colnames(normalized_mat_by_pop_debug) %in% test_indiv_here]
-mat_test = fast_corr(expr_test)
-
 ref_pop = &#39;White&#39;
 ref_indiv_here = indiv_meta$tor_id[indiv_meta$race == ref_pop]
-partition_here = get_partition(ref_indiv_here, test_size = length(test_indiv_here))
-expr_ref = normalized_mat_by_pop_debug[, colnames(normalized_mat_by_pop_debug) %in% partition_here$reference]
-mat_ref = fast_corr(expr_ref)
 
-test_u = mat_dist(mat_test, mat_ref)
+po = test_gene_cor_between_pop(
+  test_pop = test_indiv_here,
+  ref_pop = ref_indiv_here,
+  expr_mat = normalized_mat_by_pop
+)
 
-test_null = c()
-for(i in 1 : num_partitions) {
-  partition_here = get_partition(ref_indiv_here, test_size = length(test_indiv_here))
-  expr_ref = normalized_mat_by_pop_debug[, colnames(normalized_mat_by_pop_debug) %in% partition_here$reference]
-  mat_ref = fast_corr(expr_ref)
-  expr_tref = normalized_mat_by_pop_debug[, colnames(normalized_mat_by_pop_debug) %in% partition_here$test]
-  mat_tref = fast_corr(expr_tref)
-  test_null = c(test_null, mat_dist(mat_tref, mat_ref))
-}
-
-# 
-# myimage(mat_test[1:100, 1:100])
-# myimage(mat_ref[1:100, 1:100])
-hist(test_null, xlim = c(min(c(test_null, test_u)), max(c(test_null, test_u)))); abline(v = test_u, col = &#39;red&#39;)</code></pre>
+po[[1]] / po[[2]]</code></pre>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
 <p><img src="coregulation_mesa_files/figure-html/cor%20gene%20black-1.png" width="672" /></p>
 </div>
 <div id="how-about-hispanic-with-downsample-to-40" class="section level1">
 <h1><span class="header-section-number">8</span> How about Hispanic with downsample to 40?</h1>
 <pre class="r"><code>set.seed(1)
-### The following notes are deprecated!
-### IMPORTANT!!!
-# for fast testing, I randomly select 500 genes. 
-# it is just for testing code!
-normalized_mat_by_pop_debug = normalized_mat_by_pop # [sample(nrow(normalized_mat_by_pop), size = 500), ]
-### END
-
-num_partitions = 100
 downsample_size = 40
-
 test_pop = &#39;Hispanic&#39;
 test_indiv_here = indiv_meta$tor_id[indiv_meta$race == test_pop]
 test_indiv_here = test_indiv_here[sample(length(test_indiv_here), size = downsample_size)]
-expr_test = normalized_mat_by_pop_debug[, colnames(normalized_mat_by_pop_debug) %in% test_indiv_here]
-mat_test = fast_corr(expr_test)
-
 ref_pop = &#39;White&#39;
 ref_indiv_here = indiv_meta$tor_id[indiv_meta$race == ref_pop]
-partition_here = get_partition(ref_indiv_here, test_size = length(test_indiv_here))
-expr_ref = normalized_mat_by_pop_debug[, colnames(normalized_mat_by_pop_debug) %in% partition_here$reference]
-mat_ref = fast_corr(expr_ref)
 
-test_u = mat_dist(mat_test, mat_ref)
+po = test_gene_cor_between_pop(
+  test_pop = test_indiv_here,
+  ref_pop = ref_indiv_here,
+  expr_mat = normalized_mat_by_pop
+)
 
-test_null = c()
-for(i in 1 : num_partitions) {
-  partition_here = get_partition(ref_indiv_here, test_size = length(test_indiv_here))
-  expr_ref = normalized_mat_by_pop_debug[, colnames(normalized_mat_by_pop_debug) %in% partition_here$reference]
-  mat_ref = fast_corr(expr_ref)
-  expr_tref = normalized_mat_by_pop_debug[, colnames(normalized_mat_by_pop_debug) %in% partition_here$test]
-  mat_tref = fast_corr(expr_tref)
-  test_null = c(test_null, mat_dist(mat_tref, mat_ref))
-}
-
-# 
-# myimage(mat_test[1:100, 1:100])
-# myimage(mat_ref[1:100, 1:100])
-hist(test_null, xlim = c(min(c(test_null, test_u)), max(c(test_null, test_u)))); abline(v = test_u, col = &#39;red&#39;)</code></pre>
+po[[1]] / po[[2]]</code></pre>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
 <p><img src="coregulation_mesa_files/figure-html/cor%20gene%20hispanic%2040-1.png" width="672" /></p>
+</div>
+<div id="variation-of-the-measurement-of-similarity" class="section level1">
+<h1><span class="header-section-number">9</span> Variation of the measurement of similarity</h1>
+<p>Here we try different splits of White and see how the matrix similarity measurement change.</p>
+<pre class="r"><code>ref_pop = &#39;White&#39;
+ref_indiv_here = indiv_meta$tor_id[indiv_meta$race == ref_pop]
+proportion = c(0.5, 1 : 5) / 10
+plist = list()
+for(i in proportion) {
+  downsample_size = floor(length(ref_indiv_here) * i)
+  test_indiv_here = ref_indiv_here[sample(length(ref_indiv_here), size = downsample_size)]
+  message(&#39;proportion = &#39;, i, &#39;, downsample = &#39;, downsample_size)
+  plist[[length(plist) + 1]] = test_gene_cor_between_pop(
+    test_pop = test_indiv_here,
+    ref_pop = ref_indiv_here,
+    expr_mat = normalized_mat_by_pop
+  )
+}</code></pre>
+<pre><code>## proportion = 0.05, downsample = 9</code></pre>
+<pre><code>## proportion = 0.1, downsample = 18</code></pre>
+<pre><code>## proportion = 0.2, downsample = 36</code></pre>
+<pre><code>## proportion = 0.3, downsample = 54</code></pre>
+<pre><code>## proportion = 0.4, downsample = 72</code></pre>
+<pre><code>## proportion = 0.5, downsample = 90</code></pre>
+<pre class="r"><code>mat_dist_collector = list()
+mat_dist_obs = list()
+mat_cor_collector = list()
+mat_cor_obs = list()
+split_order = c()
+for(i in 1 : length(plist)) {
+  downsample_size = floor(length(ref_indiv_here) * proportion[i])
+  split_str = paste0(&#39;split: &#39;, downsample_size, &#39;/&#39;, length(ref_indiv_here) - downsample_size)
+  split_order = c(split_order, split_str)
+  mat_dist_collector[[length(mat_dist_collector) + 1]] = data.frame(dist = plist[[i]][[1]]$data$mat_dist, proportion = proportion[i], split_str = split_str)
+  mat_dist_obs[[length(mat_dist_obs) + 1]] = data.frame(obs = plist[[i]][[1]]$layers[[2]]$data$xintercept[1], proportion = proportion[i], split_str = split_str)
+  mat_cor_collector[[length(mat_cor_collector) + 1]] = data.frame(cor = plist[[i]][[2]]$data$mat_cor, proportion = proportion[i], split_str = split_str)
+  mat_cor_obs[[length(mat_cor_obs) + 1]] = data.frame(obs = plist[[i]][[2]]$layers[[2]]$data$xintercept[1], proportion = proportion[i], split_str = split_str)
+}
+mat_dist_collector = do.call(rbind, mat_dist_collector) 
+mat_dist_collector$split_str = factor(mat_dist_collector$split_str, levels = split_order)
+mat_dist_obs = do.call(rbind, mat_dist_obs) 
+mat_cor_collector = do.call(rbind, mat_cor_collector) 
+mat_cor_collector$split_str = factor(mat_cor_collector$split_str, levels = split_order)
+mat_cor_obs = do.call(rbind, mat_cor_obs) 
+mat_dist_collector %&gt;% ggplot() + geom_histogram(aes(x = dist)) + facet_wrap(~split_str, ncol = 1) + ggtitle(&#39;Matrix 2-norm distance&#39;) # + geom_vline(data = mat_dist_obs, aes(xintercept = obs))</code></pre>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="coregulation_mesa_files/figure-html/var%20sim-1.png" width="480" /></p>
+<pre class="r"><code>mat_cor_collector %&gt;% ggplot() + geom_histogram(aes(x = cor)) + facet_wrap(~split_str, ncol = 1) + ggtitle(&#39;Matrix correlation&#39;) # + geom_vline(data = mat_cor_obs, aes(xintercept = obs))</code></pre>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="coregulation_mesa_files/figure-html/var%20sim-2.png" width="480" /></p>
 </div>
 
 
