@@ -7,9 +7,72 @@ rm(list = ls())
 library(dplyr)
 library(pander)
 source('../code/rlib_doc.R')
+bold <- function(x) {paste('{\\textbf{',x,'}}', sep ='')}
 ```
 
-# S Table 3
+# S Table: phenotype information
+
+Phenotype information.
+
+```{r stab1}
+pheno_tab = read.csv('../external_data/martin_et_al_2019ng_table_s6.csv')
+query_ = yaml::read_yaml('../output/query_phenotypes.yaml')$data
+query = list()
+for(i in names(query_)) {
+  ii = strsplit(i, '_x_')[[1]][1]
+  if(ii %in% names(query)) {
+    next
+  } else {
+    query[[ii]] = data.frame(id = stringr::str_remove(strsplit(query_[[i]], '_')[[1]][1], 'c'), phenotype_tag = ii)
+  }
+}
+query = do.call(rbind, query)
+rownames(query) = NULL
+dict = read.csv("http://biobank.ctsu.ox.ac.uk/~bbdatan/Data_Dictionary_Showcase.csv", stringsAsFactors = F)
+dict$FieldID = as.character(dict$FieldID)
+info = left_join(query, dict %>% select(Field, Instances, Array, FieldID), by = c('id' = 'FieldID'))
+info = info %>% filter(phenotype_tag %in% pheno_tab$Trait)
+info = info %>% select(Field, id, phenotype_tag) 
+colnames(info) = c('UKB Field Description', 'UKB Field ID', 'Tag')
+
+### save as tex table
+print(
+  xtable::xtable(info, display=c("s", "s", "s", "s"), caption = '\\textbf{Meta information of the phenotypes retrieved from UK Biobank which were used in the analysis}. The \`\`Tag\'\' column shows the short name of the phenotyes used in this paper.', label = 'tab:trait_table', digits = 5), 
+  math.style.exponents = TRUE, 
+  include.rownames = FALSE, 
+  file ='../analysis_output/phenotype_info.tex', size="\\scriptsize", 
+  sanitize.colnames.function=bold,
+  booktabs = TRUE
+)
+
+# update the copy in paper-ptrs repo
+cmd = paste('cp', '../analysis_output/phenotype_info.tex', '../../paper-ptrs/tables/phenotype_info.tex')
+system(cmd)
+```
+
+# S Table: number of individuals by ancestry/population
+
+```{r stab2}
+pheno_table = fread('../output/query_phenotypes_cleaned_up.csv', sep = ',')
+dd = pheno_table %>% group_by(meaning) %>% summarize(n = n()) %>% ungroup()
+colnames(dd) = c('Ancestry', 'Number of individuals')
+
+### save as tex table
+print(
+  xtable::xtable(dd, display=c("s", "s", "g"), caption = '\\textbf{Number of individuals included in the analysis stratified by ancestry}.', label = 'tab:indiv_table', digits = 6), 
+  math.style.exponents = TRUE, 
+  include.rownames = FALSE, 
+  file ='../analysis_output/population_info.tex', size="\\scriptsize", 
+  sanitize.colnames.function=bold,
+  booktabs = TRUE
+)
+
+# update the copy in paper-ptrs repo
+cmd = paste('cp', '../analysis_output/population_info.tex', '../../paper-ptrs/tables/population_info.tex')
+system(cmd)
+```
+
+# S Table: prediction models
 
 Information of prediction models.
 
@@ -76,12 +139,11 @@ colnames(dd) = c('Method', 'Data source', 'Population', 'Tissue', 'Number of gen
 
 ### save as tex table
 to_highlight = sort(nrow(dd) - 1:3)
-bold <- function(x) {paste('{\\textbf{',x,'}}', sep ='')}
 print(
-  xtable::xtable(dd, display=c("s", "s", "s","s","s", "g", "g", "s"), caption = '\\textbf{Meta information of the prediction models used in the analysis}', label = 'tab:prediction_model', digits = 5), 
+  xtable::xtable(dd, display=c("s", "s", "s","s","s", "g", "g", "s"), caption = '\\textbf{Meta information of the prediction models used in the analysis}. The highlighted prediction models were used to build PTRS. The \`\`Tag\'\' column shows the short name of the models used in this paper.', label = 'tab:prediction_model', digits = 5), 
   math.style.exponents = TRUE, 
   include.rownames = FALSE, 
-  file ='../analysis_output/prediction_models.tex', size="\\scriptsize", 
+  file ='../analysis_output/prediction_models.tex', size="\\tiny", 
   sanitize.colnames.function=bold,
   booktabs = TRUE,
   add.to.row=list(
