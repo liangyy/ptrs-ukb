@@ -166,3 +166,26 @@ meta_fixed = function(m, se) {
   vfe = 1 / sum(w)
   return(list(m = mfe, se = sqrt(vfe)))
 }
+
+get_meta_for_supp = function() {
+  color_category = list()
+  color_category[['Blood cell counts']] = c('wbc', 'rbc', 'platelet', 'lymphocyte', 'monocyte', 'neutrophil', 'eosinophil', 'basophil')
+  color_category[['Haemoglobin related']] = c('mcv', 'mch', 'mchc', 'hb', 'ht')
+  color_category[['Blood pressures']] = c('dbp', 'sbp')
+  color_category[['Height']] = c('height')
+  color_category[['BMI']] = c('bmi')
+  color_mixer_candidates = c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7") # c('blood_cell_counts' = '#009E73', 'haemoglobin_related' = '#F0E442', 'blood_pressures' = '#0072B2', 'height' = '#D55E00', 'bmi' = '')
+  color_mixer = color_mixer_candidates[c(-1, -2, -3)]
+  names(color_mixer) = names(color_category)
+  color_category_guide = c()
+  color_category_guide_name = c()
+  for(n in names(color_category)) {
+    for(l in color_category[[n]]) {
+      color_category_guide_name = c(color_category_guide_name, l)
+      color_category_guide = c(color_category_guide, n)
+    }
+  }
+  df_color_category = data.frame(trait = color_category_guide_name, group = color_category_guide)
+  return(list(df_color_category = df_color_category, color_mixer = color_mixer))
+}
+

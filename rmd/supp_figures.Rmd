@@ -1,0 +1,172 @@
+---
+title: "Building (supplementary) figures"
+---
+
+```{r setup}
+rm(list = ls())
+library(dplyr)
+library(pander)
+library(ggplot2)
+library(data.table)
+source('../code/rlib_doc.R')
+theme_set(theme_bw(base_size=12))
+bold <- function(x) {paste('{\\textbf{',x,'}}', sep ='')}
+source('https://gist.githubusercontent.com/liangyy/43912b3ecab5d10c89f9d4b2669871c9/raw/8151c6fe70e3d4ee43d9ce340ecc0eb65172e616/my_ggplot_theme.R')
+source('https://gist.githubusercontent.com/liangyy/865d49f642320286f3e38e74acef68e6/raw/0bb8fc5944273ba2dacf491c90dc01f616da23fc/load_gtex_color_board.R')
+th2 = th
+th2$panel.border = element_rect(colour = th2$axis.line$colour)
+gtex_color_board = load_gtex_color_board()
+trait_info = read.table('../external_data/martin_et_al_2019ng_table_s6_trait_description.tsv', header = T, sep = '\t')
+trait_info$short = tolower(trait_info$short)
+o = get_meta_for_supp()
+df_color_category = o$df_color_category
+color_mixer = o$color_mixer
+```
+
+# Figure: heritability vs PVE in Europeans (whole blood)
+
+```{r fig1a, fig.width = 6, fig.height = 3}
+h2 = readRDS('~/Documents/repo/github/ptrs-ukb/analysis_output/hsq_neale_lab.rds')
+pve = readRDS('~/Documents/repo/github/ptrs-ukb/analysis_output/regulability_ctimp.rds')
+pve$population[pve$population == 'British-test-1'] = 'British_test'
+pve$population[pve$population == 'British-validation-1'] = 'British_validation'
+merge = inner_join(h2 %>% select(trait, h2_observed, h2_observed_se), pve %>% filter(population == 'British_test'), by = "trait")
+delta_mtd = function(mx, vx, my, vy) {
+  m = mx / my
+  v = vx / (my ^ 2) + vy * (mx ^ 2) / (my ^ 4)
+  return(list(m = m, v = v))
+}
+meta_fixed = function(m, se) {
+  w = 1 / (se^2)
+  mfe = sum(m * w) / sum(w)
+  vfe = 1 / sum(w)
+  return(list(m = mfe, se = sqrt(vfe)))
+}
+ratio = delta_mtd(merge$h_sq, merge$h_sq_se^2, merge$h2_observed, merge$h2_observed_se^2)
+merge = merge %>% mutate(ratio_mean = ratio$m, ratio_se = sqrt(ratio$v))
+ratio_fe = meta_fixed(merge$ratio_mean, merge$ratio_se)
+as.data.frame(ratio_fe, col.names = c('ratio_mean', 'ratio_se')) %>% pander
+
+p = merge %>% left_join(df_color_category, by = 'trait') %>% ggplot() + 
+  geom_abline(intercept = 0, slope = ratio_fe$m + 1.96 * ratio_fe$se) + 
+  geom_abline(intercept = 0, slope = ratio_fe$m - 1.96 * ratio_fe$se) +
+  geom_point(aes(x = h2_observed, y = h_sq, color = group)) + 
+  geom_errorbar(aes(x = h2_observed, ymin = h_sq - 1.96 * h_sq_se, ymax = h_sq + 1.96 * h_sq_se, color = group)) + 
+  geom_errorbarh(aes(xmin = h2_observed - 1.96 * h2_observed_se, xmax = h2_observed + 1.96 * h2_observed_se, y = h_sq, color = group)) +
+  th +
+  xlab('Heritability') +
+  ylab('PVE of predicted transcriptome \n in GTEx EUR whole blood') +
+  scale_color_manual(values = color_mixer) +
+  theme(legend.position = c(0.2, 0.8), legend.title = element_blank()) +
+  coord_equal()
+ggsave('../../paper-ptrs/figures/h2_vs_pve.png', p, width = 6, height = 3)
+p
+message('Slope 95% upper: ', ratio_fe$m + 1.96 * ratio_fe$se)
+message('Slope 95% upper: ', ratio_fe$m - 1.96 * ratio_fe$se)
+```
+
+# Figure: heritability vs PVE in Europeans (10 tissues)
+
+```{r multi-pve}
+tissues = read.table('~/Desktop/tmp/tissue_list.txt', header = F)$V1
+pops = c('African', 'British-test-1', 'Chinese', 'Indian')
+df = list()
+for(t in tissues) {
+  for(p in pops) {
+    t = stringr::str_remove(t, 'ctimp_')
+    filename = paste0('/Users/yanyul/Desktop/tmp/gcta_regu/reml_from_hail_martin_et_al_traits_x_ctimp_', t, '_x_', p, '.tsv')
+    df[[length(df) + 1]] = read.table(filename, header = T, sep = '\t') %>% mutate(population = p, tissue = t)
+  }
+}
+df = do.call(rbind, df)
+df = left_join(df, trait_info, by = c('trait' = 'short'))
+df[is.na(df)] = 0
+
+df_pca = list()
+for(pop in pops) {
+  tmp = read.table(paste0('~/Desktop/tmp/gcta_regu/reml_from_hail-multi-tissue-tissue_svd_x_martin_et_al_traits_x_ctimp_x_', pop, '.tsv'), header = T, stringsAsFactors = F, sep = '\t')
+  df_pca[[length(df_pca) + 1]] = tmp %>% mutate(population = pop)
+}
+df_pca = do.call(rbind, df_pca)
+df_pca[is.na(df_pca)] = 0
+```
+
+```{r sfig-pve, fig.width=10, fig.height=8}
+## supp figure
+p = df %>% filter(population == 'British-test-1') %>% 
+  ggplot() + geom_bar(aes(x = tissue, y = h_sq, fill = tissue), stat = 'identity') + 
+  geom_errorbar(aes(x = tissue, ymin = h_sq - 1.96 * h_sq_se, ymax = h_sq + 1.96 * h_sq_se), width = .1) + 
+  facet_wrap(~long, ncol = 3, scales = 'free_y') + 
+  scale_fill_manual(values = gtex_color_board) + 
+  theme(legend.position = 'bottom', axis.text.x = element_blank()) + th2
+p
+ggsave('../../paper-ptrs/figures/pve_multi_tissue.png', width = 10, height = 8)
+```
+
+```{r fig1b, fig.width=4, fig.height=3}
+merge = inner_join(
+  df_pca %>% select(trait, population, h_sq, h_sq_se),
+  df %>% filter(tissue == 'Whole_Blood') %>% select(trait, population, h_sq, h_sq_se),
+  by = c('trait', 'population'),
+  suffix = c('.combined', '.whole_blood')
+)
+p = merge %>% filter(population == 'British-test-1') %>% left_join(df_color_category, by = 'trait') %>% 
+  ggplot() + geom_point(aes(x = h_sq.whole_blood, y = h_sq.combined, color = group)) +
+  geom_abline(slope = 1, intercept = 0) + 
+  geom_errorbar(aes(x = h_sq.whole_blood, ymin = h_sq.combined - 1.96 * h_sq_se.combined, ymax = h_sq.combined + 1.96 * h_sq_se.combined, color = group)) + 
+  geom_errorbarh(aes(xmin = h_sq.whole_blood - 1.96 * h_sq.whole_blood, xmax = h_sq.whole_blood + 1.96 * h_sq.whole_blood, y = h_sq.combined, color = group)) +
+  th + 
+  theme(legend.position = 'none') +
+  scale_color_manual(values = color_mixer) +
+  coord_equal() +
+  xlab('PVE of predicted transcriptome \n in GTEx EUR whole blood') +
+  ylab('PVE of predicted transcriptome \n in GTEx EUR 10 tissues')
+p
+ggsave('../../paper-ptrs/figures/pve_vs_pve_multi.png', p, width = 4.5, height = 3)
+```
+
+```{r pve-multi-stat}
+merge_eur = merge %>% filter(population == 'British-test-1')
+tmp = delta_mtd(merge_eur$h_sq.combined, merge_eur$h_sq_se.combined ^ 2, merge_eur$h_sq.whole_blood, merge_eur$h_sq_se.whole_blood ^ 2)
+merge_eur$ratio = tmp$m
+merge_eur$ratio_se = sqrt(tmp$v)
+data.frame(meta_fixed(merge_eur$ratio, merge_eur$ratio_se)) %>% pander(caption = 'PVE in multi-tissue (SVD approach) over PVE in whole blood')
+
+merge_eur = merge %>% filter(population == 'British-test-1') %>% left_join(h2 %>% select(trait, h2_observed, h2_observed_se), by = 'trait')
+tmp = delta_mtd(merge_eur$h_sq.combined, merge_eur$h_sq_se.combined ^ 2, merge_eur$h2_observed, merge_eur$h2_observed_se ^ 2)
+merge_eur$ratio = tmp$m
+merge_eur$ratio_se = sqrt(tmp$v)
+data.frame(meta_fixed(merge_eur$ratio, merge_eur$ratio_se)) %>% pander(caption = 'PVE in multi-tissue (SVD approach) over heritability')
+```
+
+# Figure: PVE in MESA
+
+```{r mesa-pve, fig.width=7, fig.height=3}
+df = readRDS('~/Documents/repo/github/ptrs-ukb/analysis_output/regulability_mesa_and_ctimp.rds')
+tmp = df %>% left_join(df_color_category, by = 'trait') %>% filter(model %in% c('CAU', 'AFHI'))  # , population %in% c('British', 'African')) 
+p = tmp %>% select(trait, h_sq, population, model, group) %>% dcast(trait + population + group ~ model, value.var = 'h_sq') %>% ggplot() + geom_abline(intercept = 0, slope = 1) + facet_wrap(~population, ncol = 4) + geom_point(aes(x = CAU, y = AFHI, color = group))
+p = p + th2 + coord_equal() + theme(legend.position = 'none') + theme(axis.text.x = element_text(angle = 90, hjust = 0, vjust = 0.5))
+p = p + scale_color_manual(values = color_mixer) + 
+  xlab('PVE of predicted transcriptome \n in MESA CAU monocyte') + 
+  ylab('PVE of predicted transcriptome \n in MESA AFHI monocyte')
+p
+ggsave('../../paper-ptrs/figures/cau_vs_afhi_pve_mesa.png', p, width = 7, height = 3)
+```
+
+```{r mesa-pve-stat}
+tmp_afr = tmp %>% filter(population == 'African') %>% dcast(trait + group ~ model, value.var = c('h_sq'))
+tmp_afr_se = tmp %>% filter(population == 'African') %>% dcast(trait + group ~ model, value.var = c('h_sq_se'))
+tmp_afr = left_join(tmp_afr, tmp_afr_se, by = c('trait', 'group'), suffix = c('', '_se')) %>% filter(!is.na(AFHI) & !is.na(AFHI_se) & !is.na(CAU) & !is.na(CAU_se))
+tmp_afr = delta_mtd(tmp_afr$AFHI, tmp_afr$AFHI_se ^ 2, tmp_afr$CAU, tmp_afr$CAU_se ^ 2)
+tmp_afr$ratio = tmp_afr$m
+tmp_afr$ratio_se = sqrt(tmp_afr$v)
+data.frame(meta_fixed(tmp_afr$ratio, tmp_afr$ratio_se)) %>% pander(caption = 'African: PVE in monocyte MESA AFHI over PVE in monocyte MESA CAU')
+
+tmp_eur = tmp %>% filter(population == 'British') %>% dcast(trait + group ~ model, value.var = c('h_sq'))
+tmp_eur_se = tmp %>% filter(population == 'British') %>% dcast(trait + group ~ model, value.var = c('h_sq_se'))
+tmp_eur = left_join(tmp_eur, tmp_eur_se, by = c('trait', 'group'), suffix = c('', '_se')) %>% filter(!is.na(AFHI) & !is.na(AFHI_se) & !is.na(CAU) & !is.na(CAU_se))
+tmp_eur = delta_mtd(tmp_eur$AFHI, tmp_eur$AFHI_se ^ 2, tmp_eur$CAU, tmp_eur$CAU_se ^ 2)
+tmp_eur$ratio = tmp_eur$m
+tmp_eur$ratio_se = sqrt(tmp_eur$v)
+data.frame(meta_fixed(tmp_eur$ratio, tmp_eur$ratio_se)) %>% pander(caption = 'British: PVE in monocyte MESA AFHI over PVE in monocyte MESA CAU')
+```

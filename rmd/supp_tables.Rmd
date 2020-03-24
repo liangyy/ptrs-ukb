@@ -8,6 +8,9 @@ library(dplyr)
 library(pander)
 source('../code/rlib_doc.R')
 bold <- function(x) {paste('{\\textbf{',x,'}}', sep ='')}
+o = get_meta_for_supp()
+df_color_category = o$df_color_category
+# color_mixer = o$color_mixer
 ```
 
 # S Table: phenotype information
@@ -31,13 +34,14 @@ rownames(query) = NULL
 dict = read.csv("http://biobank.ctsu.ox.ac.uk/~bbdatan/Data_Dictionary_Showcase.csv", stringsAsFactors = F)
 dict$FieldID = as.character(dict$FieldID)
 info = left_join(query, dict %>% select(Field, Instances, Array, FieldID), by = c('id' = 'FieldID'))
+info = left_join(info %>% mutate(trait = tolower(phenotype_tag)), df_color_category, by = 'trait')
 info = info %>% filter(phenotype_tag %in% pheno_tab$Trait)
-info = info %>% select(Field, id, phenotype_tag) 
-colnames(info) = c('UKB Field Description', 'UKB Field ID', 'Tag')
+info = info %>% select(Field, id, phenotype_tag, group) 
+colnames(info) = c('UKB Field Description', 'UKB Field ID', 'Tag', 'Phenotype Category')
 
 ### save as tex table
 print(
-  xtable::xtable(info, display=c("s", "s", "s", "s"), caption = '\\textbf{Meta information of the phenotypes retrieved from UK Biobank which were used in the analysis}. The \`\`Tag\'\' column shows the short name of the phenotyes used in this paper.', label = 'tab:trait_table', digits = 5), 
+  xtable::xtable(info, display=c("s", "s", "s", "s", "s"), caption = '\\textbf{Meta information of the phenotypes retrieved from UK Biobank which were used in the analysis}. The \`\`Tag\'\' column shows the short name of the phenotyes used in this paper. And phenotypes are assigned into five categories which are shown in \`\`Phenotype Category\'\' column', label = 'tab:trait_table', digits = 5), 
   math.style.exponents = TRUE, 
   include.rownames = FALSE, 
   file ='../analysis_output/phenotype_info.tex', size="\\scriptsize", 
