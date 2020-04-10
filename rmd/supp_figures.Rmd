@@ -8,6 +8,7 @@ library(dplyr)
 library(pander)
 library(ggplot2)
 library(data.table)
+library(patchwork)
 source('../code/rlib_doc.R')
 theme_set(theme_bw(base_size=12))
 bold <- function(x) {paste('{\\textbf{',x,'}}', sep ='')}
@@ -21,6 +22,9 @@ trait_info$short = tolower(trait_info$short)
 o = get_meta_for_supp()
 df_color_category = o$df_color_category
 color_mixer = o$color_mixer
+pop_color_mixer = o$pop_color_mixer
+type_shape = o$type_shape
+score_color_code = o$score_color_code
 ```
 
 # Figure: heritability vs PVE in Europeans (whole blood)
@@ -30,23 +34,15 @@ h2 = readRDS('~/Documents/repo/github/ptrs-ukb/analysis_output/hsq_neale_lab.rds
 pve = readRDS('~/Documents/repo/github/ptrs-ukb/analysis_output/regulability_ctimp.rds')
 pve$population[pve$population == 'British-test-1'] = 'British_test'
 pve$population[pve$population == 'British-validation-1'] = 'British_validation'
+pve$h_sq[is.na(pve$h_sq)] = 0
+h2$h2_observed[is.na(h2$h2_observed)] = 0
+merge_save_pve_for_downstream = pve
+merge_save_h2_for_downstream = h2
 merge = inner_join(h2 %>% select(trait, h2_observed, h2_observed_se), pve %>% filter(population == 'British_test'), by = "trait")
-delta_mtd = function(mx, vx, my, vy) {
-  m = mx / my
-  v = vx / (my ^ 2) + vy * (mx ^ 2) / (my ^ 4)
-  return(list(m = m, v = v))
-}
-meta_fixed = function(m, se) {
-  w = 1 / (se^2)
-  mfe = sum(m * w) / sum(w)
-  vfe = 1 / sum(w)
-  return(list(m = mfe, se = sqrt(vfe)))
-}
 ratio = delta_mtd(merge$h_sq, merge$h_sq_se^2, merge$h2_observed, merge$h2_observed_se^2)
 merge = merge %>% mutate(ratio_mean = ratio$m, ratio_se = sqrt(ratio$v))
 ratio_fe = meta_fixed(merge$ratio_mean, merge$ratio_se)
 as.data.frame(ratio_fe, col.names = c('ratio_mean', 'ratio_se')) %>% pander
-
 p = merge %>% left_join(df_color_category, by = 'trait') %>% ggplot() + 
   geom_abline(intercept = 0, slope = ratio_fe$m + 1.96 * ratio_fe$se) + 
   geom_abline(intercept = 0, slope = ratio_fe$m - 1.96 * ratio_fe$se) +
@@ -169,4 +165,195 @@ tmp_eur = delta_mtd(tmp_eur$AFHI, tmp_eur$AFHI_se ^ 2, tmp_eur$CAU, tmp_eur$CAU_
 tmp_eur$ratio = tmp_eur$m
 tmp_eur$ratio_se = sqrt(tmp_eur$v)
 data.frame(meta_fixed(tmp_eur$ratio, tmp_eur$ratio_se)) %>% pander(caption = 'British: PVE in monocyte MESA AFHI over PVE in monocyte MESA CAU')
+```
+
+# Figure: PTRS GTEx EUR (not used)
+
+```{r ptrs-gtex-eur, fig.width=5, fig.height=3}
+df_en = read.table('~/Desktop/tmp/ptrs-tf/from_nucleus/partial_r2-elastic_net_British.tsv', header = T, sep = '\t', stringsAsFactors = F) %>% arrange(desc(lambda))
+best_en = rbind(
+  df_en %>% select(sample, trait, partial_r2)
+) %>% group_by(trait, sample) %>% summarize(r2_max = max(partial_r2, na.rm = T)) %>% ungroup() %>% mutate(population = update_popname(sample)) # %>% left_join(merge_save_pve_for_downstream, by = c('sample' = 'population', 'trait'))
+p1 = best_en %>% ggplot() + geom_violin(aes(y = r2_max, x = population, color = population)) +
+  geom_jitter(aes(x = population, y = r2_max, color = population), height = 0, width = .1) + 
+  scale_color_manual(values = pop_color_mixer) + # pop_color_mixer[names(pop_color_mixer) %in% unique(best_en$population)]) +
+  th +
+  theme(axis.text.x = element_text(angle = 0, hjust = 0.5, vjust = 0.8, size = 12)) +
+  theme(legend.position = 'none') + # c(0.7, .8)) +
+  theme(axis.title.x = element_blank()) + 
+  guides(color = guide_legend(title = element_blank(), direction = 'horizontal', ncol = 2))
+p1 = p1 + ylab(expression(tilde(R)^2 * ' of PTRS (GTEx EUR)'))
+p1
+ggsave('../../paper-ptrs/figures/ptrs_r2_in_gtex_eur.png', p1, width = 5, height = 3)
+p = merge_save_pve_for_downstream %>% mutate(population = update_popname(population)) %>% ggplot() +
+  geom_violin(aes(x = population, y = h_sq, color = population), alpha = .5) + 
+  geom_jitter(aes(x = population, y = h_sq, color = population), width = 0.1, height = 0) + 
+  scale_color_manual(values = pop_color_mixer) +
+  theme(axis.text.x = element_text(angle = 0, hjust = 0.5, vjust = 0.8, size = 12)) +
+  th +
+  theme(legend.position = 'none') +
+  ylab('PVE of predicted transcriptome \n in GTEx EUR whole blood')  # +
+  # guides(color = guide_legend(title = element_blank(), direction = 'horizontal', ncol = 2))
+p
+ggsave('../../paper-ptrs/figures/pve_gtex_eur_by_population.png', p, width = 5, height = 3)
+```
+
+# Figure: PTRS GTEx EUR (in use)
+
+```{r ptrs-gtex-eur, fig.width=6, fig.height=4}
+df_en = read.table('~/Desktop/tmp/ptrs-tf/from_nucleus/partial_r2-elastic_net_British.tsv', header = T, sep = '\t', stringsAsFactors = F) %>% arrange(desc(lambda))
+best_en = rbind(
+  df_en %>% select(sample, trait, partial_r2)
+) %>% group_by(trait, sample) %>% summarize(r2_max = max(partial_r2, na.rm = T)) %>% ungroup() %>% mutate(population = update_popname(sample))
+best_en = best_en %>% inner_join(merge_save_pve_for_downstream, by = c('sample' = 'population', 'trait'))
+# ggsave('../../paper-ptrs/figures/pve_gtex_eur_by_population.png', p, width = 5, height = 3)
+p = best_en %>% filter(sample != 'British_test') %>% ggplot() + geom_abline(slope = 1, intercept = 0) +
+  geom_point(aes(x = h_sq, y = r2_max, color = population)) + 
+  scale_color_manual(values = pop_color_mixer) +
+  th +
+  theme(legend.position = c(0.2, 0.8), legend.title = element_blank(), legend.text = element_text(size = 12)) + coord_equal() +
+  xlab('PVE of predicted transcriptome \n in GTEx EUR whole blood') +
+  ylab(expression(tilde(R)^2 * ' of PTRS (GTEx EUR)')) +
+  coord_cartesian(ylim = c(0, 0.1))
+p
+ggsave('../../paper-ptrs/figures/ptrs_gtex_eur_by_population.png', p, width = 6, height = 4)
+```
+
+```{r prs-gtex-eur}
+df_prs = read.table('~/Desktop/tmp/ptrs-tf/from_nucleus/partial_r2-prs.subset1_British.tsv', header = T, sep = '\t', stringsAsFactors = F)
+df_prs$sample[df_prs$sample == 'British-test-1'] = 'British_test'
+df_prs$sample[df_prs$sample == 'British-validation-1'] = 'British_validation'
+df_prs = df_prs %>% rename(prs_cutoff = ptrs_cutoff)
+df_prs = df_prs %>% arrange(desc(-prs_cutoff))
+
+best_prs = df_prs %>% group_by(trait, sample) %>% summarize(r2_max = max(partial_r2, na.rm = T)) %>% ungroup() %>% mutate(population = update_popname(sample))
+best_prs = best_prs %>% inner_join(merge_save_h2_for_downstream %>% select(trait, h2_observed, h2_observed_se), by = c('trait'))
+# ggsave('../../paper-ptrs/figures/pve_gtex_eur_by_population.png', p, width = 5, height = 3)
+best_prs %>% filter(sample != 'British_test') %>% ggplot() + geom_abline(slope = 1, intercept = 0) +
+  geom_point(aes(x = h2_observed, y = r2_max, color = population)) + 
+  scale_color_manual(values = pop_color_mixer) +
+  th +
+  theme(legend.position = 'top', legend.title = element_blank()) + coord_equal() +
+  xlab('PVE of predicted transcriptome \n in GTEx EUR whole blood') +
+  ylab(expression(tilde(R)^2 * ' of PTRS (GTEx EUR)'))
+
+p1 = best_prs %>% ggplot() + geom_violin(aes(y = r2_max, x = population, color = population)) +
+  geom_jitter(aes(x = population, y = r2_max, color = population), height = 0, width = .1) + 
+  scale_color_manual(values = pop_color_mixer) + # pop_color_mixer[names(pop_color_mixer) %in% unique(best_en$population)]) +
+  th +
+  theme(axis.text.x = element_text(angle = 0, hjust = 0.5, vjust = 0.8, size = 12)) +
+  theme(legend.position = 'none') + # c(0.7, .8)) +
+  theme(axis.title.x = element_blank()) + 
+  guides(color = guide_legend(title = element_blank(), direction = 'horizontal', ncol = 2))
+p1 = p1 + ylab(expression(tilde(R)^2 * ' of PTRS (GTEx EUR)'))
+p1
+```
+
+# Figure: PRS/PTRS R2 vs PVE/heritability (GTEx EUR)
+
+```{r pve-vs-r2, fig.width=6, fig.height=4}
+to_plot = rbind(
+  best_en %>% filter(sample == 'British_test') %>% 
+    select(trait, sample, r2_max, h_sq, h_sq_se) %>% 
+    rename(h2 = h_sq, h2se = h_sq_se) %>% mutate(type = 'PTRS'),
+  best_prs %>% filter(sample == 'British_test') %>% 
+    select(trait, sample, r2_max, h2_observed, h2_observed_se) %>% 
+    rename(h2 = h2_observed, h2se = h2_observed_se) %>% mutate(type = 'PRS')
+)
+p = to_plot %>% left_join(df_color_category, by = 'trait') %>% ggplot() + geom_abline(slope = 1, intercept = 0) +
+  geom_point(aes(x = h2, y = r2_max, color = group, shape = type), size = 4) + 
+  geom_errorbarh(aes(xmin = h2 - 1.96 * h2se, xmax = h2 + 1.96 * h2se, y = r2_max, color = group)) +
+  scale_color_manual(values = color_mixer) +
+  scale_shape_manual(values = type_shape) + 
+  th +
+  theme(legend.position = 'top', legend.title = element_blank()) + 
+  coord_equal() +
+  xlab('PVE of PTRS or heritability') +
+  ylab(expression(tilde(R)^2 * ' of PTRS or PRS (GTEx EUR)')) +
+  guides(color = guide_legend(title = element_blank(), direction = 'horizontal', ncol = 2))
+p
+ggsave('../../paper-ptrs/figures/pve_vs_r2.png', p, width = 7, height = 4)
+
+```
+
+# Figure: PTRS portability (GTEx EUR)
+
+```{r portability-gtex-eur, fig.width=5.5, fig.height=4}
+best_en = rbind(
+  df_en %>% select(sample, trait, partial_r2)
+) %>% group_by(trait, sample) %>% summarize(r2_max = max(partial_r2, na.rm = T)) %>% ungroup()
+best_prs = df_prs %>% 
+  group_by(trait, sample) %>% summarize(r2_max = max(partial_r2, na.rm = T)) %>% ungroup()
+trans_en = best_en %>% left_join(best_en %>% filter(sample == 'British_validation'), by = c('trait'), suffix = c('', '.ref')) %>% mutate(transferability = r2_max / r2_max.ref)
+trans_prs = best_prs %>% left_join(best_prs %>% filter(sample == 'British_validation'), by = c('trait'), suffix = c('', '.ref')) %>% mutate(transferability = r2_max / r2_max.ref)
+p3 = rbind(
+  trans_en %>% mutate(type = 'PTRS (GTEx EUR)'),
+  trans_prs %>% mutate(type = 'PRS')
+) %>% 
+  filter(sample != 'British_insample') %>% 
+  mutate(population = update_popname(sample)) %>% 
+  ggplot() + 
+  geom_violin(aes(x = population, y = transferability, color = type), position = position_dodge(width = 0.7)) + 
+  geom_boxplot(aes(x = population, y = transferability, color = type), position = position_dodge(width = 0.7), width = 0.1) + 
+  th + 
+  theme(legend.position = c(0.2, 0.2), legend.title = element_blank(), axis.title.x = element_blank()) + 
+  scale_color_manual(values = score_color_code) +
+  theme(axis.text.x = element_text(size = 12)) +
+  ylab('Portability')
+p3
+ggsave('../../paper-ptrs/figures/portability_gtex_eur.png', p3, width = 5.5, height = 4)
+```
+
+# Figure: PTRS MESA
+
+```{r ptrs-mesa, fig.width=9, fig.height=3}
+df_cau = read.table('~/Desktop/tmp/ptrs-tf/from_nucleus/partial_r2-elastic_net_MESA_CAU_British_in_CAU.tsv', header = T, sep = '\t', stringsAsFactors = F)
+df_afhi = read.table('~/Desktop/tmp/ptrs-tf/from_nucleus/partial_r2-elastic_net_MESA_CAU_British_in_AFHI.tsv', header = T, sep = '\t', stringsAsFactors = F)
+df_en = rbind(df_cau %>% mutate(pred_expr = 'CAU'), df_afhi %>% mutate(pred_expr = 'AFHI')) %>% arrange(desc(lambda))
+
+best_prs = df_prs %>% group_by(trait, sample) %>% summarize(r2_max = max(partial_r2, na.rm = T)) %>% ungroup() # %>% mutate(population = update_popname(sample))
+best_en = rbind(
+  df_en %>% select(sample, trait, partial_r2)
+) %>% group_by(trait, sample) %>% summarize(r2_max = max(partial_r2, na.rm = T)) %>% ungroup() # %>% mutate(population = update_popname(sample))
+
+best_cau = df_cau %>% group_by(trait, sample) %>% summarize(r2_max = max(partial_r2, na.rm = T)) %>% ungroup()
+best_afhi = df_afhi %>% group_by(trait, sample) %>% summarize(r2_max = max(partial_r2, na.rm = T)) %>% ungroup()
+
+merge = inner_join(best_cau, best_afhi, by = c('sample', 'trait'), suffix = c('.cau', '.afhi'))
+tmp_ = merge %>% filter(sample %in% c('African', 'British_test', 'Chinese', 'Indian')) %>% 
+  mutate(population = update_popname(sample, type = 2)) %>% left_join(df_color_category, by = 'trait')
+p = tmp_ %>% ggplot() + 
+  geom_abline(intercept = 0, slope = 1) + 
+  geom_point(aes(x = r2_max.cau, y = r2_max.afhi, color = group)) + 
+  facet_wrap(~population, scales = 'free', nrow = 1) + th2 +
+  scale_color_manual(values = color_mixer) +
+  theme(legend.position = 'none') +
+  xlab(expression(tilde(R)^2 * ' of PTRS (MESA CAU)')) +
+  ylab(expression(tilde(R)^2 * ' of PTRS (MESA AFHI)'))
+p
+ggsave('../../paper-ptrs/figures/ptrs_r2_mesa.png', p, width = 9, height = 3)
+```
+
+# Figure: portability (MESA)
+
+```{r portability-mesa, fig.width=6, fig.height=4}
+trans_en = best_en %>% left_join(best_en %>% filter(sample == 'British_validation'), by = c('trait'), suffix = c('', '.ref')) %>% mutate(transferability = r2_max / r2_max.ref)
+trans_cau = best_cau %>% left_join(best_cau %>% filter(sample == 'British_validation'), by = c('trait'), suffix = c('', '.ref')) %>% mutate(transferability = r2_max / r2_max.ref)
+trans_prs = best_prs %>% left_join(best_prs %>% filter(sample == 'British_validation'), by = c('trait'), suffix = c('', '.ref')) %>% mutate(transferability = r2_max / r2_max.ref)
+pp = rbind(
+  trans_en %>% mutate(type = 'PTRS (MESA CAU & AFHI)'),
+  trans_cau %>% mutate(type = 'PTRS (MESA CAU)'),
+  trans_prs %>% mutate(type = 'PRS')
+) %>% filter(sample != 'British_insample')  %>% 
+  mutate(population = update_popname(sample), type = order_score(type)) %>%
+  ggplot() + 
+  geom_violin(aes(x = population, y = transferability, color = type), position = position_dodge(width = 0.7)) + 
+  geom_boxplot(aes(x = population, y = transferability, color = type), position = position_dodge(width = 0.7), width = 0.1) + 
+  th + 
+  theme(legend.position = c(0.8, 0.9), legend.title = element_blank(), axis.title.x = element_blank()) + 
+  scale_color_manual(values = score_color_code) +
+  theme(axis.text.x = element_text(size = 12)) +
+  ylab('Portability')
+pp
+ggsave('../../paper-ptrs/figures/portability_mesa.png', pp, width = 6, height = 4)
 ```
