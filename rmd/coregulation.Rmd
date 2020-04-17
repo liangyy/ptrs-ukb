@@ -1,0 +1,151 @@
+---
+title: "Co-regulation across populations"
+bibliography: ref.bib
+---
+
+```{r setup}
+rm(list = ls())
+library(dplyr)
+library(reshape2)
+library(ggplot2)
+library(SilverStandardPerformance)
+source('../code/rlib_doc.R')
+candidate_colors = c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+infer_missing = function(indiv_code, pop, supop) {
+  code = as.numeric(stringr::str_remove(indiv_code, 'HGDP'))
+  df = data.frame(original_code = indiv_code, code = code, pop = pop, super_pop = supop)
+  df_ref = df %>% filter(!is.na(pop)) %>% group_by(pop, super_pop) %>% summarize(code_min = min(code), code_max = max(code)) %>% ungroup()
+  # df_missing = df %>% filter(is.na(pop))
+  for(i in 1 : nrow(df)) {
+    if(!is.na(df$pop[i])) {
+      next
+    }
+    dist= Inf
+    for(j in 1 : nrow(df_ref)) {
+      dist_now = min(abs(df_ref$code_min[j] - df$code[i]), abs(df_ref$code_max[j] - df$code[i]))
+      if(dist_now < dist) {
+        dist = dist_now
+        df$pop[i] = df_ref$pop[j]
+        df$super_pop[i] = df_ref$super_pop[j]
+      }
+    }
+  }
+  df
+}
+annot_color = function(pop, color_panel) {
+  e = data.frame(pop = pop)
+  f = left_join(e, color_panel, by = 'pop')
+  f$color
+}
+mysd = function(x) {
+  sqrt(mean((x - mean(x)) ^ 2))
+}
+fast_corr = function(x) {
+  x = as.matrix(x)
+  mean_ = apply(x, 1, mean)
+  sd_ = apply(x, 1, mysd)
+  x_norm = (x - mean_) / sd_
+  cor_ = x_norm %*% t(x_norm) / ncol(x_norm)
+  cor_
+}
+mat_dist = function(m1, m2) {
+  sqrt(sum((m1 - m2) ^ 2))
+}
+```
+
+# Preliminary peak at @martin2014transcriptome
+
+In @martin2014transcriptome, they surveyed 45 LCL from 7 populations.
+Data is shared at [link](http://gbsc-share.stanford.edu/HGDP_RNAseq/).
+
+```{r load}
+expr_mat = read.table('~/Desktop/tmp/coregulation_martin_2014/merged_sample_gene_fpkm_table.txt', header = T)
+indiv_list = read.delim2('~/Desktop/tmp/coregulation_martin_2014/igsr-human genome diversity project.tsv.tsv', header = T)
+```
+
+# Load a gene annotation
+
+```{r gene-cleanup}
+data("gene_annotation_gencode_v26_hg38")
+gene_protein_coding_and_linc = gene_annotation_gencode_v26_hg38$gene_annotation %>% filter(gene_type %in% c('protein_coding', 'lincRNA')) %>% pull(gene_name)
+# limit to protein coding and lincRNA
+expr_mat_cleaned = expr_mat %>% filter(gene_name %in% gene_protein_coding_and_linc)
+# remove genes with no variation 
+is_const_gene = apply(expr_mat_cleaned[, -(1 : 4)], 1, function(x) {
+  sum((x - mean(x))^2) == 0
+})
+non_zero_in_all_gene = apply(expr_mat_cleaned[, -(1 : 4)], 1, function(x) {
+  sum(x != 0) > length(x) * 0.8 
+})
+expr_mat_cleaned = expr_mat_cleaned[!is_const_gene & non_zero_in_all_gene, ]
+```
+
+# Annotate individuals with ancestry
+
+```{r ancestry}
+expr_mat_indiv = data.frame(indiv = colnames(expr_mat)[-(1 : 4)])
+expr_mat_indiv = expr_mat_indiv %>% left_join(indiv_list, by = c('indiv' = 'Sample.name'))
+# there are some missing ones, I have to annotate them manually ..
+# I assign the closest HGDP code
+expr_mat_indiv = infer_missing(expr_mat_indiv$indiv, expr_mat_indiv$Population.name, expr_mat_indiv$Superpopulation.name)
+color_panel = data.frame(pop = unique(expr_mat_indiv$pop), color = candidate_colors[1 : length(unique(expr_mat_indiv$pop))])
+color_brewer = color_panel$color
+names(color_brewer) = color_panel$pop
+expr_mat_indiv %>% ggplot() + geom_bar(aes(x = pop, fill = pop)) + 
+  scale_fill_manual(values = color_brewer)
+pop_info = expr_mat_indiv %>% group_by(pop, super_pop) %>% summarize(n = n()) %>% ungroup()
+```
+
+# Calculate between-individual correlation matrix
+
+```{r indiv corr}
+indiv_cor = cor(expr_mat_cleaned[, -(1 : 4)])
+indiv_cor_melt = melt(indiv_cor)
+indiv_axis = unique(indiv_cor_melt$Var1)
+pop_axis = data.frame(indiv = indiv_axis) %>% left_join(expr_mat_indiv, by = c('indiv' = 'original_code')) %>% pull(pop)
+color = annot_color(pop_axis, color_panel)
+indiv_cor_melt %>% ggplot() + geom_raster(aes(x = Var1, y = Var2, fill = value)) + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, colour = color)) + 
+  theme(axis.text.y = element_text(angle = 0, hjust = 1, colour = color)) + 
+  scale_fill_gradient(low = 'blue', high = 'red')
+```
+
+# Calculate between-gene correlation matrix
+
+```{r gene cor}
+list_cor = list()
+for(i in unique(expr_mat_indiv$pop)) {
+  if(i == 'San') {
+    next
+  }
+  expr_mat_sub = expr_mat_cleaned[, colnames(expr_mat_cleaned) %in% expr_mat_indiv$original_code[expr_mat_indiv$pop == i]]
+  list_cor[[i]] = fast_corr(expr_mat_sub)
+}
+# gene_cor = fast_corr(expr_mat_cleaned[, -(1:4)])
+```
+
+```{r pair}
+out_list = list()
+for(i in names(list_cor)) {
+  for(j in names(list_cor)) {
+    message(i, '-', j)
+    dist = mat_dist(list_cor[[i]], list_cor[[j]])
+    out_list[[length(out_list) + 1]] = data.frame(pop1 = i, pop2 = j, dist = dist)
+  }
+}
+df_pair = do.call(rbind, out_list)
+df_pair = inner_join(df_pair, pop_info %>% select(-n), by = c('pop1' = 'pop')) %>% inner_join(pop_info %>% select(-n), by = c('pop2' = 'pop'), suffix = c('.1', '.2'))
+```
+
+Random draw
+
+```{r corr random}
+for(i in unique(expr_mat_indiv$pop)) {
+  if(i == 'San') {
+    next
+  }
+  expr_mat_sub = expr_mat_cleaned[, colnames(expr_mat_cleaned) %in% expr_mat_indiv$original_code[expr_mat_indiv$pop == i]]
+  list_cor[[i]] = fast_corr(expr_mat_sub)
+}
+
+```

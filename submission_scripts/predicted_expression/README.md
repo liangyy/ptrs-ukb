@@ -10,7 +10,7 @@ Run MESA models:
 
 ```
 model=AFA  # AFHI CAU ALL HIS
-outdir=/vol/bmd/yanyul/UKB/predicted_expression_mesa
+outdir=/vol/bmd/yanyul/UKB/predicted_expression
 screen -dmS $model bash run_pred_expr_mesa.screen $model $outdir
 ```
 

@@ -1,5 +1,5 @@
 ---
-title: "First look at MESA PTRS"
+title: "First look at MESA PTRS along with PTRS with LD block pruning"
 ---
 
 ```{r setup}
@@ -47,6 +47,25 @@ df_mesa$population = parse_pop(df_mesa$population)
 df_mesa$ptrs_col = factor(df_mesa$ptrs_col, levels = unique(df_mesa$ptrs_col))
 ```
 
+## MESA PTRS with LD block based pruning
+
+```{r load33}
+mesa_models = c('AFHI', 'CAU', 'ALL')
+result = list()
+for(m in mesa_models) {
+  for(i in 1 : 17) {
+    for(t in traits) {
+      filename = paste0('~/Desktop/tmp/ptrs_mesa_ldblock_r2/ptrs_mesa_ldblock_r2_', m, '/ptrs-r2_subset', i, '_x_', t, '.txt')
+      tmp = read.table(filename, header = T, sep = '\t')
+      result[[length(result) + 1]] = tmp %>% mutate(subset = i, trait = t, model = m)
+    }
+  }
+}
+df_mesa_ld = do.call(rbind, result)
+df_mesa_ld$population = parse_pop(df_mesa_ld$population)
+df_mesa_ld$ptrs_col = factor(df_mesa_ld$ptrs_col, levels = unique(df_mesa_ld$ptrs_col))
+```
+
 ## GTEx V8 CTIMP whole blood PTRS 
 
 ```{r load2}
@@ -67,6 +86,7 @@ df_gtex$ptrs_col = factor(df_gtex$ptrs_col, levels = unique(df_gtex$ptrs_col))
 
 ```{r merge}
 df_ptrs = rbind(df_mesa %>% select(-SSE.wo, -SSE.with), df_gtex)
+df_ld = rbind(df_mesa %>% filter(model %in% mesa_models) %>% select(-SSE.wo, -SSE.with) %>% mutate(type = 'naive'), df_mesa_ld %>% filter(model %in% mesa_models) %>% select(-SSE.wo, -SSE.with) %>% mutate(type = 'ldblock'))
 ```
 
 # Plot
@@ -213,4 +233,32 @@ best_for_each %>%
   ggplot() + geom_point(aes(x = h_sq, y = max_r2)) + 
   facet_grid(model~population, scales = 'free') 
   
+```
+
+
+# Comparing naive PTRS and ldblock based PTRS
+
+## Overview
+
+```{r plot1, fig.height=8, fig.width=6}
+df_ld %>% dcast(population + ptrs_col + subset + trait + model ~ type, value.var = 'r2') %>% ggplot() + geom_point(aes(x = naive, y = ldblock, color = trait)) + facet_grid(population~model, scales = 'free') + geom_abline(slope = 1, intercept = 0)
+```
+
+## Best with each model
+
+```{r best-british-vs, fig.height=8, fig.width=6}
+df_ld_best_each = df_ld %>% group_by(population, subset, trait, model, type) %>% summarize(max_r2 = max(r2)) %>% ungroup()
+df_ld_best_each %>% dcast(population + subset + trait + model ~ type, value.var = 'max_r2') %>% ggplot() + geom_point(aes(x = naive, y = ldblock, color = trait)) + facet_grid(population ~ model) + geom_abline(slope = 1, intercept = 0)
+```
+
+```{r vs-pve1}
+df_ld_best_each$pop = df_ld_best_each$population
+df_ld_best_each$pop[df_ld_best_each$pop %in% c('British-test', 'British-validation')] = 'British'
+df_ld_best_each = inner_join(df_ld_best_each, regu, by = c('trait', 'pop' = 'population', 'model'))
+```
+
+```{r vs-pve-plot}
+df_ld_best_each %>% 
+  ggplot() + geom_point(aes(x = h_sq, y = max_r2, color = type), alpha = .3) + 
+  facet_grid(model~population, scales = 'free') 
 ```

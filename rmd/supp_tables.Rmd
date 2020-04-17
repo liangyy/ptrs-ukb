@@ -1,0 +1,162 @@
+---
+title: "Building supplementary tables"
+---
+
+```{r setup}
+rm(list = ls())
+library(dplyr)
+library(pander)
+source('../code/rlib_doc.R')
+bold <- function(x) {paste('{\\textbf{',x,'}}', sep ='')}
+o = get_meta_for_supp()
+df_color_category = o$df_color_category
+# color_mixer = o$color_mixer
+```
+
+# S Table: phenotype information
+
+Phenotype information.
+
+```{r stab1}
+pheno_tab = read.csv('../external_data/martin_et_al_2019ng_table_s6.csv')
+query_ = yaml::read_yaml('../output/query_phenotypes.yaml')$data
+query = list()
+for(i in names(query_)) {
+  ii = strsplit(i, '_x_')[[1]][1]
+  if(ii %in% names(query)) {
+    next
+  } else {
+    query[[ii]] = data.frame(id = stringr::str_remove(strsplit(query_[[i]], '_')[[1]][1], 'c'), phenotype_tag = ii)
+  }
+}
+query = do.call(rbind, query)
+rownames(query) = NULL
+dict = read.csv("http://biobank.ctsu.ox.ac.uk/~bbdatan/Data_Dictionary_Showcase.csv", stringsAsFactors = F)
+dict$FieldID = as.character(dict$FieldID)
+info = left_join(query, dict %>% select(Field, Instances, Array, FieldID), by = c('id' = 'FieldID'))
+info = left_join(info %>% mutate(trait = tolower(phenotype_tag)), df_color_category, by = 'trait')
+info = info %>% filter(phenotype_tag %in% pheno_tab$Trait)
+info = info %>% select(Field, id, phenotype_tag, group) 
+colnames(info) = c('UKB Field Description', 'UKB Field ID', 'Tag', 'Phenotype Category')
+
+### save as tex table
+print(
+  xtable::xtable(info, display=c("s", "s", "s", "s", "s"), caption = '\\textbf{Meta information of the phenotypes retrieved from UK Biobank which were used in the analysis}. The \`\`Tag\'\' column shows the short name of the phenotyes used in this paper. And phenotypes are assigned into five categories which are shown in \`\`Phenotype Category\'\' column', label = 'tab:trait_table', digits = 5), 
+  math.style.exponents = TRUE, 
+  include.rownames = FALSE, 
+  file ='../analysis_output/phenotype_info.tex', size="\\scriptsize", 
+  sanitize.colnames.function=bold,
+  booktabs = TRUE
+)
+
+# update the copy in paper-ptrs repo
+cmd = paste('cp', '../analysis_output/phenotype_info.tex', '../../paper-ptrs/tables/phenotype_info.tex')
+system(cmd)
+```
+
+# S Table: number of individuals by ancestry/population
+
+```{r stab2}
+pheno_table = fread('../output/query_phenotypes_cleaned_up.csv', sep = ',')
+dd = pheno_table %>% group_by(meaning) %>% summarize(n = n()) %>% ungroup()
+colnames(dd) = c('Ancestry', 'Number of individuals')
+
+### save as tex table
+print(
+  xtable::xtable(dd, display=c("s", "s", "g"), caption = '\\textbf{Number of individuals included in the analysis stratified by ancestry}.', label = 'tab:indiv_table', digits = 6), 
+  math.style.exponents = TRUE, 
+  include.rownames = FALSE, 
+  file ='../analysis_output/population_info.tex', size="\\scriptsize", 
+  sanitize.colnames.function=bold,
+  booktabs = TRUE
+)
+
+# update the copy in paper-ptrs repo
+cmd = paste('cp', '../analysis_output/population_info.tex', '../../paper-ptrs/tables/population_info.tex')
+system(cmd)
+```
+
+# S Table: prediction models
+
+Information of prediction models.
+
+```{r stab3}
+# model method 
+# data source
+# population 
+# tissue
+# number of genes
+# sample size
+# model abbreviation
+
+### GTEx V8
+tissues = read.table('~/Desktop/tmp/tissue_list.txt', header = F)$V1
+gtex_sheet = read.csv('~/Documents/repo/bitbucket/rotation-at-imlab/data/gtex_sample_counts_by_tissue.csv')
+pops = c('British-test-1')
+df = list()
+for(t in tissues) {
+  for(p in pops) {
+    t = stringr::str_remove(t, 'ctimp_')
+    filename = paste0('/Users/yanyul/Desktop/tmp/gcta_regu/reml_from_hail_martin_et_al_traits_x_ctimp_', t, '_x_', p, '.tsv')
+    df[[length(df) + 1]] = read.table(filename, header = T, sep = '\t') %>% mutate(population = p, tissue = t)
+  }
+}
+df = do.call(rbind, df)
+df = df %>% select(num_predictors, tissue) %>% filter(!duplicated(tissue)) # %>% pander
+df = left_join(df, gtex_sheet %>% select(tissue, v8_eur), by = 'tissue')
+df_gtex = data.frame(method = 'CTIMP', data_source = 'GTEx V8', population = 'European', tissue = df$tissue, number_of_genes = df$num_predictors, sample_size = df$v8_eur)
+
+### MESA 
+f2 = 'African American (AFA, n = 233), Hispanic (HIS, n = 352), and European (CAU, n = 578)'
+f = do.call(rbind, sapply(strsplit(f2, '),')[[1]], function(x) {
+  x = strsplit(x, ' \\(')[[1]]
+  meta = strsplit(x[2], ', ')[[1]]
+  abbr = meta[1]
+  sample_size = stringr::str_remove(meta[2], 'n = ')
+  sample_size = as.numeric(stringr::str_remove(sample_size, '\\)'))
+  data.frame(population = stringr::str_remove(x[1], 'and '), abbreviation = abbr, sample_size = sample_size)
+}, simplify = F))
+rownames(f) = NULL
+f = f %>% mutate(source = 'MESA', tissue = 'Monocyte')
+f = rbind(f, data.frame(population = paste(f$population[1], f$population[2]), abbreviation = 'AFHI', sample_size = f$sample_size[1] + f$sample_size[2], source = f$source[1], tissue = f$tissue[1]))
+# f = rbind(f, data.frame(population = 'European', abbreviation = 'gtex_v8', sample_size = 573, source = 'GTEx_v8', tissue = 'Whole_Blood'))
+f %>% pander('Sample size of gene expression prediction models in the analysis')
+pops = c('British-test-1')
+models = c('CAU', 'AFHI')
+tmp_list = list()
+for(p in pops) {
+  for(m in models) {
+    filename = paste0('~/Desktop/tmp/gcta_regu/reml_from_hail_martin_et_al_traits_x_', m, '_x_', p, '.tsv')
+    tmp_list[[length(tmp_list) + 1]] = read.table(filename, header  = T, sep = '\t') %>% mutate(population = p, model = m)
+  }
+}
+mesa = do.call(rbind, tmp_list)
+mesa = mesa %>% select(num_predictors, model) %>% filter(!duplicated(model)) # %>% pander
+mesa = left_join(mesa, data.frame(model = c('CAU', 'AFHI'), pop = c('European', 'African American or Hispanic')), by = 'model')
+mesa = left_join(mesa, f %>% select(abbreviation, sample_size), by = c('model' = 'abbreviation'))
+df_mesa = data.frame(method = 'Elastic Net', data_source = 'MESA', population = mesa$pop, tissue = 'Monocyte', number_of_genes = mesa$num_predictors, sample_size = mesa$sample_size)
+
+### the combined table
+dd = rbind(df_gtex, df_mesa)
+dd$tag = c(rep('', nrow(dd) - 3), c('GTEx EUR', 'MESA CAU', 'MESA AFHI'))
+colnames(dd) = c('Method', 'Data source', 'Population', 'Tissue', 'Number of genes', 'Sample size', 'Tag')
+
+### save as tex table
+to_highlight = sort(nrow(dd) - 1:3)
+print(
+  xtable::xtable(dd, display=c("s", "s", "s","s","s", "g", "g", "s"), caption = '\\textbf{Meta information of the prediction models used in the analysis}. The highlighted prediction models were used to build PTRS. The \`\`Tag\'\' column shows the short name of the models used in this paper.', label = 'tab:prediction_model', digits = 5), 
+  math.style.exponents = TRUE, 
+  include.rownames = FALSE, 
+  file ='../analysis_output/prediction_models.tex', size="\\tiny", 
+  sanitize.colnames.function=bold,
+  booktabs = TRUE,
+  add.to.row=list(
+        pos=as.list(to_highlight),
+        command=rep("\\rowcolor{yellow}",
+                    length(seq(from=1,to=length(to_highlight),by=1))))
+)
+
+# update the copy in paper-ptrs repo
+cmd = paste('cp', '../analysis_output/prediction_models.tex', '../../paper-ptrs/tables/prediction_models.tex')
+system(cmd)
+```

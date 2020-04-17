@@ -1,0 +1,19 @@
+# predicted expression
+pred_expr: '/vol/bmd/yanyul/UKB/predicted_expression/predicted_expression.ukb_imp_x_{gene_model}.h5'
+gene_model_yaml: '/vol/bmd/yanyul/GitHub/ptrs-ukb/submission_scripts/gcta_regulability/ctimp_top10.yaml'
+gene_model_list_name: 'ctimp'
+pc_model: '/vol/bmd/yanyul/UKB/gcta_regulability/PCA-multi-tissue-tissue_svd_train_x_martin_et_al_traits_x_ctimp_x_British-test-1.hdf5'
+# mode: 'naive'
+
+# individual list
+indiv_list: '/vol/bmd/yanyul/GitHub/ptrs-ukb/output/data_split/{pop_name}.txt'
+# pop_name: 'British-test-1'
+
+# phenotypes and covariates table
+pheno_covar:
+  table: '/vol/bmd/yanyul/GitHub/ptrs-ukb/output/query_phenotypes_cleaned_up.csv'
+  yaml: '/vol/bmd/yanyul/GitHub/ptrs-ukb/misc/gwas_full_pheno_covar.yaml'
+table_name: 'martin_et_al_traits'
+
+# gcta binary path
+gcta_path: '/vol/bmd/yanyul/softwares/gcta_1.93.0beta/gcta64'

@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Co-regulation across populations (MESA data)</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">PTRS UKB</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/liangyy/ptrs-ukb">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Co-regulation across populations (MESA data)</h1>
+
+</div>
+
+
+<pre class="r"><code>rm(list = ls())
+library(data.table)
+options(datatable.fread.datatable = F)
+options(stringsAsFactors = F)
+library(SilverStandardPerformance)
+library(dplyr)
+library(ggplot2)
+library(patchwork)
+theme_set(theme_bw(base_size=15)) </code></pre>
+<pre class="r"><code>fast_corr = function(x) {
+  x = as.matrix(x)
+  mean_ = apply(x, 1, mean)
+  sd_ = apply(x, 1, mysd)
+  x_norm = (x - mean_) / sd_
+  cor_ = x_norm %*% t(x_norm) / ncol(x_norm)
+  cor_
+}
+
+inverse_normalize = function(x, offset = 1) {
+  g = rank(x, ties.method = &#39;average&#39;) / (length(x) + offset)
+  o = qnorm(g)
+  return(o)
+}
+
+mysd = function(x) {
+  sqrt(mean((x - mean(x)) ^ 2))
+}
+
+annot_color = function(pop, color_panel) {
+  e = data.frame(pop = pop)
+  f = left_join(e, color_panel, by = &#39;pop&#39;)
+  f$color
+}
+
+myimage = function(cor_mat, indiv_color_panel = NULL) {
+  cor_mat_melt = melt(cor_mat)
+  p = cor_mat_melt %&gt;% ggplot() + 
+    geom_raster(aes(x = Var1, y = Var2, fill = value)) + scale_fill_gradient2(low = &#39;blue&#39;, mid = &#39;white&#39;, high = &#39;red&#39;)
+  p = p + theme(
+    plot.title = element_blank(),
+    axis.title = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text = element_blank(),
+    axis.line = element_blank()
+  )
+  if(!is.null(indiv_color_panel)) {
+    p = p + 
+    geom_point(aes(x = Var1, y = -2, color = Var1), show.legend = F, shape = 15, size = 1) + 
+    geom_point(aes(x = -1, y = Var2, color = Var2), show.legend = F, shape = 15, size = 1) + 
+    scale_color_manual(values = indiv_color_panel)
+  }
+  p
+}
+
+get_partition = function(indiv_list, test_size) {
+  test_idx = sample(1 : length(indiv_list), size = test_size, replace = FALSE)
+  test_ind = (1 : length(indiv_list)) %in% test_idx
+  list(reference = indiv_list[!test_ind], test = indiv_list[test_ind])
+}
+
+mat_dist = function(m1, m2) {
+  sqrt(sum((m1 - m2) ^ 2))
+}
+
+mat_cor = function(m1, m2) {
+  v1 = m1[upper.tri(m1)]
+  v2 = m2[upper.tri(m2)]
+  cor(v1, v2)
+}</code></pre>
+<pre class="r"><code>candidate_colors = c(&quot;#999999&quot;, &quot;#E69F00&quot;, &quot;#56B4E9&quot;, &quot;#009E73&quot;, &quot;#F0E442&quot;, &quot;#0072B2&quot;, &quot;#D55E00&quot;, &quot;#CC79A7&quot;)</code></pre>
+<div id="load-data" class="section level1">
+<h1><span class="header-section-number">1</span> Load data</h1>
+<p>From Box <a href="https://uchicago.box.com/s/gcyzzk82y90b6la3pm7fbdyc4tmic24i">link</a>. Here I used RPKM which is normalized by library size and normalized by gene length (this does not matter since we do inverse normalization gene by gene). First <strong>filter</strong> out individuals with <strong>analysis freeze = FALSE</strong>. Secondly, <strong>filter</strong> out individuals with <strong>X3p_bias</strong> missing (I have no idea what that means).<br />
+Thridly, <strong>limit</strong> to PBMC samples.</p>
+<pre class="r"><code>data(&quot;gene_annotation_gencode_v26_hg38&quot;)
+head(gene_annotation_gencode_v26_hg38$gene_annotation)</code></pre>
+<pre><code>##           gene_id     gene_name gene_type chromosome     start       end strand
+## 1 ENSG00000279061  RP3-332O11.2       TEC       chr1 172752586 172752924      +
+## 2 ENSG00000279667 RP11-656D10.7       TEC       chr1  40473055  40474059      +
+## 3 ENSG00000279430 RP11-190A12.9       TEC       chr1 159910094 159910554      -
+## 4 ENSG00000279839  RP11-193J6.1       TEC       chr1   3205988   3208664      +
+## 5 ENSG00000279838  RP4-635A23.6       TEC       chr1 185292384 185294372      -
+## 6 ENSG00000279214  RP5-1024N4.5       TEC       chr1  48262230  48263179      -</code></pre>
+<pre class="r"><code>indiv_meta = read.csv(&#39;~/Desktop/tmp/TOPMed_MESA/TOPMed_MESA_RNAseq_sample_attributes_freeze.csv&#39;)
+indiv_meta = indiv_meta %&gt;% filter(analysis_freeze, race != &#39;&#39;) %&gt;% filter(!is.na(X3p_bias)) %&gt;% filter(sample_type == &#39;PBMC&#39;)
+indiv_meta = indiv_meta[order(indiv_meta$race), ]
+
+df = fread(&#39;zcat &lt; ~/Desktop/tmp/TOPMed_MESA/TOPMed_MESA_RNAseq_Pilot_RNASeQCv2.0.0.gene_rpkm.gct.gz&#39;, header = T)
+df_indiv = colnames(df)[c(-1, -2)]
+df_cleaned = df[, c(T, T, df_indiv %in% indiv_meta$tor_id)]
+rownames(df_cleaned) = df$Name</code></pre>
+<p>After discussing with Haky, I need to check whether the remaining samples are from the same individuals (since some individual may have two samples measured at different time points). To do so, I need to load the wide MESA meta table where each row is one individual.</p>
+<pre class="r"><code>mesa_wide = read.csv(&#39;~/Desktop/tmp/TOPMed_MESA/MESA_TOPMed_WideID_20190517.csv&#39;)
+# the first two rows are for another column id naming
+meta_columns = data.frame(name = as.character(colnames(mesa_wide)), tag = as.character(mesa_wide[2, ]))
+mesa_wide = mesa_wide[c(-1, -2), ] 
+# get column index for TOR ID
+tor_id_cols_idx = which(!is.na(stringr::str_match(meta_columns$tag, &#39;tor_id&#39;)))
+# and get column index for TOR specimen
+tor_specimen_cols = stringr::str_replace(meta_columns$tag[tor_id_cols_idx], &#39;id&#39;, &#39;specimen&#39;)
+tor_specimen_cols_idx = sapply(tor_specimen_cols, function(x) {
+  which(meta_columns$tag == x)
+})
+
+mesa_tor_unfold = list()
+for(i in 1 : nrow(mesa_wide)) {
+  indiv_ = mesa_wide[i, ]
+  for(k in 1 : length(tor_id_cols_idx)) {
+    tor_id = as.character(indiv_[tor_id_cols_idx[k]])
+    tor_specimen = as.character(indiv_[tor_specimen_cols_idx[k]])
+    if(tor_id == &#39;&#39;) {
+      next
+    } else {
+      mesa_tor_unfold[[length(mesa_tor_unfold) + 1]] = data.frame(share_id = mesa_wide$SHARe.Participant.ID[i], tor_id = tor_id, tor_specimen = tor_specimen)
+    }
+  }
+}
+mesa_tor_unfold = do.call(rbind, mesa_tor_unfold)
+# check if there are any duplicated individuals
+tmp_ = indiv_meta %&gt;% left_join(mesa_tor_unfold, by = &#39;tor_id&#39;) 
+tmp_ %&gt;% group_by(share_id) %&gt;% summarize(nsample = n()) %&gt;% arrange(desc(nsample))</code></pre>
+<pre><code>## # A tibble: 606 x 2
+##    share_id nsample
+##    &lt;chr&gt;      &lt;int&gt;
+##  1 &lt;NA&gt;          27
+##  2 10020          2
+##  3 10052          2
+##  4 10055          2
+##  5 10131          2
+##  6 10139          2
+##  7 10167          2
+##  8 10195          2
+##  9 10226          2
+## 10 10248          2
+## # … with 596 more rows</code></pre>
+<pre class="r"><code># suppose we limit to exam 1
+indiv_meta_exam_1 = indiv_meta %&gt;% filter(exam == &#39;1&#39;) # 
+indiv_meta_exam_1 %&gt;% group_by(race) %&gt;% summarize(n())</code></pre>
+<pre><code>## # A tibble: 4 x 2
+##   race     `n()`
+##   &lt;chr&gt;    &lt;int&gt;
+## 1 Asian       40
+## 2 Black      124
+## 3 Hispanic   117
+## 4 White      180</code></pre>
+<pre class="r"><code># check again the duplicated individuals
+tmp_ = indiv_meta_exam_1 %&gt;% left_join(mesa_tor_unfold, by = &#39;tor_id&#39;) 
+tmp_ %&gt;% group_by(share_id) %&gt;% summarize(nsample = n()) %&gt;% arrange(desc(nsample))</code></pre>
+<pre><code>## # A tibble: 450 x 2
+##    share_id nsample
+##    &lt;chr&gt;      &lt;int&gt;
+##  1 &lt;NA&gt;          12
+##  2 10020          1
+##  3 10028          1
+##  4 10043          1
+##  5 10052          1
+##  6 10055          1
+##  7 10061          1
+##  8 10125          1
+##  9 10131          1
+## 10 10139          1
+## # … with 440 more rows</code></pre>
+<pre class="r"><code># we further remove individuals without share ID
+indiv_meta_exam_1_w_shareid = tmp_ %&gt;% filter(!is.na(share_id)) # %&gt;% group_by(race) %&gt;% summarize(n())
+# ok, filter the original transcriptome matrix
+indiv_meta = indiv_meta_exam_1_w_shareid
+df_indiv = colnames(df)[c(-1, -2)]
+df_cleaned = df[, c(T, T, df_indiv %in% indiv_meta$tor_id)]
+rownames(df_cleaned) = df$Name</code></pre>
+</div>
+<div id="some-further-qcs" class="section level1">
+<h1><span class="header-section-number">2</span> Some further QC’s</h1>
+<p>Limit to protein coding and/or lincRNA. Limit to genes with non-zero observations in all individuals. <strong>For each population</strong>, do inverse normalization gene by gene to obtain the expression matrix. Limit to top 1000 highly expression genes (expression is measured as the median of RPKM across all individuals).</p>
+<pre class="r"><code>df_protein_or_linc = df_cleaned %&gt;% filter(Description %in% gene_annotation_gencode_v26_hg38$gene_annotation$gene_name[gene_annotation_gencode_v26_hg38$gene_annotation$gene_type %in% c(&#39;protein_coding&#39;, &#39;lincRNA&#39;)])
+
+n_zeros = apply(df_protein_or_linc[, c(-1, -2)], 1, function(x) {
+  sum(x == 0)
+})
+
+rownames(df_protein_or_linc) = df_protein_or_linc$Name
+df_protein_or_linc_non_zero = df_protein_or_linc[n_zeros == 0, ]
+expr_level = apply(df_protein_or_linc_non_zero[, c(-1, -2)], 1, function(x) {
+  median(x)
+})
+top_1000_expr_level_ind = rank(-expr_level) %in% 1 : 1000
+df_protein_or_linc_non_zero = df_protein_or_linc_non_zero[top_1000_expr_level_ind, ]
+
+tmp = df_protein_or_linc_non_zero[, 3 : ncol(df_protein_or_linc_non_zero)]
+tmp = tmp[, match(indiv_meta$tor_id, colnames(tmp))]
+df_protein_or_linc_non_zero = cbind(df_protein_or_linc_non_zero[, 1:2], tmp)
+
+
+# some meta operations
+indiv_meta %&gt;% group_by(race) %&gt;% summarize(n = n())</code></pre>
+<pre><code>## # A tibble: 4 x 2
+##   race         n
+##   &lt;chr&gt;    &lt;int&gt;
+## 1 Asian       40
+## 2 Black      121
+## 3 Hispanic   108
+## 4 White      180</code></pre>
+<pre class="r"><code>color_panel = data.frame(pop = unique(indiv_meta$race), color = candidate_colors[1 : length(unique(indiv_meta$race))])
+indiv_color_panel = indiv_meta %&gt;% left_join(color_panel, by = c(&#39;race&#39; = &#39;pop&#39;)) %&gt;% pull(color)
+names(indiv_color_panel) = indiv_meta$tor_id</code></pre>
+<p>Perform normalization for each populations.</p>
+<pre class="r"><code># among all
+normalized_mat = t(apply(df_protein_or_linc_non_zero[, c(-1, -2)], 1, inverse_normalize))
+
+# for each population
+mat = df_protein_or_linc_non_zero[, c(-1, -2)]
+normalized_mat_by_pop = matrix(NA, ncol = ncol(normalized_mat), nrow = nrow(normalized_mat))
+start = 1
+starts = c()
+names_ = c()
+for(rr in unique(indiv_meta$race)) {
+  starts = c(starts, start)
+  message(rr, &#39; start = &#39;, start)
+  indiv_here = indiv_meta$tor_id[indiv_meta$race == rr]
+  mat_sub = mat[, colnames(mat) %in% indiv_here]
+  normalized_mat_by_pop[, start : (length(indiv_here) + start - 1)] = t(apply(mat_sub, 1, inverse_normalize))
+  start = length(indiv_here) + start 
+  names_ = c(names_, colnames(mat_sub))
+}</code></pre>
+<pre><code>## Asian start = 1</code></pre>
+<pre><code>## Black start = 41</code></pre>
+<pre><code>## Hispanic start = 162</code></pre>
+<pre><code>## White start = 270</code></pre>
+<pre class="r"><code>colnames(normalized_mat_by_pop) = names_
+rownames(normalized_mat_by_pop) = rownames(normalized_mat)</code></pre>
+</div>
+<div id="between-individual-correlation" class="section level1">
+<h1><span class="header-section-number">3</span> Between individual correlation</h1>
+<pre class="r"><code>cor_indiv = fast_corr(t(as.matrix(normalized_mat)))
+cor_indiv_by_pop = fast_corr(t(as.matrix(normalized_mat_by_pop)))</code></pre>
+<p>Visualization.</p>
+<pre class="r"><code># image Asian 
+myimage(cor_indiv[1:90, 1:90], indiv_color_panel)</code></pre>
+<pre><code>## Warning in melt(cor_mat): The melt generic in data.table has been passed a matrix and will attempt to redirect to the
+## relevant reshape2 method; please note that reshape2 is deprecated, and this redirection is now deprecated as well.
+## To continue using melt methods from reshape2 while both libraries are attached, e.g. melt.list, you can prepend the
+## namespace like reshape2::melt(cor_mat). In the next version, this warning will become an error.</code></pre>
+<p><img src="coregulation_mesa_files/figure-html/vis-1.png" width="672" /></p>
+<pre class="r"><code>myimage(cor_indiv_by_pop[1:90, 1:90], indiv_color_panel)</code></pre>
+<pre><code>## Warning in melt(cor_mat): The melt generic in data.table has been passed a matrix and will attempt to redirect to the
+## relevant reshape2 method; please note that reshape2 is deprecated, and this redirection is now deprecated as well.
+## To continue using melt methods from reshape2 while both libraries are attached, e.g. melt.list, you can prepend the
+## namespace like reshape2::melt(cor_mat). In the next version, this warning will become an error.</code></pre>
+<p><img src="coregulation_mesa_files/figure-html/vis-2.png" width="672" /></p>
+<pre class="r"><code># each taking 40
+indexes = c()
+for(i in starts) {
+  indexes = c(indexes, i : (i + 40 - 1))
+}
+myimage(cor_indiv[indexes, indexes], indiv_color_panel)</code></pre>
+<pre><code>## Warning in melt(cor_mat): The melt generic in data.table has been passed a matrix and will attempt to redirect to the
+## relevant reshape2 method; please note that reshape2 is deprecated, and this redirection is now deprecated as well.
+## To continue using melt methods from reshape2 while both libraries are attached, e.g. melt.list, you can prepend the
+## namespace like reshape2::melt(cor_mat). In the next version, this warning will become an error.</code></pre>
+<p><img src="coregulation_mesa_files/figure-html/vis-3.png" width="672" /></p>
+<pre class="r"><code>myimage(cor_indiv_by_pop[indexes, indexes], indiv_color_panel)</code></pre>
+<pre><code>## Warning in melt(cor_mat): The melt generic in data.table has been passed a matrix and will attempt to redirect to the
+## relevant reshape2 method; please note that reshape2 is deprecated, and this redirection is now deprecated as well.
+## To continue using melt methods from reshape2 while both libraries are attached, e.g. melt.list, you can prepend the
+## namespace like reshape2::melt(cor_mat). In the next version, this warning will become an error.</code></pre>
+<p><img src="coregulation_mesa_files/figure-html/vis-4.png" width="672" /></p>
+</div>
+<div id="between-gene-correlation-using-black-as-an-example" class="section level1">
+<h1><span class="header-section-number">4</span> Between gene correlation (using Black as an example)</h1>
+<p>As a test case, I calculate the gene correlation matrix within Black (using inverse normalized expression within each population). Here we are interested in measuring the similarity between Black’s gene correlation and White’s gene correlation. To account for the sample standard error, we partition the White samples into two parts: 1) <strong>test part</strong>: with equal size to Black samples; 2) <strong>reference part</strong>: the rest (it should be larger part). For the first partition, we calculate the distance between Black and <strong>reference part</strong>. And for the other partitions, we calcualte the distance between <strong>test part</strong> and <strong>reference part</strong>. Here the distance is the test statistic.</p>
+<p><strong>Pack it up as a dirty magic function</strong>.</p>
+<pre class="r"><code>test_gene_cor_between_pop = function(test_pop, ref_pop, expr_mat) {
+  set.seed(1)
+  ### The following notes are deprecated!
+  ### IMPORTANT!!!
+  # for fast testing, I randomly select 500 genes. 
+  # it is just for testing code!
+  # normalized_mat_by_pop_debug = normalized_mat_by_pop # [sample(nrow(normalized_mat_by_pop), size = 500), ]
+  ### END
+  
+  ## for lazy pack up
+  normalized_mat_by_pop_debug = expr_mat
+  test_indiv_here = test_pop
+  ref_indiv_here = ref_pop
+  ## END
+  
+  num_partitions = 100
+  
+  # test_pop = &#39;Asian&#39;
+  # test_indiv_here = indiv_meta$tor_id[indiv_meta$race == test_pop]
+  
+  expr_test = normalized_mat_by_pop_debug[, colnames(normalized_mat_by_pop_debug) %in% test_indiv_here]
+  mat_test = fast_corr(expr_test)
+  
+  # ref_pop = &#39;White&#39;
+  # ref_indiv_here = indiv_meta$tor_id[indiv_meta$race == ref_pop]
+  partition_here = get_partition(ref_indiv_here, test_size = length(test_indiv_here))
+  expr_ref = normalized_mat_by_pop_debug[, colnames(normalized_mat_by_pop_debug) %in% partition_here$reference]
+  mat_ref = fast_corr(expr_ref)
+  
+  test_u = mat_dist(mat_test, mat_ref)
+  test_u2 = mat_cor(mat_test, mat_ref)
+  
+  test_null = c()
+  test_null2 = c()
+  for(i in 1 : num_partitions) {
+    partition_here = get_partition(ref_indiv_here, test_size = length(test_indiv_here))
+    expr_ref = normalized_mat_by_pop_debug[, colnames(normalized_mat_by_pop_debug) %in% partition_here$reference]
+    mat_ref = fast_corr(expr_ref)
+    expr_tref = normalized_mat_by_pop_debug[, colnames(normalized_mat_by_pop_debug) %in% partition_here$test]
+    mat_tref = fast_corr(expr_tref)
+    test_null = c(test_null, mat_dist(mat_tref, mat_ref))
+    test_null2 = c(test_null2, mat_cor(mat_tref, mat_ref))
+  }
+  
+  # 
+  # myimage(mat_test[1:100, 1:100])
+  # myimage(mat_ref[1:100, 1:100])
+  p1 = ggplot(data.frame(mat_dist = test_null)) + geom_histogram(aes(x = mat_dist)) + geom_vline(xintercept = test_u) + ggtitle(&#39;matrix 2-norm distance&#39;)
+  p2 = ggplot(data.frame(mat_cor = test_null2)) + geom_histogram(aes(x = mat_cor)) + geom_vline(xintercept = test_u2) + ggtitle(&#39;matrix upper triangular correlation&#39;)
+  return(list(p1, p2))
+}</code></pre>
+<pre class="r"><code>test_pop = &#39;Black&#39;
+test_indiv_here = indiv_meta$tor_id[indiv_meta$race == test_pop]
+ref_pop = &#39;White&#39;
+ref_indiv_here = indiv_meta$tor_id[indiv_meta$race == ref_pop]
+
+po = test_gene_cor_between_pop(
+  test_pop = test_indiv_here,
+  ref_pop = ref_indiv_here,
+  expr_mat = normalized_mat_by_pop
+)
+
+po[[1]] / po[[2]]</code></pre>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="coregulation_mesa_files/figure-html/cor%20gene-1.png" width="672" /></p>
+</div>
+<div id="how-about-hispanic" class="section level1">
+<h1><span class="header-section-number">5</span> How about Hispanic?</h1>
+<pre class="r"><code>test_pop = &#39;Hispanic&#39;
+test_indiv_here = indiv_meta$tor_id[indiv_meta$race == test_pop]
+ref_pop = &#39;White&#39;
+ref_indiv_here = indiv_meta$tor_id[indiv_meta$race == ref_pop]
+
+po = test_gene_cor_between_pop(
+  test_pop = test_indiv_here,
+  ref_pop = ref_indiv_here,
+  expr_mat = normalized_mat_by_pop
+)
+
+po[[1]] / po[[2]]</code></pre>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="coregulation_mesa_files/figure-html/cor%20gene%20hispanic-1.png" width="672" /></p>
+</div>
+<div id="how-about-asian" class="section level1">
+<h1><span class="header-section-number">6</span> How about Asian?</h1>
+<pre class="r"><code>test_pop = &#39;Asian&#39;
+test_indiv_here = indiv_meta$tor_id[indiv_meta$race == test_pop]
+ref_pop = &#39;White&#39;
+ref_indiv_here = indiv_meta$tor_id[indiv_meta$race == ref_pop]
+
+po = test_gene_cor_between_pop(
+  test_pop = test_indiv_here,
+  ref_pop = ref_indiv_here,
+  expr_mat = normalized_mat_by_pop
+)
+
+po[[1]] / po[[2]]</code></pre>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="coregulation_mesa_files/figure-html/cor%20gene%20asian-1.png" width="672" /></p>
+</div>
+<div id="how-about-black-with-downsample-to-40" class="section level1">
+<h1><span class="header-section-number">7</span> How about Black with downsample to 40?</h1>
+<pre class="r"><code>set.seed(1)
+downsample_size = 40
+test_pop = &#39;Black&#39;
+test_indiv_here = indiv_meta$tor_id[indiv_meta$race == test_pop]
+test_indiv_here = test_indiv_here[sample(length(test_indiv_here), size = downsample_size)]
+ref_pop = &#39;White&#39;
+ref_indiv_here = indiv_meta$tor_id[indiv_meta$race == ref_pop]
+
+po = test_gene_cor_between_pop(
+  test_pop = test_indiv_here,
+  ref_pop = ref_indiv_here,
+  expr_mat = normalized_mat_by_pop
+)
+
+po[[1]] / po[[2]]</code></pre>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="coregulation_mesa_files/figure-html/cor%20gene%20black-1.png" width="672" /></p>
+</div>
+<div id="how-about-hispanic-with-downsample-to-40" class="section level1">
+<h1><span class="header-section-number">8</span> How about Hispanic with downsample to 40?</h1>
+<pre class="r"><code>set.seed(1)
+downsample_size = 40
+test_pop = &#39;Hispanic&#39;
+test_indiv_here = indiv_meta$tor_id[indiv_meta$race == test_pop]
+test_indiv_here = test_indiv_here[sample(length(test_indiv_here), size = downsample_size)]
+ref_pop = &#39;White&#39;
+ref_indiv_here = indiv_meta$tor_id[indiv_meta$race == ref_pop]
+
+po = test_gene_cor_between_pop(
+  test_pop = test_indiv_here,
+  ref_pop = ref_indiv_here,
+  expr_mat = normalized_mat_by_pop
+)
+
+po[[1]] / po[[2]]</code></pre>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="coregulation_mesa_files/figure-html/cor%20gene%20hispanic%2040-1.png" width="672" /></p>
+</div>
+<div id="variation-of-the-measurement-of-similarity" class="section level1">
+<h1><span class="header-section-number">9</span> Variation of the measurement of similarity</h1>
+<p>Here we try different splits of White and see how the matrix similarity measurement change.</p>
+<pre class="r"><code>ref_pop = &#39;White&#39;
+ref_indiv_here = indiv_meta$tor_id[indiv_meta$race == ref_pop]
+proportion = c(0.5, 1 : 5) / 10
+plist = list()
+for(i in proportion) {
+  downsample_size = floor(length(ref_indiv_here) * i)
+  test_indiv_here = ref_indiv_here[sample(length(ref_indiv_here), size = downsample_size)]
+  message(&#39;proportion = &#39;, i, &#39;, downsample = &#39;, downsample_size)
+  plist[[length(plist) + 1]] = test_gene_cor_between_pop(
+    test_pop = test_indiv_here,
+    ref_pop = ref_indiv_here,
+    expr_mat = normalized_mat_by_pop
+  )
+}</code></pre>
+<pre><code>## proportion = 0.05, downsample = 9</code></pre>
+<pre><code>## proportion = 0.1, downsample = 18</code></pre>
+<pre><code>## proportion = 0.2, downsample = 36</code></pre>
+<pre><code>## proportion = 0.3, downsample = 54</code></pre>
+<pre><code>## proportion = 0.4, downsample = 72</code></pre>
+<pre><code>## proportion = 0.5, downsample = 90</code></pre>
+<pre class="r"><code>mat_dist_collector = list()
+mat_dist_obs = list()
+mat_cor_collector = list()
+mat_cor_obs = list()
+split_order = c()
+for(i in 1 : length(plist)) {
+  downsample_size = floor(length(ref_indiv_here) * proportion[i])
+  split_str = paste0(&#39;split: &#39;, downsample_size, &#39;/&#39;, length(ref_indiv_here) - downsample_size)
+  split_order = c(split_order, split_str)
+  mat_dist_collector[[length(mat_dist_collector) + 1]] = data.frame(dist = plist[[i]][[1]]$data$mat_dist, proportion = proportion[i], split_str = split_str)
+  mat_dist_obs[[length(mat_dist_obs) + 1]] = data.frame(obs = plist[[i]][[1]]$layers[[2]]$data$xintercept[1], proportion = proportion[i], split_str = split_str)
+  mat_cor_collector[[length(mat_cor_collector) + 1]] = data.frame(cor = plist[[i]][[2]]$data$mat_cor, proportion = proportion[i], split_str = split_str)
+  mat_cor_obs[[length(mat_cor_obs) + 1]] = data.frame(obs = plist[[i]][[2]]$layers[[2]]$data$xintercept[1], proportion = proportion[i], split_str = split_str)
+}
+mat_dist_collector = do.call(rbind, mat_dist_collector) 
+mat_dist_collector$split_str = factor(mat_dist_collector$split_str, levels = split_order)
+mat_dist_obs = do.call(rbind, mat_dist_obs) 
+mat_cor_collector = do.call(rbind, mat_cor_collector) 
+mat_cor_collector$split_str = factor(mat_cor_collector$split_str, levels = split_order)
+mat_cor_obs = do.call(rbind, mat_cor_obs) 
+mat_dist_collector %&gt;% ggplot() + geom_histogram(aes(x = dist)) + facet_wrap(~split_str, ncol = 1) + ggtitle(&#39;Matrix 2-norm distance&#39;) # + geom_vline(data = mat_dist_obs, aes(xintercept = obs))</code></pre>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="coregulation_mesa_files/figure-html/var%20sim-1.png" width="480" /></p>
+<pre class="r"><code>mat_cor_collector %&gt;% ggplot() + geom_histogram(aes(x = cor)) + facet_wrap(~split_str, ncol = 1) + ggtitle(&#39;Matrix correlation&#39;) # + geom_vline(data = mat_cor_obs, aes(xintercept = obs))</code></pre>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="coregulation_mesa_files/figure-html/var%20sim-2.png" width="480" /></p>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

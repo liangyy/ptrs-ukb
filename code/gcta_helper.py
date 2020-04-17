@@ -88,4 +88,18 @@ def tsv_to_pd_df(filename, indiv_col):
 def standardize_row(mat):
     return np.apply_along_axis(standardize_vec, 1, mat)
 def standardize_vec(vec):
-    return (vec - np.mean(vec)) / np.std(vec)
+    return _divide(vec - np.mean(vec), np.std(vec))
+def _divide(a, b):
+    return np.divide(a, b, out = np.zeros_like(a), where = (b != 0))
+def truncate_evd(w, v, lambda_max_over_lambda = 1 / 30):
+    w_max = np.max(w)
+    w_scaled = w / w_max
+    idx = np.where(w_scaled > lambda_max_over_lambda)[0]
+    if idx.size == 0:
+        w_keep = None
+        v_keep = None
+    else:
+        idx = np.min(idx)
+        w_keep = w[idx:]
+        v_keep = v[:, idx:]
+    return w_keep, v_keep

@@ -151,3 +151,67 @@ best_model_for_each = function(df, reference_pop, model_col, score_col) {
   perf_in_all = change_colname(perf_in_all, 'score', score_col)
   return(list(best_model = best_model, perf_in_all = perf_in_all))
 }
+
+delta_mtd = function(mx, vx, my, vy) {
+  m = mx / my
+  v = vx / (my ^ 2) + vy * (mx ^ 2) / (my ^ 4)
+  return(list(m = m, v = v))
+}
+meta_fixed = function(m, se) {
+  keep_ind = !is.na(m) & !is.infinite(m) & !is.nan(m) & se != 0 & !is.na(se)
+  m = m[keep_ind]
+  se = se[keep_ind]
+  w = 1 / (se^2)
+  mfe = sum(m * w) / sum(w)
+  vfe = 1 / sum(w)
+  return(list(m = mfe, se = sqrt(vfe)))
+}
+
+get_meta_for_supp = function() {
+  color_category = list()
+  color_category[['Blood cell counts']] = c('wbc', 'rbc', 'platelet', 'lymphocyte', 'monocyte', 'neutrophil', 'eosinophil', 'basophil')
+  color_category[['Haemoglobin related']] = c('mcv', 'mch', 'mchc', 'hb', 'ht')
+  color_category[['Blood pressures']] = c('dbp', 'sbp')
+  color_category[['Height']] = c('height')
+  color_category[['BMI']] = c('bmi')
+  color_mixer_candidates = c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7") # c('blood_cell_counts' = '#009E73', 'haemoglobin_related' = '#F0E442', 'blood_pressures' = '#0072B2', 'height' = '#D55E00', 'bmi' = '')
+  color_mixer = color_mixer_candidates[c(-1, -2, -3)]
+  names(color_mixer) = names(color_category)
+  color_category_guide = c()
+  color_category_guide_name = c()
+  for(n in names(color_category)) {
+    for(l in color_category[[n]]) {
+      color_category_guide_name = c(color_category_guide_name, l)
+      color_category_guide = c(color_category_guide, n)
+    }
+  }
+  df_color_category = data.frame(trait = color_category_guide_name, group = color_category_guide)
+  pop_color_mixer = c('African' = '#E74C3C', 'British_test' = '#28B463', 'British_validation' = '#D4AC0D', 'Chinese' = '#3498DB', 'Indian' = '#9B59B6', 'British_insample' = '#AAB7B8', 'British \n (test)' = '#28B463', 'British \n (validation)' = '#D4AC0D', 'British \n (in sample)' = '#AAB7B8')
+  type_shape = c('PTRS' = 0, 'PRS' = 4)
+  score_color_code = c("PRS" = "#999999", "PTRS (GTEx EUR)" = "#E69F00", "PTRS (MESA CAU)" = "#E69F00", "PTRS (MESA CAU & AFHI)" = "#56B4E9")
+  return(list(df_color_category = df_color_category, color_mixer = color_mixer, pop_color_mixer = pop_color_mixer, type_shape = type_shape, score_color_code = score_color_code))
+}
+
+update_popname = function(p, type = 1) {
+  if(type == 1) {
+    p[p == 'British_insample'] = 'British \n (in sample)'
+    p[p == 'British_test'] = 'British \n (test)'
+    p[p == 'British_validation'] = 'British \n (validation)'
+    p = factor(p, levels = c('British \n (in sample)', 'British \n (validation)', 'British \n (test)', 'Indian', 'Chinese', 'African'))
+  } else if(type == 2) {
+    p[p == 'British_insample'] = 'British'
+    p[p == 'British_test'] = 'British'
+    p[p == 'British_validation'] = 'British'
+    p = factor(p, levels = c('British', 'Indian', 'Chinese', 'African'))
+  }
+  p
+}
+
+order_score = function(p) {
+  factor(p, levels = c('PRS', 'PTRS (MESA CAU)', 'PTRS (MESA CAU & AFHI)'))
+}
+
+# 
+# my_parser = function(x) {
+#   as.numeric(stringr::str_remove(x, 'pval_'))
+# }

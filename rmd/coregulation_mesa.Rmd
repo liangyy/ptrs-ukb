@@ -1,0 +1,432 @@
+---
+title: "Co-regulation across populations (MESA data)"
+---
+
+```{r setup}
+rm(list = ls())
+library(data.table)
+options(datatable.fread.datatable = F)
+options(stringsAsFactors = F)
+library(SilverStandardPerformance)
+library(dplyr)
+library(ggplot2)
+library(patchwork)
+theme_set(theme_bw(base_size=15)) 
+```
+
+
+```{r func}
+fast_corr = function(x) {
+  x = as.matrix(x)
+  mean_ = apply(x, 1, mean)
+  sd_ = apply(x, 1, mysd)
+  x_norm = (x - mean_) / sd_
+  cor_ = x_norm %*% t(x_norm) / ncol(x_norm)
+  cor_
+}
+
+inverse_normalize = function(x, offset = 1) {
+  g = rank(x, ties.method = 'average') / (length(x) + offset)
+  o = qnorm(g)
+  return(o)
+}
+
+mysd = function(x) {
+  sqrt(mean((x - mean(x)) ^ 2))
+}
+
+annot_color = function(pop, color_panel) {
+  e = data.frame(pop = pop)
+  f = left_join(e, color_panel, by = 'pop')
+  f$color
+}
+
+myimage = function(cor_mat, indiv_color_panel = NULL) {
+  cor_mat_melt = melt(cor_mat)
+  p = cor_mat_melt %>% ggplot() + 
+    geom_raster(aes(x = Var1, y = Var2, fill = value)) + scale_fill_gradient2(low = 'blue', mid = 'white', high = 'red')
+  p = p + theme(
+    plot.title = element_blank(),
+    axis.title = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text = element_blank(),
+    axis.line = element_blank()
+  )
+  if(!is.null(indiv_color_panel)) {
+    p = p + 
+    geom_point(aes(x = Var1, y = -2, color = Var1), show.legend = F, shape = 15, size = 1) + 
+    geom_point(aes(x = -1, y = Var2, color = Var2), show.legend = F, shape = 15, size = 1) + 
+    scale_color_manual(values = indiv_color_panel)
+  }
+  p
+}
+
+get_partition = function(indiv_list, test_size) {
+  test_idx = sample(1 : length(indiv_list), size = test_size, replace = FALSE)
+  test_ind = (1 : length(indiv_list)) %in% test_idx
+  list(reference = indiv_list[!test_ind], test = indiv_list[test_ind])
+}
+
+mat_dist = function(m1, m2) {
+  sqrt(sum((m1 - m2) ^ 2))
+}
+
+mat_cor = function(m1, m2) {
+  v1 = m1[upper.tri(m1)]
+  v2 = m2[upper.tri(m2)]
+  cor(v1, v2)
+}
+```
+
+```{r param}
+candidate_colors = c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+```
+
+# Load data
+
+From Box [link](https://uchicago.box.com/s/gcyzzk82y90b6la3pm7fbdyc4tmic24i).
+Here I used RPKM which is normalized by library size and normalized by gene length (this does not matter since we do inverse normalization gene by gene).
+First **filter** out individuals with **analysis freeze = FALSE**. 
+Secondly, **filter** out individuals with **X3p_bias** missing (I have no idea what that means).   
+Thridly, **limit** to PBMC samples.   
+
+```{r}
+data("gene_annotation_gencode_v26_hg38")
+head(gene_annotation_gencode_v26_hg38$gene_annotation)
+
+indiv_meta = read.csv('~/Desktop/tmp/TOPMed_MESA/TOPMed_MESA_RNAseq_sample_attributes_freeze.csv')
+indiv_meta = indiv_meta %>% filter(analysis_freeze, race != '') %>% filter(!is.na(X3p_bias)) %>% filter(sample_type == 'PBMC')
+indiv_meta = indiv_meta[order(indiv_meta$race), ]
+
+df = fread('zcat < ~/Desktop/tmp/TOPMed_MESA/TOPMed_MESA_RNAseq_Pilot_RNASeQCv2.0.0.gene_rpkm.gct.gz', header = T)
+df_indiv = colnames(df)[c(-1, -2)]
+df_cleaned = df[, c(T, T, df_indiv %in% indiv_meta$tor_id)]
+rownames(df_cleaned) = df$Name
+```
+
+After discussing with Haky, I need to check whether the remaining samples are from the same individuals (since some individual may have two samples measured at different time points). 
+To do so, I need to load the wide MESA meta table where each row is one individual.
+
+```{r mesa wide}
+mesa_wide = read.csv('~/Desktop/tmp/TOPMed_MESA/MESA_TOPMed_WideID_20190517.csv')
+# the first two rows are for another column id naming
+meta_columns = data.frame(name = as.character(colnames(mesa_wide)), tag = as.character(mesa_wide[2, ]))
+mesa_wide = mesa_wide[c(-1, -2), ] 
+# get column index for TOR ID
+tor_id_cols_idx = which(!is.na(stringr::str_match(meta_columns$tag, 'tor_id')))
+# and get column index for TOR specimen
+tor_specimen_cols = stringr::str_replace(meta_columns$tag[tor_id_cols_idx], 'id', 'specimen')
+tor_specimen_cols_idx = sapply(tor_specimen_cols, function(x) {
+  which(meta_columns$tag == x)
+})
+
+mesa_tor_unfold = list()
+for(i in 1 : nrow(mesa_wide)) {
+  indiv_ = mesa_wide[i, ]
+  for(k in 1 : length(tor_id_cols_idx)) {
+    tor_id = as.character(indiv_[tor_id_cols_idx[k]])
+    tor_specimen = as.character(indiv_[tor_specimen_cols_idx[k]])
+    if(tor_id == '') {
+      next
+    } else {
+      mesa_tor_unfold[[length(mesa_tor_unfold) + 1]] = data.frame(share_id = mesa_wide$SHARe.Participant.ID[i], tor_id = tor_id, tor_specimen = tor_specimen)
+    }
+  }
+}
+mesa_tor_unfold = do.call(rbind, mesa_tor_unfold)
+# check if there are any duplicated individuals
+tmp_ = indiv_meta %>% left_join(mesa_tor_unfold, by = 'tor_id') 
+tmp_ %>% group_by(share_id) %>% summarize(nsample = n()) %>% arrange(desc(nsample))
+# suppose we limit to exam 1
+indiv_meta_exam_1 = indiv_meta %>% filter(exam == '1') # 
+indiv_meta_exam_1 %>% group_by(race) %>% summarize(n())
+# check again the duplicated individuals
+tmp_ = indiv_meta_exam_1 %>% left_join(mesa_tor_unfold, by = 'tor_id') 
+tmp_ %>% group_by(share_id) %>% summarize(nsample = n()) %>% arrange(desc(nsample))
+# we further remove individuals without share ID
+indiv_meta_exam_1_w_shareid = tmp_ %>% filter(!is.na(share_id)) # %>% group_by(race) %>% summarize(n())
+# ok, filter the original transcriptome matrix
+indiv_meta = indiv_meta_exam_1_w_shareid
+df_indiv = colnames(df)[c(-1, -2)]
+df_cleaned = df[, c(T, T, df_indiv %in% indiv_meta$tor_id)]
+rownames(df_cleaned) = df$Name
+```
+
+# Some further QC's
+
+Limit to protein coding and/or lincRNA.
+Limit to genes with non-zero observations in all individuals.
+**For each population**, do inverse normalization gene by gene to obtain the expression matrix.
+Limit to top 1000 highly expression genes (expression is measured as the median of RPKM across all individuals).
+
+```{r}
+df_protein_or_linc = df_cleaned %>% filter(Description %in% gene_annotation_gencode_v26_hg38$gene_annotation$gene_name[gene_annotation_gencode_v26_hg38$gene_annotation$gene_type %in% c('protein_coding', 'lincRNA')])
+
+n_zeros = apply(df_protein_or_linc[, c(-1, -2)], 1, function(x) {
+  sum(x == 0)
+})
+
+rownames(df_protein_or_linc) = df_protein_or_linc$Name
+df_protein_or_linc_non_zero = df_protein_or_linc[n_zeros == 0, ]
+expr_level = apply(df_protein_or_linc_non_zero[, c(-1, -2)], 1, function(x) {
+  median(x)
+})
+top_1000_expr_level_ind = rank(-expr_level) %in% 1 : 1000
+df_protein_or_linc_non_zero = df_protein_or_linc_non_zero[top_1000_expr_level_ind, ]
+
+tmp = df_protein_or_linc_non_zero[, 3 : ncol(df_protein_or_linc_non_zero)]
+tmp = tmp[, match(indiv_meta$tor_id, colnames(tmp))]
+df_protein_or_linc_non_zero = cbind(df_protein_or_linc_non_zero[, 1:2], tmp)
+
+
+# some meta operations
+indiv_meta %>% group_by(race) %>% summarize(n = n())
+
+color_panel = data.frame(pop = unique(indiv_meta$race), color = candidate_colors[1 : length(unique(indiv_meta$race))])
+indiv_color_panel = indiv_meta %>% left_join(color_panel, by = c('race' = 'pop')) %>% pull(color)
+names(indiv_color_panel) = indiv_meta$tor_id
+```
+
+Perform normalization for each populations.
+
+```{r normalization}
+# among all
+normalized_mat = t(apply(df_protein_or_linc_non_zero[, c(-1, -2)], 1, inverse_normalize))
+
+# for each population
+mat = df_protein_or_linc_non_zero[, c(-1, -2)]
+normalized_mat_by_pop = matrix(NA, ncol = ncol(normalized_mat), nrow = nrow(normalized_mat))
+start = 1
+starts = c()
+names_ = c()
+for(rr in unique(indiv_meta$race)) {
+  starts = c(starts, start)
+  message(rr, ' start = ', start)
+  indiv_here = indiv_meta$tor_id[indiv_meta$race == rr]
+  mat_sub = mat[, colnames(mat) %in% indiv_here]
+  normalized_mat_by_pop[, start : (length(indiv_here) + start - 1)] = t(apply(mat_sub, 1, inverse_normalize))
+  start = length(indiv_here) + start 
+  names_ = c(names_, colnames(mat_sub))
+}
+colnames(normalized_mat_by_pop) = names_
+rownames(normalized_mat_by_pop) = rownames(normalized_mat)
+```
+
+# Between individual correlation
+
+```{r}
+cor_indiv = fast_corr(t(as.matrix(normalized_mat)))
+cor_indiv_by_pop = fast_corr(t(as.matrix(normalized_mat_by_pop)))
+```
+
+Visualization.
+
+```{r vis}
+# image Asian 
+myimage(cor_indiv[1:90, 1:90], indiv_color_panel)
+
+myimage(cor_indiv_by_pop[1:90, 1:90], indiv_color_panel)
+# each taking 40
+indexes = c()
+for(i in starts) {
+  indexes = c(indexes, i : (i + 40 - 1))
+}
+myimage(cor_indiv[indexes, indexes], indiv_color_panel)
+myimage(cor_indiv_by_pop[indexes, indexes], indiv_color_panel)
+```
+
+# Between gene correlation (using Black as an example)
+
+As a test case, I calculate the gene correlation matrix within Black (using inverse normalized expression within each population).
+Here we are interested in measuring the similarity between Black's gene correlation and White's gene correlation. 
+To account for the sample standard error, we partition the White samples into two parts: 1) **test part**: with equal size to Black samples; 2) **reference part**: the rest (it should be larger part).
+For the first partition, we calculate the distance between Black and **reference part**. And for the other partitions, we calcualte the distance between **test part** and **reference part**. Here the distance is the test statistic. 
+
+**Pack it up as a dirty magic function**. 
+
+```{r, func pack up}
+test_gene_cor_between_pop = function(test_pop, ref_pop, expr_mat) {
+  set.seed(1)
+  ### The following notes are deprecated!
+  ### IMPORTANT!!!
+  # for fast testing, I randomly select 500 genes. 
+  # it is just for testing code!
+  # normalized_mat_by_pop_debug = normalized_mat_by_pop # [sample(nrow(normalized_mat_by_pop), size = 500), ]
+  ### END
+  
+  ## for lazy pack up
+  normalized_mat_by_pop_debug = expr_mat
+  test_indiv_here = test_pop
+  ref_indiv_here = ref_pop
+  ## END
+  
+  num_partitions = 100
+  
+  # test_pop = 'Asian'
+  # test_indiv_here = indiv_meta$tor_id[indiv_meta$race == test_pop]
+  
+  expr_test = normalized_mat_by_pop_debug[, colnames(normalized_mat_by_pop_debug) %in% test_indiv_here]
+  mat_test = fast_corr(expr_test)
+  
+  # ref_pop = 'White'
+  # ref_indiv_here = indiv_meta$tor_id[indiv_meta$race == ref_pop]
+  partition_here = get_partition(ref_indiv_here, test_size = length(test_indiv_here))
+  expr_ref = normalized_mat_by_pop_debug[, colnames(normalized_mat_by_pop_debug) %in% partition_here$reference]
+  mat_ref = fast_corr(expr_ref)
+  
+  test_u = mat_dist(mat_test, mat_ref)
+  test_u2 = mat_cor(mat_test, mat_ref)
+  
+  test_null = c()
+  test_null2 = c()
+  for(i in 1 : num_partitions) {
+    partition_here = get_partition(ref_indiv_here, test_size = length(test_indiv_here))
+    expr_ref = normalized_mat_by_pop_debug[, colnames(normalized_mat_by_pop_debug) %in% partition_here$reference]
+    mat_ref = fast_corr(expr_ref)
+    expr_tref = normalized_mat_by_pop_debug[, colnames(normalized_mat_by_pop_debug) %in% partition_here$test]
+    mat_tref = fast_corr(expr_tref)
+    test_null = c(test_null, mat_dist(mat_tref, mat_ref))
+    test_null2 = c(test_null2, mat_cor(mat_tref, mat_ref))
+  }
+  
+  # 
+  # myimage(mat_test[1:100, 1:100])
+  # myimage(mat_ref[1:100, 1:100])
+  p1 = ggplot(data.frame(mat_dist = test_null)) + geom_histogram(aes(x = mat_dist)) + geom_vline(xintercept = test_u) + ggtitle('matrix 2-norm distance')
+  p2 = ggplot(data.frame(mat_cor = test_null2)) + geom_histogram(aes(x = mat_cor)) + geom_vline(xintercept = test_u2) + ggtitle('matrix upper triangular correlation')
+  return(list(p1, p2))
+}
+```
+
+```{r cor gene}
+test_pop = 'Black'
+test_indiv_here = indiv_meta$tor_id[indiv_meta$race == test_pop]
+ref_pop = 'White'
+ref_indiv_here = indiv_meta$tor_id[indiv_meta$race == ref_pop]
+
+po = test_gene_cor_between_pop(
+  test_pop = test_indiv_here,
+  ref_pop = ref_indiv_here,
+  expr_mat = normalized_mat_by_pop
+)
+
+po[[1]] / po[[2]]
+```
+
+# How about Hispanic?
+
+```{r cor gene hispanic}
+test_pop = 'Hispanic'
+test_indiv_here = indiv_meta$tor_id[indiv_meta$race == test_pop]
+ref_pop = 'White'
+ref_indiv_here = indiv_meta$tor_id[indiv_meta$race == ref_pop]
+
+po = test_gene_cor_between_pop(
+  test_pop = test_indiv_here,
+  ref_pop = ref_indiv_here,
+  expr_mat = normalized_mat_by_pop
+)
+
+po[[1]] / po[[2]]
+```
+
+# How about Asian?
+
+```{r cor gene asian}
+test_pop = 'Asian'
+test_indiv_here = indiv_meta$tor_id[indiv_meta$race == test_pop]
+ref_pop = 'White'
+ref_indiv_here = indiv_meta$tor_id[indiv_meta$race == ref_pop]
+
+po = test_gene_cor_between_pop(
+  test_pop = test_indiv_here,
+  ref_pop = ref_indiv_here,
+  expr_mat = normalized_mat_by_pop
+)
+
+po[[1]] / po[[2]]
+```
+
+# How about Black with downsample to 40?
+
+```{r cor gene black}
+set.seed(1)
+downsample_size = 40
+test_pop = 'Black'
+test_indiv_here = indiv_meta$tor_id[indiv_meta$race == test_pop]
+test_indiv_here = test_indiv_here[sample(length(test_indiv_here), size = downsample_size)]
+ref_pop = 'White'
+ref_indiv_here = indiv_meta$tor_id[indiv_meta$race == ref_pop]
+
+po = test_gene_cor_between_pop(
+  test_pop = test_indiv_here,
+  ref_pop = ref_indiv_here,
+  expr_mat = normalized_mat_by_pop
+)
+
+po[[1]] / po[[2]]
+```
+
+# How about Hispanic with downsample to 40?
+
+```{r cor gene hispanic 40}
+set.seed(1)
+downsample_size = 40
+test_pop = 'Hispanic'
+test_indiv_here = indiv_meta$tor_id[indiv_meta$race == test_pop]
+test_indiv_here = test_indiv_here[sample(length(test_indiv_here), size = downsample_size)]
+ref_pop = 'White'
+ref_indiv_here = indiv_meta$tor_id[indiv_meta$race == ref_pop]
+
+po = test_gene_cor_between_pop(
+  test_pop = test_indiv_here,
+  ref_pop = ref_indiv_here,
+  expr_mat = normalized_mat_by_pop
+)
+
+po[[1]] / po[[2]]
+```
+
+# Variation of the measurement of similarity
+
+Here we try different splits of White and see how the matrix similarity measurement change.
+
+```{r var sim, fig.width=5, fig.height=8}
+ref_pop = 'White'
+ref_indiv_here = indiv_meta$tor_id[indiv_meta$race == ref_pop]
+proportion = c(0.5, 1 : 5) / 10
+plist = list()
+for(i in proportion) {
+  downsample_size = floor(length(ref_indiv_here) * i)
+  test_indiv_here = ref_indiv_here[sample(length(ref_indiv_here), size = downsample_size)]
+  message('proportion = ', i, ', downsample = ', downsample_size)
+  plist[[length(plist) + 1]] = test_gene_cor_between_pop(
+    test_pop = test_indiv_here,
+    ref_pop = ref_indiv_here,
+    expr_mat = normalized_mat_by_pop
+  )
+}
+
+mat_dist_collector = list()
+mat_dist_obs = list()
+mat_cor_collector = list()
+mat_cor_obs = list()
+split_order = c()
+for(i in 1 : length(plist)) {
+  downsample_size = floor(length(ref_indiv_here) * proportion[i])
+  split_str = paste0('split: ', downsample_size, '/', length(ref_indiv_here) - downsample_size)
+  split_order = c(split_order, split_str)
+  mat_dist_collector[[length(mat_dist_collector) + 1]] = data.frame(dist = plist[[i]][[1]]$data$mat_dist, proportion = proportion[i], split_str = split_str)
+  mat_dist_obs[[length(mat_dist_obs) + 1]] = data.frame(obs = plist[[i]][[1]]$layers[[2]]$data$xintercept[1], proportion = proportion[i], split_str = split_str)
+  mat_cor_collector[[length(mat_cor_collector) + 1]] = data.frame(cor = plist[[i]][[2]]$data$mat_cor, proportion = proportion[i], split_str = split_str)
+  mat_cor_obs[[length(mat_cor_obs) + 1]] = data.frame(obs = plist[[i]][[2]]$layers[[2]]$data$xintercept[1], proportion = proportion[i], split_str = split_str)
+}
+mat_dist_collector = do.call(rbind, mat_dist_collector) 
+mat_dist_collector$split_str = factor(mat_dist_collector$split_str, levels = split_order)
+mat_dist_obs = do.call(rbind, mat_dist_obs) 
+mat_cor_collector = do.call(rbind, mat_cor_collector) 
+mat_cor_collector$split_str = factor(mat_cor_collector$split_str, levels = split_order)
+mat_cor_obs = do.call(rbind, mat_cor_obs) 
+mat_dist_collector %>% ggplot() + geom_histogram(aes(x = dist)) + facet_wrap(~split_str, ncol = 1) + ggtitle('Matrix 2-norm distance') # + geom_vline(data = mat_dist_obs, aes(xintercept = obs))
+mat_cor_collector %>% ggplot() + geom_histogram(aes(x = cor)) + facet_wrap(~split_str, ncol = 1) + ggtitle('Matrix correlation') # + geom_vline(data = mat_cor_obs, aes(xintercept = obs))
+```

@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Regulability based on predicted expression: GTEx v8 UTMOST models in ten tissues</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">PTRS UKB</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/liangyy/ptrs-ukb">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Regulability based on predicted expression: GTEx v8 UTMOST models in ten tissues</h1>
+
+</div>
+
+
+<pre class="r"><code>library(ggplot2)
+library(dplyr)
+library(pander)
+options(stringsAsFactors = F)
+source(&#39;../code/rlib_doc.R&#39;)
+source(&#39;https://gist.githubusercontent.com/liangyy/43912b3ecab5d10c89f9d4b2669871c9/raw/8151c6fe70e3d4ee43d9ce340ecc0eb65172e616/my_ggplot_theme.R&#39;)
+th$panel.border = element_rect(colour = th$axis.line$colour)
+theme_set(theme_bw(base_size = 10))
+gtex_color = read.csv(&#39;~/Documents/repo/bitbucket/rotation-at-imlab/data/gtex_tissue_colors.csv&#39;)
+gtex_color$tissue_site_detail_id[gtex_color$tissue_site_detail_id == &#39;Cells_Transformed_fibroblasts&#39;] = &#39;Cells_Cultured_fibroblasts&#39;
+color_board = paste0(&#39;#&#39;, gtex_color$tissue_color_hex)
+names(color_board) = gtex_color$tissue_site_detail_id
+trait_info = read.table(&#39;../external_data/martin_et_al_2019ng_table_s6_trait_description.tsv&#39;, header = T, sep = &#39;\t&#39;)
+trait_info$short = tolower(trait_info$short)</code></pre>
+<div id="load-results" class="section level1">
+<h1><span class="header-section-number">1</span> Load results</h1>
+<p>Load CTIMP results.</p>
+<pre class="r"><code>tissues = read.table(&#39;~/Desktop/tmp/tissue_list.txt&#39;, header = F)$V1
+pops = c(&#39;African&#39;, &#39;British-test-1&#39;, &#39;Chinese&#39;, &#39;Indian&#39;)
+df = list()
+for(t in tissues) {
+  for(p in pops) {
+    t = stringr::str_remove(t, &#39;ctimp_&#39;)
+    filename = paste0(&#39;/Users/yanyul/Desktop/tmp/gcta_regu/reml_from_hail_martin_et_al_traits_x_ctimp_&#39;, t, &#39;_x_&#39;, p, &#39;.tsv&#39;)
+    df[[length(df) + 1]] = read.table(filename, header = T, sep = &#39;\t&#39;) %&gt;% mutate(population = p, tissue = t)
+  }
+}
+df = do.call(rbind, df)
+df = left_join(df, trait_info, by = c(&#39;trait&#39; = &#39;short&#39;))
+df[is.na(df)] = 0</code></pre>
+</div>
+<div id="results" class="section level1">
+<h1><span class="header-section-number">2</span> Results</h1>
+<div id="by-tissue-reml" class="section level2">
+<h2><span class="header-section-number">2.1</span> By tissue REML</h2>
+<pre class="r"><code>df %&gt;% select(num_predictors, tissue) %&gt;% filter(!duplicated(tissue)) %&gt;% pander</code></pre>
+<table style="width:64%;">
+<colgroup>
+<col width="23%" />
+<col width="40%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">num_predictors</th>
+<th align="center">tissue</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">9228</td>
+<td align="center">Adipose_Subcutaneous</td>
+</tr>
+<tr class="even">
+<td align="center">9027</td>
+<td align="center">Artery_Tibial</td>
+</tr>
+<tr class="odd">
+<td align="center">8127</td>
+<td align="center">Breast_Mammary_Tissue</td>
+</tr>
+<tr class="even">
+<td align="center">8731</td>
+<td align="center">Cells_Cultured_fibroblasts</td>
+</tr>
+<tr class="odd">
+<td align="center">8954</td>
+<td align="center">Lung</td>
+</tr>
+<tr class="even">
+<td align="center">7671</td>
+<td align="center">Muscle_Skeletal</td>
+</tr>
+<tr class="odd">
+<td align="center">10184</td>
+<td align="center">Nerve_Tibial</td>
+</tr>
+<tr class="even">
+<td align="center">9474</td>
+<td align="center">Skin_Sun_Exposed_Lower_leg</td>
+</tr>
+<tr class="odd">
+<td align="center">9827</td>
+<td align="center">Thyroid</td>
+</tr>
+<tr class="even">
+<td align="center">7041</td>
+<td align="center">Whole_Blood</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>df %&gt;% filter(population == &#39;British-test-1&#39;) %&gt;% ggplot() + geom_bar(aes(x = tissue, y = h_sq, fill = tissue), stat = &#39;identity&#39;) + facet_wrap(~long, ncol = 3, scales = &#39;free_y&#39;) + scale_fill_manual(values = color_board) + theme(legend.position = &#39;bottom&#39;, axis.text.x = element_blank()) + th</code></pre>
+<p><img src="regulability_ctimp_files/figure-html/pve-in-british-1.png" width="960" /></p>
+</div>
+<div id="combining-tissues-naively" class="section level2">
+<h2><span class="header-section-number">2.2</span> Combining tissues naively</h2>
+<p>Let <span class="math inline">\([X_1, \cdots, X_k]\)</span> be the “genotype matrix”. The assumption is that <span class="math inline">\(\beta \sim N(0, \sigma^2)\)</span> is the same for all genes in all tissues.</p>
+<pre class="r"><code>df_naive = list()
+for(pop in pops) {
+  tmp = read.table(paste0(&#39;~/Desktop/tmp/gcta_regu/reml_from_hail-multi-tissue-naive_x_martin_et_al_traits_x_ctimp_x_&#39;, pop, &#39;.tsv&#39;), header = T, stringsAsFactors = F, sep = &#39;\t&#39;)
+  df_naive[[length(df_naive) + 1]] = tmp %&gt;% mutate(population = pop)
+}
+df_naive = do.call(rbind, df_naive)
+df_naive[is.na(df_naive)] = 0
+df_naive %&gt;% ggplot() + geom_bar(aes(x = trait, y = h_sq, fill = population), stat = &#39;identity&#39;, position = &#39;dodge&#39;) + theme(legend.position = &#39;bottom&#39;) + th + ggtitle(&#39;REML analysis: combining tissues naively&#39;)</code></pre>
+<p><img src="regulability_ctimp_files/figure-html/multi-naive-1.png" width="768" /></p>
+</div>
+<div id="combining-tissues-with-pca" class="section level2">
+<h2><span class="header-section-number">2.3</span> Combining tissues with PCA</h2>
+<pre class="r"><code>df_pca = list()
+for(pop in pops) {
+  tmp = read.table(paste0(&#39;~/Desktop/tmp/gcta_regu/reml_from_hail-multi-tissue-tissue_svd_x_martin_et_al_traits_x_ctimp_x_&#39;, pop, &#39;.tsv&#39;), header = T, stringsAsFactors = F, sep = &#39;\t&#39;)
+  df_pca[[length(df_pca) + 1]] = tmp %&gt;% mutate(population = pop)
+}
+df_pca = do.call(rbind, df_pca)
+df_pca[is.na(df_pca)] = 0
+df_pca %&gt;% ggplot() + geom_bar(aes(x = trait, y = h_sq, fill = population), stat = &#39;identity&#39;, position = &#39;dodge&#39;) + theme(legend.position = &#39;bottom&#39;) + th + ggtitle(&#39;REML analysis: combining tissues naively&#39;)</code></pre>
+<p><img src="regulability_ctimp_files/figure-html/multi-pca-1.png" width="768" /></p>
+<p>Combined vs. Whole blood.</p>
+<pre class="r"><code>merge = inner_join(
+  df_naive %&gt;% select(trait, population, h_sq, h_sq_se),
+  df %&gt;% filter(tissue == &#39;Whole_Blood&#39;) %&gt;% select(trait, population, h_sq, h_sq_se),
+  by = c(&#39;trait&#39;, &#39;population&#39;),
+  suffix = c(&#39;.combined&#39;, &#39;.whole_blood&#39;)
+)
+merge %&gt;% ggplot() + geom_point(aes(x = h_sq.whole_blood, y = h_sq.combined)) + facet_wrap(~population) + geom_abline(slope = 1, intercept = 0) + th + ggtitle(&#39;Combining naively&#39;)</code></pre>
+<p><img src="regulability_ctimp_files/figure-html/multi-naive-vs-1.png" width="384" /></p>
+<pre class="r"><code>merge_eur = merge %&gt;% filter(population == &#39;British-test-1&#39;)
+tmp = delta_mtd(merge_eur$h_sq.combined, merge_eur$h_sq_se.combined ^ 2, merge_eur$h_sq.whole_blood, merge_eur$h_sq_se.whole_blood ^ 2)
+merge_eur$ratio = tmp$m
+merge_eur$ratio_se = sqrt(tmp$v)
+data.frame(meta_fixed(merge_eur$ratio, merge_eur$ratio_se)) %&gt;% pander(caption = &#39;PVE in multi-tissue (naive approach) over PVE in whole blood&#39;)</code></pre>
+<table style="width:24%;">
+<caption>PVE in multi-tissue (naive approach) over PVE in whole blood</caption>
+<colgroup>
+<col width="11%" />
+<col width="12%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">m</th>
+<th align="center">se</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">1.197</td>
+<td align="center">0.1586</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>merge = inner_join(
+  df_pca %&gt;% select(trait, population, h_sq, h_sq_se),
+  df %&gt;% filter(tissue == &#39;Whole_Blood&#39;) %&gt;% select(trait, population, h_sq, h_sq_se),
+  by = c(&#39;trait&#39;, &#39;population&#39;),
+  suffix = c(&#39;.combined&#39;, &#39;.whole_blood&#39;)
+)
+merge %&gt;% ggplot() + geom_point(aes(x = h_sq.whole_blood, y = h_sq.combined)) + facet_wrap(~population) + geom_abline(slope = 1, intercept = 0) + th + ggtitle(&#39;Combining with PCA&#39;)</code></pre>
+<p><img src="regulability_ctimp_files/figure-html/multi-pca-vs-1.png" width="384" /></p>
+<!-- Ratio of PVE (single tissue whole blood over multi-tissue with PCA or naive approach). -->
+<pre class="r"><code>merge_eur = merge %&gt;% filter(population == &#39;British-test-1&#39;)
+tmp = delta_mtd(merge_eur$h_sq.combined, merge_eur$h_sq_se.combined ^ 2, merge_eur$h_sq.whole_blood, merge_eur$h_sq_se.whole_blood ^ 2)
+merge_eur$ratio = tmp$m
+merge_eur$ratio_se = sqrt(tmp$v)
+data.frame(meta_fixed(merge_eur$ratio, merge_eur$ratio_se)) %&gt;% pander(caption = &#39;PVE in multi-tissue (PCA) over PVE in whole blood&#39;)</code></pre>
+<table style="width:24%;">
+<caption>PVE in multi-tissue (PCA) over PVE in whole blood</caption>
+<colgroup>
+<col width="11%" />
+<col width="12%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">m</th>
+<th align="center">se</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">1.481</td>
+<td align="center">0.1956</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
