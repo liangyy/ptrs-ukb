@@ -55,6 +55,9 @@ message('filter out missing values and HbA1c conc. > 100')
 out = out[ rowSums(is.na(out)) == 0, ]
 out = out[ out$hba1c <= 100, ]
 
+ptrs_data = read.csv('../../output/query_phenotypes_cleaned_up.csv')
+out = inner_join(ptrs_data, out, by = 'eid')
+
 message('quick summary and save results')
 out %>% summary
 write.csv(out, args[2], quote = F, row.names = F)
