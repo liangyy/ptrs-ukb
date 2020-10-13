@@ -61,3 +61,10 @@ out = inner_join(ptrs_data, out, by = 'eid')
 message('quick summary and save results')
 out %>% summary
 write.csv(out, args[2], quote = F, row.names = F)
+
+message('save the eid by ancestry group')
+for(kk in unique(out$meaning)) {
+  tmp = out$eid[out$meaning == kk]
+  tmp = data.frame(FID = tmp, IID = tmp)
+  write.table(tmp, paste0(args[3], kk, '.txt'), row.names = F, col.names = T, quote = F, sep = '\t')
+}

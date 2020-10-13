@@ -44,7 +44,8 @@ if [[ ! -f ../../output/t2d_query_cleaned_up.csv ]] || [[ ! -z $1 ]]
 then
   Rscript phenotype_qc.R \
     ../../output/t2d_query.csv \
-    ../../output/t2d_query_cleaned_up.csv
+    ../../output/t2d_query_cleaned_up.csv \
+    ../../output/t2d_indiv_list.
   echo '--> phenotype QC: FINISHED'
 else 
   echo '--> phenotype QC: output exists, SKIP'
