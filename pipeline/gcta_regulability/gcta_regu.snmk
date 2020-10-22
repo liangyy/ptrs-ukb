@@ -1,6 +1,10 @@
 if 'outdir' not in config:
     config['outdir'] = 'output'
 
+genelist_args = ''
+if 'gene_list' in config:
+    genelist_args = '--gene-list {}'.format(config['gene_list'])
+
 sys.path.insert(0, '../../code/')
 from gwas_helper import read_yaml
 
@@ -144,6 +148,7 @@ rule run_hail:
           --predictor-table {input.mat}::gene \
           --output {output[0]} \
           --inv-norm-predictor \
+          {genelist_args} \
           --with-intercept'
 
 ## For multi-tissue analysis

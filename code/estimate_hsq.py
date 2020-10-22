@@ -39,6 +39,10 @@ parser.add_argument('--standardize-predictor', action="store_true", help='''
 parser.add_argument('--with-intercept', action="store_true", help='''
     If you'd like to add intercept as fixed effect
 ''')
+parser.add_argument('--gene-list', default=None, help='''
+    If you'd like to limit the REML analysis to a specific set of genes, 
+    specify it here.
+''')
 args = parser.parse_args()
 
 import logging, time, sys
@@ -54,6 +58,14 @@ def parse_input(tag, default):
     else:
         return tag, default
 
+def load_list(fn):
+    o = []
+    with open(fn, 'r') as f:
+        for i in f:
+            i = i.strip()
+            o.append(i)
+    return o
+
 # configing util
 logging.basicConfig(
     level = logging.INFO, 
@@ -67,6 +79,11 @@ if args.inv_norm_predictor == True and args.standardize_predictor == True:
     logging.info('This script does not support doing inverse normalization and standardization simultaneously ..')
     logging.info('Exit!')
     sys.exit()
+
+# read gene list if there is gene list
+gene_list = None
+if args.gene_list is not None:
+    gene_list = load_list(args.gene_list)
 
 # read in trait table
 logging.info('Loading trait table')
@@ -87,8 +104,11 @@ logging.info('Loading predictor matrix')
 filename, colname = parse_input(args.predictor_table, '')
 df_pred_expr = ghelper.tsv_to_pd_df(filename, indiv_col = colname)
 df_pred_expr = df_pred_expr.drop(columns = [colname])
+if gene_list is not None:
+    df_pred_expr = df_pred_expr[ df_pred_expr.gene.isin(gene_list) ].reset_index(drop=True)
 indiv_pool = np.intersect1d(indiv_pool, df_pred_expr.columns.to_list())
 logging.info('--> Current sample size = {}'.format(indiv_pool.shape[0]))
+logging.info('--> Current number of genes = {}'.format(df_pred_expr.shape[1] - 1))
 
 # organize tables and matrix so that they match by individual ordering
 logging.info('Organizing tables and matrix by individual ordering')
