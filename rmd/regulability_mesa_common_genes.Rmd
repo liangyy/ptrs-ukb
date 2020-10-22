@@ -1,0 +1,106 @@
+---
+title: "Regulability based on predicted expression: MESA models: using common genes"
+---
+
+```{r setup}
+library(ggplot2)
+library(dplyr)
+library(pander)
+options(stringsAsFactors = F)
+source('../code/rlib_doc.R')
+theme_set(theme_bw(base_size = 12))
+source('https://gist.githubusercontent.com/liangyy/43912b3ecab5d10c89f9d4b2669871c9/raw/8151c6fe70e3d4ee43d9ce340ecc0eb65172e616/my_ggplot_theme.R')
+th2 = th
+th2$panel.border = element_rect(colour = th2$axis.line$colour)
+```
+
+# Load results
+
+Load MESA results (not common genes).
+
+```{r load}
+h2 = readRDS('../analysis_output/hsq_neale_lab.rds') %>% select(h2_observed, h2_observed_se, trait)
+mesa_old = readRDS('../analysis_output/regulability_mesa_and_ctimp.rds')
+mesa_old = mesa_old[ mesa_old$model %in% c('CAU', 'AFHI'), ]
+```
+
+Load MESA results (common genes).
+
+```{r load2}
+pops = c('African', 'Chinese', 'Indian', 'British-test-1')
+models = c('CAU', 'AFHI')
+tmp_list = list()
+for(p in pops) {
+  for(m in models) {
+    filename = paste0('~/Desktop/tmp/gcta_regu/common_gene/reml_from_hail_martin_et_al_traits_x_', m, '_x_', p, '.tsv')
+    tmp_list[[length(tmp_list) + 1]] = read.table(filename, header  = T, sep = '\t') %>% mutate(population = p, model = m)
+  }
+}
+mesa = do.call(rbind, tmp_list)
+mesa$population[mesa$population == 'British-test-1'] = 'British'
+mesa[which(mesa == 'British-test-1')] = 'British'
+```
+
+```{r merge}
+regu = rbind(
+  mesa_old %>% mutate(type = 'not_common'), 
+  mesa %>% mutate(type = 'common')
+)
+regu$h_sq[is.na(regu$h_sq)] = 0
+
+```
+
+
+# Results
+
+```{r}
+regu %>% reshape2::dcast(trait + population + type ~ model, value.var = 'h_sq') %>% ggplot() + 
+  geom_point(aes(x = CAU, y = AFHI, color = population)) +
+  facet_wrap(~type) +
+  geom_abline(slope = 1, intercept = 0) + th2
+```
+
+Figure 2B with new results.
+
+```{r}
+df_mesa = inner_join(mesa, h2, by = 'trait') %>% 
+  rename(pve = h_sq, pve_se = h_sq_se) %>% 
+  rename(h2chip = h2_observed, h2chip_se = h2_observed_se) %>% 
+  rename(train_pop = model, target_pop = population)
+
+afr = df_mesa %>% 
+    #filter(pve/pve_se > 2) %>% 
+  filter(h2chip/h2chip_se > 2) %>%
+  filter(train_pop %in% c("AFHI","CAU")) %>%
+  select(trait, train_pop, pve, target_pop) %>%
+  filter(target_pop=="African") %>% 
+  (function(x) coef(summary(lm(pve ~ train_pop, data=x)))[2,1:2])
+afr = c(afr,target_pop = "AFR")
+
+eur = df_mesa %>% 
+    #filter(pve/pve_se > 2) %>% 
+  filter(h2chip/h2chip_se > 2) %>%
+  filter(train_pop %in% c("AFHI","CAU")) %>%
+  select(trait, train_pop, pve, target_pop) %>%
+  filter(target_pop=="British") %>%
+  (function(x) coef(summary(lm(pve ~ train_pop, data=x)))[2,1:2])
+eur = c(eur,target_pop ="EUR")
+
+df_fig2b = data.frame(rbind(afr, eur))
+names(df_fig2b) = c("delta_pve", "se_delta_pve","target_pop")
+df_fig2b$delta_pve = as.numeric(df_fig2b$delta_pve)
+df_fig2b$se_delta_pve = as.numeric(df_fig2b$se_delta_pve)
+## flip the sign so that diff is relative to MESA EUR
+df_fig2b = df_fig2b%>% mutate(delta_pve = - delta_pve)
+
+pp = ggplot(df_fig2b,aes(target_pop, delta_pve)) + 
+  geom_hline(yintercept=0,col='gray',size=1.2,linetype='dotted') + 
+  geom_errorbar(aes(ymin = delta_pve- 2*se_delta_pve, 
+                    ymax = delta_pve+ 2*se_delta_pve),
+                width=0.2,size=1,col='gray') +
+  geom_point(size=10,alpha=.5) + 
+  theme_bw(base_size =13) + th + 
+  ggtitle("PVE(MESA AFHI) - PVE(MESA EUR)") +
+  ylab("Increse in PVE")
+pp
+```
