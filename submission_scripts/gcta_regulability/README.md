@@ -110,7 +110,7 @@ Run `hail` with a pre-specified gene list
 
 ```
 # GENEMODEL=CAU or AFHI
-# OUTDIR=/vol/bmd/yanyul/UKB/gcta_regulability to avoid overwrite
+# OUTDIR=/vol/bmd/yanyul/UKB/gcta_regulability/common_gene to avoid overwrite
 # GENELIST=/vol/bmd/yanyul/GitHub/ptrs-ukb/misc/common_genes_in_mesa_cau_and_afhi.txt
 mylist=('African' 'British-test-1' 'Indian' 'Chinese')
 for i in "${mylist[@]}"
