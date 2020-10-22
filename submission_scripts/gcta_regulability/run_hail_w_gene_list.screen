@@ -1,0 +1,23 @@
+# ARGS1: pop_name (it takes list name, i.e. ../output/data_split/[pop_name].txt)
+# ARGS2: gene_model 
+# ARGS3: outdir
+# ARGS4: gene_list
+
+# environment setup
+source /vol/bmd/yanyul/miniconda3/etc/profile.d/conda.sh
+conda activate /vol/bmd/yanyul/softwares/conda_envs/hail
+source /vol/bmd/yanyul/GitHub/ptrs-ukb/scripts/source_snakemake_on_nucleus.sh
+
+WORKDIR=/vol/bmd/yanyul/GitHub/ptrs-ukb/pipeline/gcta_regulability
+SUBDIR=/vol/bmd/yanyul/GitHub/ptrs-ukb/submission_scripts/gcta_regulability
+
+cd $WORKDIR
+
+if [[ ! -d $SUBDIR/logs ]]; then
+  mkdir -p $SUBDIR/logs
+fi
+
+$MYSNMK -s gcta_regu.snmk --configfile $SUBDIR/config.yaml -p all_hail --config pop_name=$1 outdir=$3 gene_model=$2 gene_list=$4 > $SUBDIR/logs/hail-$1-$2.log 2>&1
+
+screen -X kill
+
