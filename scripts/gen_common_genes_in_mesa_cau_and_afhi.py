@@ -21,6 +21,6 @@ gene_common = list(gene_common)
 
 with open(outlist, 'w') as f:
     for g in gene_common:
-        f.write(g, +'\n')
+        f.write(g +'\n')
 
     

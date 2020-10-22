@@ -103,12 +103,12 @@ logging.info('--> Current sample size = {}'.format(indiv_pool.shape[0]))
 logging.info('Loading predictor matrix')
 filename, colname = parse_input(args.predictor_table, '')
 df_pred_expr = ghelper.tsv_to_pd_df(filename, indiv_col = colname)
-df_pred_expr = df_pred_expr.drop(columns = [colname])
 if gene_list is not None:
     df_pred_expr = df_pred_expr[ df_pred_expr.gene.isin(gene_list) ].reset_index(drop=True)
+df_pred_expr = df_pred_expr.drop(columns = [colname])
 indiv_pool = np.intersect1d(indiv_pool, df_pred_expr.columns.to_list())
 logging.info('--> Current sample size = {}'.format(indiv_pool.shape[0]))
-logging.info('--> Current number of genes = {}'.format(df_pred_expr.shape[1] - 1))
+logging.info('--> Current number of genes = {}'.format(df_pred_expr.shape[0] - 1))
 
 # organize tables and matrix so that they match by individual ordering
 logging.info('Organizing tables and matrix by individual ordering')
