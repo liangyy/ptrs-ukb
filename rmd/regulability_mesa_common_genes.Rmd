@@ -39,6 +39,7 @@ for(p in pops) {
 mesa = do.call(rbind, tmp_list)
 mesa$population[mesa$population == 'British-test-1'] = 'British'
 mesa[which(mesa == 'British-test-1')] = 'British'
+saveRDS(mesa, '../analysis_output/regulability_mesa_common_genes.rds')
 ```
 
 ```{r merge}

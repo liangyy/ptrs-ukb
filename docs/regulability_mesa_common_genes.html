@@ -387,8 +387,16 @@ div.tocify {
 
 
 <pre class="r"><code>library(ggplot2)
-library(dplyr)
-library(pander)
+library(dplyr)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;dplyr&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<pre class="r"><code>library(pander)
 options(stringsAsFactors = F)
 source(&#39;../code/rlib_doc.R&#39;)
 theme_set(theme_bw(base_size = 12))
@@ -413,7 +421,8 @@ for(p in pops) {
 }
 mesa = do.call(rbind, tmp_list)
 mesa$population[mesa$population == &#39;British-test-1&#39;] = &#39;British&#39;
-mesa[which(mesa == &#39;British-test-1&#39;)] = &#39;British&#39;</code></pre>
+mesa[which(mesa == &#39;British-test-1&#39;)] = &#39;British&#39;
+saveRDS(mesa, &#39;../analysis_output/regulability_mesa_common_genes.rds&#39;)</code></pre>
 <pre class="r"><code>regu = rbind(
   mesa_old %&gt;% mutate(type = &#39;not_common&#39;), 
   mesa %&gt;% mutate(type = &#39;common&#39;)
@@ -426,7 +435,7 @@ regu$h_sq[is.na(regu$h_sq)] = 0</code></pre>
   geom_point(aes(x = CAU, y = AFHI, color = population)) +
   facet_wrap(~type) +
   geom_abline(slope = 1, intercept = 0) + th2</code></pre>
-<p><img src="regulability_mesa_common_genes_files/figure-html/unnamed-chunk-59-1.png" width="672" /></p>
+<p><img src="regulability_mesa_common_genes_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
 <p>Figure 2B with new results.</p>
 <pre class="r"><code>df_mesa = inner_join(mesa, h2, by = &#39;trait&#39;) %&gt;% 
   rename(pve = h_sq, pve_se = h_sq_se) %&gt;% 
@@ -468,7 +477,7 @@ pp = ggplot(df_fig2b,aes(target_pop, delta_pve)) +
   ggtitle(&quot;PVE(MESA AFHI) - PVE(MESA EUR)&quot;) +
   ylab(&quot;Increse in PVE&quot;)
 pp</code></pre>
-<p><img src="regulability_mesa_common_genes_files/figure-html/unnamed-chunk-60-1.png" width="672" /></p>
+<p><img src="regulability_mesa_common_genes_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
 </div>
 
 
