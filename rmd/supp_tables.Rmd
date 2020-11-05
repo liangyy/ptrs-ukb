@@ -144,13 +144,13 @@ for(p in pops) {
 }
 mesa = do.call(rbind, tmp_list)
 mesa = mesa %>% select(num_predictors, model) %>% filter(!duplicated(model)) # %>% pander
-mesa = left_join(mesa, data.frame(model = c('CAU', 'AFHI'), pop = c('European', 'African American or Hispanic')), by = 'model')
+mesa = left_join(mesa, data.frame(model = c('EUR', 'AFHI'), pop = c('European', 'African American or Hispanic')), by = 'model')
 mesa = left_join(mesa, f %>% select(abbreviation, sample_size), by = c('model' = 'abbreviation'))
 df_mesa = data.frame(method = 'Elastic Net', data_source = 'MESA', population = mesa$pop, tissue = 'Monocyte', number_of_genes = mesa$num_predictors, sample_size = mesa$sample_size)
 
 ### the combined table
 dd = rbind(df_gtex, df_mesa)
-dd$tag = c(rep('', nrow(dd) - 3), c('GTEx EUR', 'MESA CAU', 'MESA AFHI'))
+dd$tag = c(rep('', nrow(dd) - 3), c('GTEx EUR', 'MESA EUR', 'MESA AFHI'))
 colnames(dd) = c('Method', 'Data source', 'Population', 'Tissue', 'Number of genes', 'Sample size', 'Tag')
 
 ### save as tex table

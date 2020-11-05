@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Building supplementary tables</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
+<script src="site_libs/anchor-sections-1.0/anchor-sections.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">PTRS UKB</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/liangyy/ptrs-ukb">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Building supplementary tables</h1>
+
+</div>
+
+
+<pre class="r"><code>rm(list = ls())
+library(dplyr)
+library(pander)
+library(data.table)
+options(datatable.fread.datatable = F)
+source(&#39;../code/rlib_doc.R&#39;)
+bold &lt;- function(x) {paste(&#39;{\\textbf{&#39;,x,&#39;}}&#39;, sep =&#39;&#39;)}
+o = get_meta_for_supp()
+df_color_category = o$df_color_category
+# color_mixer = o$color_mixer
+
+my_rename_pop = function(pop) {
+  res = rep(&#39;EUR&#39;, length(pop))
+  res[pop == &#39;Indian&#39;] = &#39;S.ASN&#39;
+  res[pop == &#39;Chinese&#39;] = &#39;E.ASN&#39;
+  res[pop == &#39;African&#39;] = &#39;AFR&#39;
+  res[pop == &#39;British \n (validation)&#39;] = &#39;EUR ref.&#39;
+  res[pop == &#39;British \n (test)&#39;] = &#39;EUR test&#39;
+  factor(res, levels = c(&#39;EUR ref.&#39;, &#39;EUR test&#39;, &#39;EUR&#39;, &#39;S.ASN&#39;, &#39;E.ASN&#39;, &#39;AFR&#39;))
+}</code></pre>
+<div id="s-table-phenotype-information" class="section level1">
+<h1><span class="header-section-number">1</span> S Table: phenotype information</h1>
+<p>Phenotype information.</p>
+<pre class="r"><code>pheno_tab = read.csv(&#39;../external_data/martin_et_al_2019ng_table_s6.csv&#39;)
+query_ = yaml::read_yaml(&#39;../output/query_phenotypes.yaml&#39;)$data
+query = list()
+for(i in names(query_)) {
+  ii = strsplit(i, &#39;_x_&#39;)[[1]][1]
+  if(ii %in% names(query)) {
+    next
+  } else {
+    query[[ii]] = data.frame(id = stringr::str_remove(strsplit(query_[[i]], &#39;_&#39;)[[1]][1], &#39;c&#39;), phenotype_tag = ii)
+  }
+}
+query = do.call(rbind, query)
+rownames(query) = NULL
+dict = read.csv(&quot;~/Downloads/Data_Dictionary_Showcase.csv&quot;, stringsAsFactors = F)
+dict$FieldID = as.character(dict$FieldID)
+info = left_join(query, dict %&gt;% select(Field, Instances, Array, FieldID), by = c(&#39;id&#39; = &#39;FieldID&#39;))</code></pre>
+<pre><code>## Warning: Column `id`/`FieldID` joining factor and character vector, coercing into character vector</code></pre>
+<pre class="r"><code>info = left_join(info %&gt;% mutate(trait = tolower(phenotype_tag)), df_color_category, by = &#39;trait&#39;)</code></pre>
+<pre><code>## Warning: Column `trait` joining character vector and factor, coercing into character vector</code></pre>
+<pre class="r"><code>info = info %&gt;% filter(phenotype_tag %in% pheno_tab$Trait)
+info = info %&gt;% select(Field, id, phenotype_tag, group) 
+colnames(info) = c(&#39;UKB Field Description&#39;, &#39;UKB Field ID&#39;, &#39;Tag&#39;, &#39;Phenotype Category&#39;)
+
+### save as tex table
+print(
+  xtable::xtable(info, display=c(&quot;s&quot;, &quot;s&quot;, &quot;s&quot;, &quot;s&quot;, &quot;s&quot;), caption = &#39;\\textbf{Meta information of the phenotypes retrieved from UK Biobank which were used in the analysis}. The \`\`Tag\&#39;\&#39; column shows the short name of the phenotyes used in this paper. And phenotypes are assigned into five categories which are shown in \`\`Phenotype Category\&#39;\&#39; column&#39;, label = &#39;tab:trait_table&#39;, digits = 5), 
+  math.style.exponents = TRUE, 
+  include.rownames = FALSE, 
+  file =&#39;../analysis_output/phenotype_info.tex&#39;, size=&quot;\\scriptsize&quot;, 
+  sanitize.colnames.function=bold,
+  booktabs = TRUE
+)
+
+# update the copy in paper-ptrs repo
+cmd = paste(&#39;cp&#39;, &#39;../analysis_output/phenotype_info.tex&#39;, &#39;../../paper-ptrs/tables/phenotype_info.tex&#39;)
+system(cmd)</code></pre>
+</div>
+<div id="s-table-number-of-individuals-by-ancestrypopulation" class="section level1">
+<h1><span class="header-section-number">2</span> S Table: number of individuals by ancestry/population</h1>
+<pre class="r"><code>pheno_table = fread(&#39;../output/query_phenotypes_cleaned_up.csv&#39;, sep = &#39;,&#39;)
+dd = pheno_table %&gt;% group_by(meaning) %&gt;% summarize(n = n()) %&gt;% ungroup() %&gt;% mutate(meaning = my_rename_pop(meaning))
+colnames(dd) = c(&#39;Ancestry&#39;, &#39;Number of individuals&#39;)
+
+### save as tex table
+print(
+  xtable::xtable(dd, display=c(&quot;s&quot;, &quot;s&quot;, &quot;g&quot;), caption = &#39;\\textbf{Number of individuals included in the analysis stratified by ancestry}.&#39;, label = &#39;tab:indiv_table&#39;, digits = 6), 
+  math.style.exponents = TRUE, 
+  include.rownames = FALSE, 
+  file =&#39;../analysis_output/population_info.tex&#39;, size=&quot;\\scriptsize&quot;, 
+  sanitize.colnames.function=bold,
+  booktabs = TRUE
+)
+
+# update the copy in paper-ptrs repo
+cmd = paste(&#39;cp&#39;, &#39;../analysis_output/population_info.tex&#39;, &#39;../../paper-ptrs/tables/population_info.tex&#39;)
+system(cmd)</code></pre>
+</div>
+<div id="s-table-prediction-models" class="section level1">
+<h1><span class="header-section-number">3</span> S Table: prediction models</h1>
+<p>Information of prediction models.</p>
+<pre class="r"><code># model method 
+# data source
+# population 
+# tissue
+# number of genes
+# sample size
+# model abbreviation
+
+### GTEx V8
+tissues = read.table(&#39;~/Desktop/tmp/tissue_list.txt&#39;, header = F)$V1
+gtex_sheet = read.csv(&#39;~/Documents/repo/bitbucket/rotation-at-imlab/data/gtex_sample_counts_by_tissue.csv&#39;)
+pops = c(&#39;British-test-1&#39;)
+df = list()
+for(t in tissues) {
+  for(p in pops) {
+    t = stringr::str_remove(t, &#39;ctimp_&#39;)
+    filename = paste0(&#39;/Users/yanyul/Desktop/tmp/gcta_regu/reml_from_hail_martin_et_al_traits_x_ctimp_&#39;, t, &#39;_x_&#39;, p, &#39;.tsv&#39;)
+    df[[length(df) + 1]] = read.table(filename, header = T, sep = &#39;\t&#39;) %&gt;% mutate(population = p, tissue = t)
+  }
+}
+df = do.call(rbind, df)
+df = df %&gt;% select(num_predictors, tissue) %&gt;% filter(!duplicated(tissue)) # %&gt;% pander
+df = left_join(df, gtex_sheet %&gt;% select(tissue, v8_eur), by = &#39;tissue&#39;)</code></pre>
+<pre><code>## Warning: Column `tissue` joining character vector and factor, coercing into character vector</code></pre>
+<pre class="r"><code>df_gtex = data.frame(method = &#39;CTIMP&#39;, data_source = &#39;GTEx V8&#39;, population = &#39;European&#39;, tissue = df$tissue, number_of_genes = df$num_predictors, sample_size = df$v8_eur)
+
+### MESA 
+f2 = &#39;African American (AFA, n = 233), Hispanic (HIS, n = 352), and European (CAU, n = 578)&#39;
+f = do.call(rbind, sapply(strsplit(f2, &#39;),&#39;)[[1]], function(x) {
+  x = strsplit(x, &#39; \\(&#39;)[[1]]
+  meta = strsplit(x[2], &#39;, &#39;)[[1]]
+  abbr = meta[1]
+  sample_size = stringr::str_remove(meta[2], &#39;n = &#39;)
+  sample_size = as.numeric(stringr::str_remove(sample_size, &#39;\\)&#39;))
+  data.frame(population = stringr::str_remove(x[1], &#39;and &#39;), abbreviation = abbr, sample_size = sample_size)
+}, simplify = F))
+rownames(f) = NULL
+f = f %&gt;% mutate(source = &#39;MESA&#39;, tissue = &#39;Monocyte&#39;)
+f = rbind(f, data.frame(population = paste(f$population[1], f$population[2]), abbreviation = &#39;AFHI&#39;, sample_size = f$sample_size[1] + f$sample_size[2], source = f$source[1], tissue = f$tissue[1]))
+# f = rbind(f, data.frame(population = &#39;European&#39;, abbreviation = &#39;gtex_v8&#39;, sample_size = 573, source = &#39;GTEx_v8&#39;, tissue = &#39;Whole_Blood&#39;))
+f %&gt;% pander(&#39;Sample size of gene expression prediction models in the analysis&#39;)</code></pre>
+<table style="width:100%;">
+<caption>Sample size of gene expression prediction models in the analysis</caption>
+<colgroup>
+<col width="36%" />
+<col width="19%" />
+<col width="18%" />
+<col width="11%" />
+<col width="14%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">population</th>
+<th align="center">abbreviation</th>
+<th align="center">sample_size</th>
+<th align="center">source</th>
+<th align="center">tissue</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">African American</td>
+<td align="center">AFA</td>
+<td align="center">233</td>
+<td align="center">MESA</td>
+<td align="center">Monocyte</td>
+</tr>
+<tr class="even">
+<td align="center">Hispanic</td>
+<td align="center">HIS</td>
+<td align="center">352</td>
+<td align="center">MESA</td>
+<td align="center">Monocyte</td>
+</tr>
+<tr class="odd">
+<td align="center">European</td>
+<td align="center">CAU</td>
+<td align="center">578</td>
+<td align="center">MESA</td>
+<td align="center">Monocyte</td>
+</tr>
+<tr class="even">
+<td align="center">African American Hispanic</td>
+<td align="center">AFHI</td>
+<td align="center">585</td>
+<td align="center">MESA</td>
+<td align="center">Monocyte</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>pops = c(&#39;British-test-1&#39;)
+models = c(&#39;CAU&#39;, &#39;AFHI&#39;)
+tmp_list = list()
+for(p in pops) {
+  for(m in models) {
+    filename = paste0(&#39;~/Desktop/tmp/gcta_regu/reml_from_hail_martin_et_al_traits_x_&#39;, m, &#39;_x_&#39;, p, &#39;.tsv&#39;)
+    tmp_list[[length(tmp_list) + 1]] = read.table(filename, header  = T, sep = &#39;\t&#39;) %&gt;% mutate(population = p, model = m)
+  }
+}
+mesa = do.call(rbind, tmp_list)
+mesa = mesa %&gt;% select(num_predictors, model) %&gt;% filter(!duplicated(model)) # %&gt;% pander
+mesa = left_join(mesa, data.frame(model = c(&#39;EUR&#39;, &#39;AFHI&#39;), pop = c(&#39;European&#39;, &#39;African American or Hispanic&#39;)), by = &#39;model&#39;)</code></pre>
+<pre><code>## Warning: Column `model` joining character vector and factor, coercing into character vector</code></pre>
+<pre class="r"><code>mesa = left_join(mesa, f %&gt;% select(abbreviation, sample_size), by = c(&#39;model&#39; = &#39;abbreviation&#39;))</code></pre>
+<pre><code>## Warning: Column `model`/`abbreviation` joining character vector and factor, coercing into character vector</code></pre>
+<pre class="r"><code>df_mesa = data.frame(method = &#39;Elastic Net&#39;, data_source = &#39;MESA&#39;, population = mesa$pop, tissue = &#39;Monocyte&#39;, number_of_genes = mesa$num_predictors, sample_size = mesa$sample_size)
+
+### the combined table
+dd = rbind(df_gtex, df_mesa)
+dd$tag = c(rep(&#39;&#39;, nrow(dd) - 3), c(&#39;GTEx EUR&#39;, &#39;MESA EUR&#39;, &#39;MESA AFHI&#39;))
+colnames(dd) = c(&#39;Method&#39;, &#39;Data source&#39;, &#39;Population&#39;, &#39;Tissue&#39;, &#39;Number of genes&#39;, &#39;Sample size&#39;, &#39;Tag&#39;)
+
+### save as tex table
+to_highlight = sort(nrow(dd) - 1:3)
+print(
+  xtable::xtable(dd, display=c(&quot;s&quot;, &quot;s&quot;, &quot;s&quot;,&quot;s&quot;,&quot;s&quot;, &quot;g&quot;, &quot;g&quot;, &quot;s&quot;), caption = &#39;\\textbf{Meta information of the prediction models used in the analysis}. The highlighted prediction models were used to build PTRS. The \`\`Tag\&#39;\&#39; column shows the short name of the models used in this paper.&#39;, label = &#39;tab:prediction_model&#39;, digits = 5), 
+  math.style.exponents = TRUE, 
+  include.rownames = FALSE, 
+  file =&#39;../analysis_output/prediction_models.tex&#39;, size=&quot;\\tiny&quot;, 
+  sanitize.colnames.function=bold,
+  booktabs = TRUE,
+  add.to.row=list(
+        pos=as.list(to_highlight),
+        command=rep(&quot;\\rowcolor{yellow}&quot;,
+                    length(seq(from=1,to=length(to_highlight),by=1))))
+)
+
+# update the copy in paper-ptrs repo
+cmd = paste(&#39;cp&#39;, &#39;../analysis_output/prediction_models.tex&#39;, &#39;../../paper-ptrs/tables/prediction_models.tex&#39;)
+system(cmd)</code></pre>
+</div>
+<div id="s-table-chip-h2-pve" class="section level1">
+<h1><span class="header-section-number">4</span> S Table: chip h2, PVE</h1>
+<p>PRS related table.</p>
+<pre class="r"><code>h2 = readRDS(&#39;../analysis_output/hsq_neale_lab.rds&#39;)
+h2$h2_observed[is.na(h2$h2_observed)] = 0
+df_h2 = h2 %&gt;% select(trait, h2_observed, h2_observed_se) %&gt;% rename(chip_h2 = h2_observed, chip_h2_se = h2_observed_se)
+
+# h2 table
+write.csv(df_h2, &#39;../analysis_output/h2_table.csv&#39;, quote = F, row.names = F)
+
+
+df_prs = read.table(&#39;../../ptrs-analysis/data/partial_r2-prs.subset1_British.tsv&#39;, header = T, sep = &#39;\t&#39;, stringsAsFactors = F)
+df_prs$sample[df_prs$sample == &#39;British-test-1&#39;] = &#39;British_test&#39;
+df_prs$sample[df_prs$sample == &#39;British-validation-1&#39;] = &#39;British_validation&#39;
+df_prs = df_prs %&gt;% rename(prs_cutoff = ptrs_cutoff)
+df_prs = df_prs %&gt;% arrange(desc(-prs_cutoff))
+
+best_prs = df_prs %&gt;% group_by(trait, sample) %&gt;% summarize(r2_max = max(partial_r2, na.rm = T)) %&gt;% ungroup() %&gt;% mutate(population = my_rename_pop(update_popname(sample)))
+df_best_prs = best_prs %&gt;% select(trait, population, r2_max) %&gt;% rename(partial_R2 = r2_max) 
+df_best_prs = df_best_prs[ order(df_best_prs$population, df_best_prs$trait), ]
+
+# prs table
+write.csv(df_best_prs, &#39;../analysis_output/prs_table.csv&#39;, quote = F, row.names = F)</code></pre>
+<p>PTRS related table.</p>
+<pre class="r"><code>pve = readRDS(&#39;../analysis_output/regulability_ctimp.rds&#39;)
+pve$population[pve$population == &#39;British-test-1&#39;] = &#39;British_test&#39;
+pve$population[pve$population == &#39;British-validation-1&#39;] = &#39;British_validation&#39;
+pve$h_sq[is.na(pve$h_sq)] = 0
+
+pve2 = readRDS(&#39;../analysis_output/regulability_mesa_common_genes.rds&#39;)
+pve2$population[pve2$population == &#39;British-test-1&#39;] = &#39;British_test&#39;
+pve2$population[pve2$population == &#39;British-validation-1&#39;] = &#39;British_validation&#39;
+pve2$h_sq[is.na(pve2$h_sq)] = 0
+
+pops = c(&#39;African&#39;, &#39;British-test-1&#39;, &#39;Chinese&#39;, &#39;Indian&#39;)
+pve3 = list()
+for(pop in pops) {
+  tmp = read.table(paste0(&#39;../../ptrs-analysis/data/reml_from_hail-multi-tissue-tissue_svd_x_martin_et_al_traits_x_ctimp_x_&#39;, pop, &#39;.tsv&#39;), header = T, stringsAsFactors = F, sep = &#39;\t&#39;)
+  pve3[[length(pve3) + 1]] = tmp %&gt;% mutate(population = pop)
+}
+pve3 = do.call(rbind, pve3)
+pve3[is.na(pve3)] = 0
+pve3$population[pve3$population == &#39;British-test-1&#39;] = &#39;British_test&#39;
+
+
+pve2$train_population = rep(&#39;EUR&#39;, nrow(pve2))
+pve2$train_population[pve2$model == &#39;AFHI&#39;] = &#39;AFHI&#39;
+pve2$training_data = &#39;MESA&#39;
+pve2$tissue = &#39;Monocyte&#39;
+
+df_pve = rbind(
+  pve %&gt;% select(trait, num_predictors, h_sq, h_sq_se, population) %&gt;% mutate(train_population = &#39;EUR&#39;, training_data = &#39;GTEx&#39;, tissue = &#39;Whole Blood&#39;),
+  pve2 %&gt;% select(trait, num_predictors, h_sq, h_sq_se, population, train_population, training_data, tissue),
+  pve3 %&gt;% select(trait, num_predictors, h_sq, h_sq_se, population) %&gt;% mutate(train_population = &#39;EUR&#39;, training_data = &#39;GTEx&#39;, tissue = &#39;10 Tissues&#39;)
+)
+
+df_pve$population = my_rename_pop(df_pve$population)
+df_pve = df_pve %&gt;% rename(num_genes = num_predictors) %&gt;% rename(pve = h_sq, pve_se = h_sq_se)
+
+# pve table
+write.csv(df_pve, &#39;../analysis_output/pve_table.csv&#39;, quote = F, row.names = F)
+
+
+df_en = read.csv(&#39;../../ptrs-analysis/data/elastic_net_ptrs_gtex_british.performance.csv&#39;, stringsAsFactors = F)
+df_en$sample[ df_en$sample == &#39;British_valid&#39; ] = &#39;British_validation&#39;
+df_en = df_en %&gt;% filter(!is.na(partial_r2)) %&gt;% group_by(trait, alpha, sample) %&gt;% mutate(order = 1 : n()) %&gt;% ungroup() %&gt;% filter(order &lt;= 11) %&gt;% select(-order)
+best_en = df_en %&gt;% select(sample, trait, partial_r2) %&gt;%
+  group_by(trait, sample) %&gt;% summarize(r2_max = max(partial_r2, na.rm = T)) %&gt;% ungroup() %&gt;% mutate(population = my_rename_pop(update_popname(sample)))
+df_best_ptrs = best_en %&gt;% select(trait, population, r2_max) %&gt;% rename(partial_R2 = r2_max) %&gt;% mutate(train_population = &#39;EUR&#39;, training_data = &#39;GTEx&#39;, tissue = &#39;Whole Blood&#39;)
+
+
+df_en2 = read.csv(&#39;../../ptrs-analysis/data/elastic_net_ptrs_mesa_british.performance.csv&#39;, stringsAsFactors = F)
+df_en2$sample[ df_en2$sample == &#39;British_valid&#39; ] = &#39;British_validation&#39;
+df_en2 = df_en2 %&gt;% filter(!is.na(partial_r2)) %&gt;% group_by(trait, alpha, sample, pred_expr_source) %&gt;% mutate(order = 1 : n()) %&gt;% ungroup() %&gt;% filter(order &lt;= 11) %&gt;% select(-order)
+best_en2 = df_en2 %&gt;% select(sample, trait, partial_r2, pred_expr_source) %&gt;%
+  group_by(trait, sample, pred_expr_source) %&gt;% summarize(r2_max = max(partial_r2, na.rm = T)) %&gt;% ungroup() %&gt;% mutate(population = my_rename_pop(update_popname(sample)))
+df_cau = df_en2 %&gt;% filter(pred_expr_source == &#39;train&#39;)
+df_afhi = df_en2 %&gt;% filter(pred_expr_source == &#39;against&#39;)
+
+best_cau = df_cau %&gt;% group_by(trait, sample) %&gt;% summarize(r2_max = max(partial_r2, na.rm = T)) %&gt;% ungroup() %&gt;% mutate(population = my_rename_pop(update_popname(sample)))
+best_afhi = df_afhi %&gt;% group_by(trait, sample) %&gt;% summarize(r2_max = max(partial_r2, na.rm = T)) %&gt;% ungroup() %&gt;% mutate(population = my_rename_pop(update_popname(sample)))
+
+df_best_ptrs2 = rbind(
+  best_cau %&gt;% select(trait, population, r2_max) %&gt;% rename(partial_R2 = r2_max) %&gt;% mutate(train_population = &#39;EUR&#39;, training_data = &#39;MESA&#39;, tissue = &#39;Monocyte&#39;),
+  best_afhi %&gt;% select(trait, population, r2_max) %&gt;% rename(partial_R2 = r2_max) %&gt;% mutate(train_population = &#39;AFHI&#39;, training_data = &#39;MESA&#39;, tissue = &#39;Monocyte&#39;)
+)
+
+df_best_ptrs = rbind(df_best_ptrs, df_best_ptrs2) 
+df_best_ptrs = df_best_ptrs[ order(df_best_ptrs$training_data, df_best_ptrs$train_population, df_best_ptrs$population, df_best_ptrs$trait), ]
+
+# ptrs table
+write.csv(df_best_ptrs, &#39;../analysis_output/ptrs_table.csv&#39;, quote = F, row.names = F)</code></pre>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
