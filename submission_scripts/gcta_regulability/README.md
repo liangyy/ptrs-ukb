@@ -104,3 +104,17 @@ MODE=tissue_svd_train
 POP='British-test-1'
 screen -dmS hail-$POP-$CONFIGNAME bash run_hail_multi.screen $POP $CONFIGNAME $OUTDIR $MODE
 ```
+
+
+Run `hail` with a pre-specified gene list
+
+```
+# GENEMODEL=CAU or AFHI
+# OUTDIR=/vol/bmd/yanyul/UKB/gcta_regulability/common_gene to avoid overwrite
+# GENELIST=/vol/bmd/yanyul/GitHub/ptrs-ukb/misc/common_genes_in_mesa_cau_and_afhi.txt
+mylist=('African' 'British-test-1' 'Indian' 'Chinese')
+for i in "${mylist[@]}"
+do 
+  screen -dmS hail-$i-$GENEMODEL bash run_hail_w_gene_list.screen $i $GENEMODEL $OUTDIR
+done
+```

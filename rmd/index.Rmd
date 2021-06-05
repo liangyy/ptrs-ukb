@@ -23,6 +23,7 @@ title: "Home"
 * REML [link](regulability_gcta.html)
 * REML on MESA models [link](regulability_mesa.html)
 * REML on 10 tissues CTIMP models (GTEx V8) [link](regulability_ctimp.html)
+* REML on MESA models with common genes [link](regulability_mesa_common_genes.html)
 
 # PRS/PTRS results
 

@@ -14,3 +14,7 @@ table_name: 'martin_et_al_traits'
 
 # gcta binary path
 gcta_path: '/vol/bmd/yanyul/softwares/gcta_1.93.0beta/gcta64'
+
+# limit to a subset of genes 
+# THIS is only applicable to hail based run (mode = naive)
+# gene_list: '/vol/bmd/yanyul/GitHub/ptrs-ukb/misc/common_genes_in_mesa_cau_and_afhi.txt'

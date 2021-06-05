@@ -6,11 +6,23 @@ title: "Building supplementary tables"
 rm(list = ls())
 library(dplyr)
 library(pander)
+library(data.table)
+options(datatable.fread.datatable = F)
 source('../code/rlib_doc.R')
 bold <- function(x) {paste('{\\textbf{',x,'}}', sep ='')}
 o = get_meta_for_supp()
 df_color_category = o$df_color_category
 # color_mixer = o$color_mixer
+
+my_rename_pop = function(pop) {
+  res = rep('EUR', length(pop))
+  res[pop == 'Indian'] = 'S.ASN'
+  res[pop == 'Chinese'] = 'E.ASN'
+  res[pop == 'African'] = 'AFR'
+  res[pop == 'British \n (validation)'] = 'EUR ref.'
+  res[pop == 'British \n (test)'] = 'EUR test'
+  factor(res, levels = c('EUR ref.', 'EUR test', 'EUR', 'S.ASN', 'E.ASN', 'AFR'))
+}
 ```
 
 # S Table: phenotype information
@@ -31,7 +43,7 @@ for(i in names(query_)) {
 }
 query = do.call(rbind, query)
 rownames(query) = NULL
-dict = read.csv("http://biobank.ctsu.ox.ac.uk/~bbdatan/Data_Dictionary_Showcase.csv", stringsAsFactors = F)
+dict = read.csv("~/Downloads/Data_Dictionary_Showcase.csv", stringsAsFactors = F)
 dict$FieldID = as.character(dict$FieldID)
 info = left_join(query, dict %>% select(Field, Instances, Array, FieldID), by = c('id' = 'FieldID'))
 info = left_join(info %>% mutate(trait = tolower(phenotype_tag)), df_color_category, by = 'trait')
@@ -58,7 +70,7 @@ system(cmd)
 
 ```{r stab2}
 pheno_table = fread('../output/query_phenotypes_cleaned_up.csv', sep = ',')
-dd = pheno_table %>% group_by(meaning) %>% summarize(n = n()) %>% ungroup()
+dd = pheno_table %>% group_by(meaning) %>% summarize(n = n()) %>% ungroup() %>% mutate(meaning = my_rename_pop(meaning))
 colnames(dd) = c('Ancestry', 'Number of individuals')
 
 ### save as tex table
@@ -132,13 +144,13 @@ for(p in pops) {
 }
 mesa = do.call(rbind, tmp_list)
 mesa = mesa %>% select(num_predictors, model) %>% filter(!duplicated(model)) # %>% pander
-mesa = left_join(mesa, data.frame(model = c('CAU', 'AFHI'), pop = c('European', 'African American or Hispanic')), by = 'model')
+mesa = left_join(mesa, data.frame(model = c('EUR', 'AFHI'), pop = c('European', 'African American or Hispanic')), by = 'model')
 mesa = left_join(mesa, f %>% select(abbreviation, sample_size), by = c('model' = 'abbreviation'))
 df_mesa = data.frame(method = 'Elastic Net', data_source = 'MESA', population = mesa$pop, tissue = 'Monocyte', number_of_genes = mesa$num_predictors, sample_size = mesa$sample_size)
 
 ### the combined table
 dd = rbind(df_gtex, df_mesa)
-dd$tag = c(rep('', nrow(dd) - 3), c('GTEx EUR', 'MESA CAU', 'MESA AFHI'))
+dd$tag = c(rep('', nrow(dd) - 3), c('GTEx EUR', 'MESA EUR', 'MESA AFHI'))
 colnames(dd) = c('Method', 'Data source', 'Population', 'Tissue', 'Number of genes', 'Sample size', 'Tag')
 
 ### save as tex table
@@ -159,4 +171,104 @@ print(
 # update the copy in paper-ptrs repo
 cmd = paste('cp', '../analysis_output/prediction_models.tex', '../../paper-ptrs/tables/prediction_models.tex')
 system(cmd)
+```
+
+# S Table: chip h2, PVE
+
+PRS related table.
+
+```{r}
+h2 = readRDS('../analysis_output/hsq_neale_lab.rds')
+h2$h2_observed[is.na(h2$h2_observed)] = 0
+df_h2 = h2 %>% select(trait, h2_observed, h2_observed_se) %>% rename(chip_h2 = h2_observed, chip_h2_se = h2_observed_se)
+
+# h2 table
+write.csv(df_h2, '../analysis_output/h2_table.csv', quote = F, row.names = F)
+
+
+df_prs = read.table('../../ptrs-analysis/data/partial_r2-prs.subset1_British.tsv', header = T, sep = '\t', stringsAsFactors = F)
+df_prs$sample[df_prs$sample == 'British-test-1'] = 'British_test'
+df_prs$sample[df_prs$sample == 'British-validation-1'] = 'British_validation'
+df_prs = df_prs %>% rename(prs_cutoff = ptrs_cutoff)
+df_prs = df_prs %>% arrange(desc(-prs_cutoff))
+
+best_prs = df_prs %>% group_by(trait, sample) %>% summarize(r2_max = max(partial_r2, na.rm = T)) %>% ungroup() %>% mutate(population = my_rename_pop(update_popname(sample)))
+df_best_prs = best_prs %>% select(trait, population, r2_max) %>% rename(partial_R2 = r2_max) 
+df_best_prs = df_best_prs[ order(df_best_prs$population, df_best_prs$trait), ]
+
+# prs table
+write.csv(df_best_prs, '../analysis_output/prs_table.csv', quote = F, row.names = F)
+```
+
+PTRS related table.
+
+```{r}
+pve = readRDS('../analysis_output/regulability_ctimp.rds')
+pve$population[pve$population == 'British-test-1'] = 'British_test'
+pve$population[pve$population == 'British-validation-1'] = 'British_validation'
+pve$h_sq[is.na(pve$h_sq)] = 0
+
+pve2 = readRDS('../analysis_output/regulability_mesa_common_genes.rds')
+pve2$population[pve2$population == 'British-test-1'] = 'British_test'
+pve2$population[pve2$population == 'British-validation-1'] = 'British_validation'
+pve2$h_sq[is.na(pve2$h_sq)] = 0
+
+pops = c('African', 'British-test-1', 'Chinese', 'Indian')
+pve3 = list()
+for(pop in pops) {
+  tmp = read.table(paste0('../../ptrs-analysis/data/reml_from_hail-multi-tissue-tissue_svd_x_martin_et_al_traits_x_ctimp_x_', pop, '.tsv'), header = T, stringsAsFactors = F, sep = '\t')
+  pve3[[length(pve3) + 1]] = tmp %>% mutate(population = pop)
+}
+pve3 = do.call(rbind, pve3)
+pve3[is.na(pve3)] = 0
+pve3$population[pve3$population == 'British-test-1'] = 'British_test'
+
+
+pve2$train_population = rep('EUR', nrow(pve2))
+pve2$train_population[pve2$model == 'AFHI'] = 'AFHI'
+pve2$training_data = 'MESA'
+pve2$tissue = 'Monocyte'
+
+df_pve = rbind(
+  pve %>% select(trait, num_predictors, h_sq, h_sq_se, population) %>% mutate(train_population = 'EUR', training_data = 'GTEx', tissue = 'Whole Blood'),
+  pve2 %>% select(trait, num_predictors, h_sq, h_sq_se, population, train_population, training_data, tissue),
+  pve3 %>% select(trait, num_predictors, h_sq, h_sq_se, population) %>% mutate(train_population = 'EUR', training_data = 'GTEx', tissue = '10 Tissues')
+)
+
+df_pve$population = my_rename_pop(df_pve$population)
+df_pve = df_pve %>% rename(num_genes = num_predictors) %>% rename(pve = h_sq, pve_se = h_sq_se)
+
+# pve table
+write.csv(df_pve, '../analysis_output/pve_table.csv', quote = F, row.names = F)
+
+
+df_en = read.csv('../../ptrs-analysis/data/elastic_net_ptrs_gtex_british.performance.csv', stringsAsFactors = F)
+df_en$sample[ df_en$sample == 'British_valid' ] = 'British_validation'
+df_en = df_en %>% filter(!is.na(partial_r2)) %>% group_by(trait, alpha, sample) %>% mutate(order = 1 : n()) %>% ungroup() %>% filter(order <= 11) %>% select(-order)
+best_en = df_en %>% select(sample, trait, partial_r2) %>%
+  group_by(trait, sample) %>% summarize(r2_max = max(partial_r2, na.rm = T)) %>% ungroup() %>% mutate(population = my_rename_pop(update_popname(sample)))
+df_best_ptrs = best_en %>% select(trait, population, r2_max) %>% rename(partial_R2 = r2_max) %>% mutate(train_population = 'EUR', training_data = 'GTEx', tissue = 'Whole Blood')
+
+
+df_en2 = read.csv('../../ptrs-analysis/data/elastic_net_ptrs_mesa_british.performance.csv', stringsAsFactors = F)
+df_en2$sample[ df_en2$sample == 'British_valid' ] = 'British_validation'
+df_en2 = df_en2 %>% filter(!is.na(partial_r2)) %>% group_by(trait, alpha, sample, pred_expr_source) %>% mutate(order = 1 : n()) %>% ungroup() %>% filter(order <= 11) %>% select(-order)
+best_en2 = df_en2 %>% select(sample, trait, partial_r2, pred_expr_source) %>%
+  group_by(trait, sample, pred_expr_source) %>% summarize(r2_max = max(partial_r2, na.rm = T)) %>% ungroup() %>% mutate(population = my_rename_pop(update_popname(sample)))
+df_cau = df_en2 %>% filter(pred_expr_source == 'train')
+df_afhi = df_en2 %>% filter(pred_expr_source == 'against')
+
+best_cau = df_cau %>% group_by(trait, sample) %>% summarize(r2_max = max(partial_r2, na.rm = T)) %>% ungroup() %>% mutate(population = my_rename_pop(update_popname(sample)))
+best_afhi = df_afhi %>% group_by(trait, sample) %>% summarize(r2_max = max(partial_r2, na.rm = T)) %>% ungroup() %>% mutate(population = my_rename_pop(update_popname(sample)))
+
+df_best_ptrs2 = rbind(
+  best_cau %>% select(trait, population, r2_max) %>% rename(partial_R2 = r2_max) %>% mutate(train_population = 'EUR', training_data = 'MESA', tissue = 'Monocyte'),
+  best_afhi %>% select(trait, population, r2_max) %>% rename(partial_R2 = r2_max) %>% mutate(train_population = 'AFHI', training_data = 'MESA', tissue = 'Monocyte')
+)
+
+df_best_ptrs = rbind(df_best_ptrs, df_best_ptrs2) 
+df_best_ptrs = df_best_ptrs[ order(df_best_ptrs$training_data, df_best_ptrs$train_population, df_best_ptrs$population, df_best_ptrs$trait), ]
+
+# ptrs table
+write.csv(df_best_ptrs, '../analysis_output/ptrs_table.csv', quote = F, row.names = F)
 ```

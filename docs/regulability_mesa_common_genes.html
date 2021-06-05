@@ -11,7 +11,7 @@
 
 
 
-<title>Home</title>
+<title>Regulability based on predicted expression: MESA models: using common genes</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -381,49 +381,103 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Home</h1>
+<h1 class="title toc-ignore">Regulability based on predicted expression: MESA models: using common genes</h1>
 
 </div>
 
 
-<div id="query-phenotypes" class="section level1">
-<h1><span class="header-section-number">1</span> Query phenotypes</h1>
-<ul>
-<li>First attempt <a href="first_query.html">link</a></li>
-</ul>
+<pre class="r"><code>library(ggplot2)
+library(dplyr)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;dplyr&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<pre class="r"><code>library(pander)
+options(stringsAsFactors = F)
+source(&#39;../code/rlib_doc.R&#39;)
+theme_set(theme_bw(base_size = 12))
+source(&#39;https://gist.githubusercontent.com/liangyy/43912b3ecab5d10c89f9d4b2669871c9/raw/8151c6fe70e3d4ee43d9ce340ecc0eb65172e616/my_ggplot_theme.R&#39;)
+th2 = th
+th2$panel.border = element_rect(colour = th2$axis.line$colour)</code></pre>
+<div id="load-results" class="section level1">
+<h1><span class="header-section-number">1</span> Load results</h1>
+<p>Load MESA results (not common genes).</p>
+<pre class="r"><code>h2 = readRDS(&#39;../analysis_output/hsq_neale_lab.rds&#39;) %&gt;% select(h2_observed, h2_observed_se, trait)
+mesa_old = readRDS(&#39;../analysis_output/regulability_mesa_and_ctimp.rds&#39;)
+mesa_old = mesa_old[ mesa_old$model %in% c(&#39;CAU&#39;, &#39;AFHI&#39;), ]</code></pre>
+<p>Load MESA results (common genes).</p>
+<pre class="r"><code>pops = c(&#39;African&#39;, &#39;Chinese&#39;, &#39;Indian&#39;, &#39;British-test-1&#39;)
+models = c(&#39;CAU&#39;, &#39;AFHI&#39;)
+tmp_list = list()
+for(p in pops) {
+  for(m in models) {
+    filename = paste0(&#39;~/Desktop/tmp/gcta_regu/common_gene/reml_from_hail_martin_et_al_traits_x_&#39;, m, &#39;_x_&#39;, p, &#39;.tsv&#39;)
+    tmp_list[[length(tmp_list) + 1]] = read.table(filename, header  = T, sep = &#39;\t&#39;) %&gt;% mutate(population = p, model = m)
+  }
+}
+mesa = do.call(rbind, tmp_list)
+mesa$population[mesa$population == &#39;British-test-1&#39;] = &#39;British&#39;
+mesa[which(mesa == &#39;British-test-1&#39;)] = &#39;British&#39;
+saveRDS(mesa, &#39;../analysis_output/regulability_mesa_common_genes.rds&#39;)</code></pre>
+<pre class="r"><code>regu = rbind(
+  mesa_old %&gt;% mutate(type = &#39;not_common&#39;), 
+  mesa %&gt;% mutate(type = &#39;common&#39;)
+)
+regu$h_sq[is.na(regu$h_sq)] = 0</code></pre>
 </div>
-<div id="quality-control" class="section level1">
-<h1><span class="header-section-number">2</span> Quality control</h1>
-<ul>
-<li>Population QC (based on UKB label and filter out outliers in PC space (10 PC’s)) <a href="population_assignment.html">link</a></li>
-<li>Phenotype QC <a href="phenotype_qc.html">link</a></li>
-<li>Monocyte technical covariates and multiple modes in monocyte count <a href="query_monocyte_covar.html">link</a></li>
-</ul>
-</div>
-<div id="gwas-tries" class="section level1">
-<h1><span class="header-section-number">3</span> GWAS tries</h1>
-<ul>
-<li>First attempt <a href="first_gwas_compare.html">link</a></li>
-<li>Sanity check of GWAS runs using GCP <a href="check_gwas_run.html">link</a></li>
-</ul>
-</div>
-<div id="misc-analysis" class="section level1">
-<h1><span class="header-section-number">4</span> Misc analysis</h1>
-<ul>
-<li>Splitting data into training, validation, and test sets <a href="split_individuals.html">link</a></li>
-<li>REML <a href="regulability_gcta.html">link</a></li>
-<li>REML on MESA models <a href="regulability_mesa.html">link</a></li>
-<li>REML on 10 tissues CTIMP models (GTEx V8) <a href="regulability_ctimp.html">link</a></li>
-<li>REML on MESA models with common genes <a href="regulability_mesa_common_genes.html">link</a></li>
-</ul>
-</div>
-<div id="prsptrs-results" class="section level1">
-<h1><span class="header-section-number">5</span> PRS/PTRS results</h1>
-<ul>
-<li>First look at PTRS/PRS on GTEx V8 whole blood CTIMP model <a href="first_look_at_ptrs_prs.html">link</a></li>
-<li>MESA PTRS <a href="first_look_at_mesa_ptrs.html">link</a></li>
-<li>PTRS with LD block based pruning or mashr p-value <a href="first_look_at_ldblock_ptrs.html">link</a></li>
-</ul>
+<div id="results" class="section level1">
+<h1><span class="header-section-number">2</span> Results</h1>
+<pre class="r"><code>regu %&gt;% reshape2::dcast(trait + population + type ~ model, value.var = &#39;h_sq&#39;) %&gt;% ggplot() + 
+  geom_point(aes(x = CAU, y = AFHI, color = population)) +
+  facet_wrap(~type) +
+  geom_abline(slope = 1, intercept = 0) + th2</code></pre>
+<p><img src="regulability_mesa_common_genes_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+<p>Figure 2B with new results.</p>
+<pre class="r"><code>df_mesa = inner_join(mesa, h2, by = &#39;trait&#39;) %&gt;% 
+  rename(pve = h_sq, pve_se = h_sq_se) %&gt;% 
+  rename(h2chip = h2_observed, h2chip_se = h2_observed_se) %&gt;% 
+  rename(train_pop = model, target_pop = population)
+
+afr = df_mesa %&gt;% 
+    #filter(pve/pve_se &gt; 2) %&gt;% 
+  filter(h2chip/h2chip_se &gt; 2) %&gt;%
+  filter(train_pop %in% c(&quot;AFHI&quot;,&quot;CAU&quot;)) %&gt;%
+  select(trait, train_pop, pve, target_pop) %&gt;%
+  filter(target_pop==&quot;African&quot;) %&gt;% 
+  (function(x) coef(summary(lm(pve ~ train_pop, data=x)))[2,1:2])
+afr = c(afr,target_pop = &quot;AFR&quot;)
+
+eur = df_mesa %&gt;% 
+    #filter(pve/pve_se &gt; 2) %&gt;% 
+  filter(h2chip/h2chip_se &gt; 2) %&gt;%
+  filter(train_pop %in% c(&quot;AFHI&quot;,&quot;CAU&quot;)) %&gt;%
+  select(trait, train_pop, pve, target_pop) %&gt;%
+  filter(target_pop==&quot;British&quot;) %&gt;%
+  (function(x) coef(summary(lm(pve ~ train_pop, data=x)))[2,1:2])
+eur = c(eur,target_pop =&quot;EUR&quot;)
+
+df_fig2b = data.frame(rbind(afr, eur))
+names(df_fig2b) = c(&quot;delta_pve&quot;, &quot;se_delta_pve&quot;,&quot;target_pop&quot;)
+df_fig2b$delta_pve = as.numeric(df_fig2b$delta_pve)
+df_fig2b$se_delta_pve = as.numeric(df_fig2b$se_delta_pve)
+## flip the sign so that diff is relative to MESA EUR
+df_fig2b = df_fig2b%&gt;% mutate(delta_pve = - delta_pve)
+
+pp = ggplot(df_fig2b,aes(target_pop, delta_pve)) + 
+  geom_hline(yintercept=0,col=&#39;gray&#39;,size=1.2,linetype=&#39;dotted&#39;) + 
+  geom_errorbar(aes(ymin = delta_pve- 2*se_delta_pve, 
+                    ymax = delta_pve+ 2*se_delta_pve),
+                width=0.2,size=1,col=&#39;gray&#39;) +
+  geom_point(size=10,alpha=.5) + 
+  theme_bw(base_size =13) + th + 
+  ggtitle(&quot;PVE(MESA AFHI) - PVE(MESA EUR)&quot;) +
+  ylab(&quot;Increse in PVE&quot;)
+pp</code></pre>
+<p><img src="regulability_mesa_common_genes_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
 </div>
 
 
