@@ -1,0 +1,18 @@
+#PBS -S /bin/bash
+#PBS -l walltime=24:00:00
+#PBS -l nodes=1:ppn=4
+#PBS -l mem=16gb
+#PBS -e logs/${NUM}.err
+#PBS -o logs/${NUM}.out
+
+
+source ~/.bash_profile
+source ~/.bashrc
+cd /gpfs/data/im-lab/nas40t2/yanyul/GitHub/ptrs-ukb/submission_scripts/calc_grm
+
+bash calc_grm.sh \
+  /scratch/t.cri.yliang/ptrs-ukb/subset_bgen_eur_test/subset_chr$NUM.bgen \
+  /scratch/t.cri.yliang/ptrs-ukb/subset_bgen_eur_test/subset_chr$NUM.sample \
+  /scratch/t.cri.yliang/ptrs-ukb/subset_bgen_eur_test/grm_subset_chr$NUM \
+  16000 \
+  4
