@@ -3,9 +3,9 @@ if 'outdir' not in config:
 
 var_opt = ''
 if 'variant_list' in config:
-    var_opt = f'--extract {}'.format(config['variant_list'])
+    var_opt = '--extract {}'.format(config['variant_list'])
 elif 'variant_maf' in config:
-    var_opt = f'--maf {}'.format(config['variant_maf'])
+    var_opt = '--maf {}'.format(config['variant_maf'])
 
 rule all:
     input:

@@ -1,0 +1,18 @@
+#PBS -S /bin/bash
+#PBS -l walltime=24:00:00
+#PBS -l nodes=1:ppn=4
+#PBS -l mem=16gb
+#PBS -e logs/merge.err
+#PBS -o logs/merge.out
+#PBS -N merge
+
+
+source ~/.bash_profile
+source ~/.bashrc
+cd /gpfs/data/im-lab/nas40t2/yanyul/GitHub/ptrs-ukb/submission_scripts/calc_grm
+
+for i in `seq 1 22`; do echo "/scratch/t.cri.yliang/ptrs-ukb/subset_bgen_eur_test/grm_subset_chr$i" ; done > merge_list
+
+gcta=/gpfs/data/im-lab/nas40t2/yanyul/softwares/gcta_1.93.2beta/gcta64
+
+$gcta --mgrm-gz merge_list --make-grm-gz --out /scratch/t.cri.yliang/ptrs-ukb/subset_bgen_eur_test/grm_subset_merged

@@ -17,7 +17,8 @@ module load R/3.5.0
 
 if [[ $PREDMODEL == '' ]]
 then
-  snakemake -s ptrs.snmk --configfile ../../submission_scripts/ptrs/config.$CONFIG.yaml --nolock --config spredixcan_list=$SPREDIXCANLIST indiv_list_name=$INDIVLIST > ../../submission_scripts/ptrs/logs/$CONFIG-$NUM-$INDIVLIST.log 2>&1
+  snakemake -s ptrs.snmk --configfile ../../submission_scripts/ptrs/config.$CONFIG.yaml --nolock --config spredixcan_list=$SPREDIXCANLIST indiv_list_name=$INDIVLIST > ../../submission_scripts/ptrs/logs/$CONFIG-$NUM-$INDIVLIST.log 2>&1  
 else
-  snakemake -s ptrs.snmk --configfile ../../submission_scripts/ptrs/config.$CONFIG.yaml --nolock --config spredixcan_list=$SPREDIXCANLIST indiv_list_name=$INDIVLIST prediction_model_name=$PREDMODEL > ../../submission_scripts/ptrs/logs/$CONFIG-$NUM-$INDIVLIST-$PREDMODEL.log 2>&1
+  snakemake -s ptrs.snmk --configfile ../../submission_scripts/ptrs/config.$CONFIG.yaml --nolock --config spredixcan_list=$SPREDIXCANLIST indiv_list_name=$INDIVLIST prediction_model_name=$PREDMODEL > ../../submission_scripts/ptrs/logs/$CONFIG-$NUM-$INDIVLIST-$PREDMODEL.log 2>&1  
 fi
+
