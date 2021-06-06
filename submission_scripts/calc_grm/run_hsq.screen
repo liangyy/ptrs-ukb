@@ -1,0 +1,39 @@
+# args1: POP
+# args2: data_split
+
+POP=$1
+SPLIT=$2
+
+# environment setup
+source /vol/bmd/yanyul/miniconda3/etc/profile.d/conda.sh
+conda activate /vol/bmd/yanyul/softwares/conda_envs/hail
+source /vol/bmd/yanyul/GitHub/ptrs-ukb/scripts/source_snakemake_on_nucleus.sh
+
+WORKDIR=/vol/bmd/yanyul/GitHub/ptrs-ukb/
+SUBDIR=/vol/bmd/yanyul/GitHub/ptrs-ukb/submission_scripts/calc_grm
+OUTDIR=/vol/bmd/yanyul/UKB/gcta_regulability/h2_reml
+
+grmprefix=/vol/bmd/yanyul/UKB/gcta_regulability/h2_reml/grm_subset_merged
+pheno_covar='/vol/bmd/yanyul/GitHub/ptrs-ukb/output/new_query_phenotypes_cleaned_up.csv'
+pheno_covar_yaml='/vol/bmd/yanyul/GitHub/ptrs-ukb/misc/gwas_full_pheno_covar.yaml'
+indiv_list="/vol/bmd/yanyul/GitHub/ptrs-ukb/output/$SPLIT/$POP.txt"
+output=$OUTDIR/hsq.$SPLIT.$POP.txt
+
+cd $WORKDIR
+mkdir -p $OUTDIR
+
+pheno=$OUTDIR/pheno.$POP.tsv
+covar=$OUTDIR/covar.$POP.tsv
+python code/subset_pheno_covar_by_indiv.py \
+   --pheno-covar-csv $pheno_covar \
+   --indiv-list $indiv_list \
+   --pheno-covar-yaml $pheno_covar_yaml \
+   --output-pheno $pheno \
+   --output-covar $covar
+
+python code/estimate_hsq.py \
+  --trait-table $pheno::eid \
+   --covar-table $covar::eid \
+   --grm-gz $grmprefix \
+   --output $output \
+   --with-intercept
