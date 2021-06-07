@@ -1,0 +1,18 @@
+#PBS -S /bin/bash
+#PBS -l walltime=24:00:00
+#PBS -l nodes=1:ppn=4
+#PBS -l mem=16gb
+#PBS -e prep_prs_weights.err
+#PBS -o prep_prs_weights.out
+#PBS -N prep_prs_weights
+
+
+source ~/.bash_profile
+source ~/.bashrc
+
+conda activate r_36
+
+cd ${PBS_O_WORKDIR}
+
+bash prep_prs_weights.sh 
+

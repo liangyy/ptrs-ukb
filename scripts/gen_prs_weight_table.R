@@ -38,7 +38,7 @@ opt_parser <- OptionParser(option_list=option_list)
 opt <- parse_args(opt_parser) 
 
 library(data.table)
-
+library(dplyr)
 
 # logging config
 logging::basicConfig(level = opt$log_level)
@@ -52,10 +52,10 @@ for(trait in names(data_list)) {
   snp_pool = data_list[[trait]]$ld_clump
   
   logging::loginfo(glue::glue('{trait}: Loading GWAS table'))
-  df_gwas = fread(gwas_tsv, sep = '\t')
+  df_gwas = fread(gwas_tsv, sep = '\t', data.table = F)
   
   logging::loginfo(glue::glue('{trait}: Loading SNP Pool'))
-  snp_pool = fread(snp_pool, header = F)$V1
+  snp_pool = fread(snp_pool, header = F, data.table = F)$V1
   
   logging::loginfo(
     glue::glue('{trait}: There are {nrow(df_gwas)} SNPs in GWAS.')
@@ -69,27 +69,29 @@ for(trait in names(data_list)) {
   logging::loginfo(
     glue::glue('{trait}: There are {nrow(df_in)} SNPs in both')
   )
-  
-  df_weights = NULL
-  for(pp in sort(pval_cutoffs, decreasing = T)) {
-    df_in = df_in[ df_in[[opt$pval]] <= pp, ]
-    logging::loginfo(
-      glue::glue('{trait}: There are {nrow(df_in)} SNPs at p-value <= {pp}')
-    )
-    tmp = df_in[, c(opt$snpid, opt$effect_allele, opt$effect_size)]
-    colnames(tmp) = c('snpid', 'effect_allele', glue::glue('pval_thres_x_{trait}_x_{pval}'))
-    if(is.null(df_weights)) {
-      df_weights = tmp
-    } else {
-      df_weights = left_join(df_weights, tmp, by = c('snpid', 'effect_allele'))
-    }
-  }
+  df_in = df_in[, c(opt$snpid, opt$pval, opt$effect_allele, opt$effect_size)] 
+  colnames(df_in) = c('snpid', 'pval', 'effect_allele', 'effect_size')
+  # df_weights = NULL
+  # for(pp in sort(pval_cutoffs, decreasing = T)) {
+  #   df_in = df_in[ df_in[[opt$pval]] <= pp, ]
+  #   logging::loginfo(
+  #     glue::glue('{trait}: There are {nrow(df_in)} SNPs at p-value <= {pp}')
+  #   )
+  #   tmp = df_in[, c(opt$snpid, opt$effect_allele, opt$effect_size)]
+  #   colnames(tmp) = c('snpid', 'effect_allele', glue::glue('pval_thres_x_{trait}_x_{pp}'))
+  #   if(is.null(df_weights)) {
+  #     df_weights = tmp
+  #   } else {
+  #     df_weights = left_join(df_weights, tmp, by = c('snpid', 'effect_allele'))
+  #   }
+  # }
+  # df_weights[is.na(df_weights)] = 0
   
   logging::loginfo(
     glue::glue('{trait}: Saving')
   )
   fn = glue::glue('{opt$output_prefix}.{trait}.prs_weights.tsv')
-  write.table(df_weights, fn, row = F, col = T, quo = F, sep = '\t')
+  write.table(df_in, fn, row = F, col = T, quo = F, sep = '\t')
 }
 
 
