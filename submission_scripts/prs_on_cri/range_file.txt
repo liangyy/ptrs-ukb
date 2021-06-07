@@ -1,0 +1,11 @@
+pval_cutoff_1 0 1
+pval_cutoff_0.5 0 0.5
+pval_cutoff_0.1 0 0.1
+pval_cutoff_0.05 0 0.05 
+pval_cutoff_0.01 0 0.01
+pval_cutoff_1e-3 0 1e-3
+pval_cutoff_1e-4 0 1e-4
+pval_cutoff_1e-5 0 1e-5
+pval_cutoff_1e-6 0 1e-6
+pval_cutoff_1e-7 0 1e-7
+pval_cutoff_5e-8 0 5e-8
