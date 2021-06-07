@@ -1,9 +1,9 @@
-outdir: '/scratch/t.cri.yliang/PTRS/ptrs_mesa_r2_ALL'
+outdir: '/scratch/t.cri.yliang/PTRS/ptrs_mesa_ldblock_r2_ALL'
 populations: 'Chinese:Indian:African:British-test-{num}:British-validation-{num}'
 trait_list: 'basophil,bmi,dbp,eosinophil,hb,height,ht,lymphocyte,mch,mchc,mcv,monocyte,neutrophil,platelet,rbc,sbp,wbc'
 # ptrs_name: 'subset1_x_bmi'
 ptrs: 
-  prefix: /scratch/t.cri.yliang/PTRS/ptrs_mesa/ptrs_naive_spredixcan_subset{num}_x_{trait_name}_x_ALL_x_
+  prefix: /scratch/t.cri.yliang/PTRS/ptrs_mesa/ptrs_ldblock_spredixcan_subset{num}_x_{trait_name}_x_ALL_x_
   suffix: .tsv.gz
 phenotype: 
   table: '/scratch/t.cri.yliang/PTRS/output/query_phenotypes_cleaned_up.csv'

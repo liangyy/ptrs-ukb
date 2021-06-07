@@ -40,5 +40,6 @@ if(opt$mode == 'naive') {
   mashr = read.csv(opt$mashr) %>% select(gene, pvalue)
   df = df %>% filter(abs(effect_size) < 5)
   df = df %>% select(gene) %>% left_join(mashr, by = 'gene')
+  df$pvalue[is.na(df$pvalue)] = 1
   write.table(df %>% select(gene, pvalue), opt$output, quo = F, col = F, row = F, sep = '\t')
 }

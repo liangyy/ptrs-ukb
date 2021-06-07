@@ -5,5 +5,5 @@ fi
 
 for i in `seq 1 22`
 do
-  qsub -v NUM=$i run_subset_bgen_eur_test.qsub
+  echo qsub -v NUM=$i run_subset_bgen_eur_test.qsub
 done

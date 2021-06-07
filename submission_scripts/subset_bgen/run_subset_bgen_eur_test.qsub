@@ -11,7 +11,7 @@ source ~/.bashrc
 cd /gpfs/data/im-lab/nas40t2/yanyul/GitHub/ptrs-ukb/pipeline/subset_bgen
 
 
-MYSNMK=/home/t.cri.yliang/miniconda2/envs/snakemake
+MYSNMK=/home/t.cri.yliang/miniconda2/envs/snakemake/bin/snakemake
 
 $MYSNMK -s subset_bgen.snmk --configfile ${PBS_O_WORKDIR}/config.eur_test.yaml \
-  -p --cores 4 --config chr_num=$NUM > $PBS_O_WORKDIR/logs/$NUM.log 2>&1
+  -p --cores 4 all_one_chr --config chr_num=$NUM > $PBS_O_WORKDIR/logs/$NUM.log 2>&1
