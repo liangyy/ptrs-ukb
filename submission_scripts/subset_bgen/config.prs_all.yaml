@@ -1,0 +1,10 @@
+variant_maf: 0.05
+individual_list: '/gpfs/data/im-lab/nas40t2/yanyul/GitHub/ptrs-ukb/submission_scripts/subset_bgen/sample_list.prs_all.txt'
+bgen: '/gpfs/data/ukb-share/genotypes/v3/ukb_imp_chr{chr_num}_v3.bgen'
+sample: '/gpfs/data/ukb-share/genotypes/ukb19526_imp_chr1_v3_s487395.sample'
+# chr_num: 22
+plink2_path: '/gpfs/data/im-lab/nas40t2/yanyul/softwares/plink2'
+plink_memory_in_mb: 15000
+plink_threads: 4
+outdir: '/scratch/t.cri.yliang/ptrs-ukb/subset_bgen_prs_all'
+
