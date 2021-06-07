@@ -2,8 +2,8 @@
 #PBS -l walltime=24:00:00
 #PBS -l nodes=1:ppn=4
 #PBS -l mem=16gb
-#PBS -e logs/${NUM}.err
-#PBS -o logs/${NUM}.out
+#PBS -e logs/prs_${NUM}.err
+#PBS -o logs/prs_${NUM}.out
 
 
 source ~/.bash_profile
@@ -11,7 +11,7 @@ source ~/.bashrc
 cd /gpfs/data/im-lab/nas40t2/yanyul/GitHub/ptrs-ukb/pipeline/subset_bgen
 
 
-MYSNMK=/home/t.cri.yliang/miniconda2/envs/snakemake
+MYSNMK=/home/t.cri.yliang/miniconda2/envs/snakemake/bin/snakemake
 
 $MYSNMK -s subset_bgen.snmk --configfile ${PBS_O_WORKDIR}/config.prs_all.yaml \
-  -p --cores 4 --config chr_num=$NUM > $PBS_O_WORKDIR/logs/$NUM.log 2>&1
+  -p --cores 4 all_one_chr --config chr_num=$NUM > $PBS_O_WORKDIR/logs/prs_$NUM.log 2>&1

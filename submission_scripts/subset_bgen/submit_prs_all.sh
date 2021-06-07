@@ -9,5 +9,5 @@ fi
 
 for i in `seq 1 22`
 do
-  qsub -v NUM=$i run_subset_bgen_prs_all.qsub
+  echo qsub -v NUM=$i run_subset_bgen_prs_all.qsub
 done
