@@ -11,9 +11,9 @@ option_list <- list(
                 [snp-pool]: 'path'
               ",
               metavar="character"),
-  make_option(c("-p", "--pval_cutoffs"), type="character", default=NULL,
-              help="List of p-value cutoffs, separated by ,",
-              metavar="character"),
+  # make_option(c("-p", "--pval_cutoffs"), type="character", default=NULL,
+  #             help="List of p-value cutoffs, separated by ,",
+  #             metavar="character"),
   make_option(c("-l", "--log_level"), type="integer", default=9,
               help="Logging level",
               metavar="character"),
@@ -44,7 +44,7 @@ library(dplyr)
 logging::basicConfig(level = opt$log_level)
 
 data_list = yaml::read_yaml(opt$data_yaml)
-pval_cutoffs = as.numeric(strsplit(opt$pval_cutoffs, ',')[[1]])
+# pval_cutoffs = as.numeric(strsplit(opt$pval_cutoffs, ',')[[1]])
 
 for(trait in names(data_list)) {
   
