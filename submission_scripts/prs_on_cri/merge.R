@@ -3,7 +3,7 @@ library(data.table)
 options(stringsAsFactors = F)
 
 dir = '/scratch/t.cri.yliang/ptrs-ukb/prs_on_cri'
-output = '/gpfs/data/im-lab/nas40t2/yanyul/PTRS/prs_cri_subset1.tsv.gz'
+output = '/scratch/t.cri.yliang/ptrs-ukb/prs_cri_subset1.tsv.gz'  # '/gpfs/data/im-lab/nas40t2/yanyul/PTRS/prs_cri_subset1.tsv.gz'
 
 traits = read.table('trait_list.txt', header = F)$V1
 ranges = read.table('range_file.txt', header = F)$V1
@@ -16,7 +16,7 @@ for(trait in traits) {
     for(chr in 1 : 22) {
       message(glue::glue('Working on {trait} {range} chr{chr}'))
       fn = glue::glue('{dir}/{trait}.chr{chr}.{range}.sscore')
-      tmp = fread(fn, header = T)
+      tmp = fread(fn, header = T, data.table = F)
       coln = glue::glue('{trait}_x_{range}')
       colnames(tmp) = c('indiv', coln)
       if(is.null(ddr)) {
@@ -28,7 +28,7 @@ for(trait in traits) {
           message('Not the same set of individuals.')
           quit()
         }
-        ddr[[coln]] = ddr[coln] + tmp[[coln]]
+        ddr[[coln]] = ddr[[coln]] + tmp[[coln]]
       }
     }
     if(is.null(dd_all)) {
