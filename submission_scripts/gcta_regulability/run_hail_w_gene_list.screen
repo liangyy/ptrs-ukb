@@ -2,6 +2,7 @@
 # ARGS2: gene_model 
 # ARGS3: outdir
 # ARGS4: gene_list
+# ARGS5: optional config file name
 
 # environment setup
 source /vol/bmd/yanyul/miniconda3/etc/profile.d/conda.sh
@@ -17,7 +18,13 @@ if [[ ! -d $SUBDIR/logs ]]; then
   mkdir -p $SUBDIR/logs
 fi
 
-$MYSNMK -s gcta_regu.snmk --configfile $SUBDIR/config.yaml -p all_hail --config pop_name=$1 outdir=$3 gene_model=$2 gene_list=$4 > $SUBDIR/logs/hail-$1-$2.log 2>&1
+if [[ ! -z $5 ]]; then
+  configfile=config.yaml
+else
+  configfile=$5
+fi
+
+$MYSNMK -s gcta_regu.snmk --configfile $SUBDIR/$configfile -p all_hail --config pop_name=$1 outdir=$3 gene_model=$2 gene_list=$4 > $SUBDIR/logs/hail-$1-$2.log 2>&1
 
 screen -X kill
 
