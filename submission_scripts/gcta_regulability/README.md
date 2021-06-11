@@ -126,7 +126,7 @@ Run `hail` with new split
 # GENELIST=/vol/bmd/yanyul/GitHub/ptrs-ukb/misc/common_genes_in_mesa_cau_and_afhi.txt
 # CONFIG=config.new_split.yaml
 i=African
-screen -dmS hail-$i-$GENEMODEL bash run_hail_w_gene_list.screen $i $GENEMODEL $OUTDIR $CONFIG
+screen -dmS hail-$i-$GENEMODEL bash run_hail_w_gene_list.screen $i $GENEMODEL $OUTDIR $GENELIST $CONFIG
 ```
 
 Run `hail` with CarAfr
