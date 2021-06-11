@@ -128,3 +128,13 @@ Run `hail` with new split
 i=African
 screen -dmS hail-$i-$GENEMODEL bash run_hail_w_gene_list.screen $i $GENEMODEL $OUTDIR $GENELIST $CONFIG
 ```
+
+Run `hail` with CarAfr
+```
+# GENEMODEL=CAU or AFHI
+# OUTDIR=/vol/bmd/yanyul/UKB/gcta_regulability/common_gene_new_split to avoid overwrite
+# GENELIST=/vol/bmd/yanyul/GitHub/ptrs-ukb/misc/common_genes_in_mesa_cau_and_afhi.txt
+# CONFIG=config.carafr.yaml
+i=CarAfr
+screen -dmS hail-$i-$GENEMODEL bash run_hail_w_gene_list.screen $i $GENEMODEL $OUTDIR $CONFIG
+```
