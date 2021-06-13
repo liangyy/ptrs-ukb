@@ -2,8 +2,9 @@ library(dplyr)
 library(data.table)
 options(stringsAsFactors = F)
 
-dir = '/scratch/t.cri.yliang/ptrs-ukb/prs_on_cri'
-output = '/scratch/t.cri.yliang/ptrs-ukb/prs_cri_subset1.tsv.gz'  # '/gpfs/data/im-lab/nas40t2/yanyul/PTRS/prs_cri_subset1.tsv.gz'
+args <- commandArgs(trailingOnly = TRUE)
+dir = args[1]  # '/scratch/t.cri.yliang/ptrs-ukb/prs_on_cri'
+output = args[2]  # '/scratch/t.cri.yliang/ptrs-ukb/prs_cri_subset1.tsv.gz'  # '/gpfs/data/im-lab/nas40t2/yanyul/PTRS/prs_cri_subset1.tsv.gz'
 
 traits = read.table('trait_list.txt', header = F)$V1
 ranges = read.table('range_file.txt', header = F)$V1
