@@ -1,0 +1,36 @@
+#PBS -S /bin/bash
+#PBS -l walltime=24:00:00
+#PBS -l nodes=1:ppn=4
+#PBS -l mem=16gb
+#PBS -e logs/run_prs_$TRAIT.err
+#PBS -o logs/run_prs_$TRAIT.out
+##PBS -N run_prs_$TRAIT
+
+
+source ~/.bash_profile
+source ~/.bashrc
+
+
+cd ${PBS_O_WORKDIR}
+
+outdir=/scratch/t.cri.yliang/ptrs-ukb/prs2_on_cri
+mkdir -p $outdir
+
+bgen_prefix=/scratch/t.cri.yliang/ptrs-ukb/subset_bgen_prs_all2/subset_chr
+gwas=/gpfs/data/im-lab/nas40t2/yanyul/PTRS/prs_weights/ld_clump.$TRAIT.prs_weights.tsv
+range_file=range_file.txt
+# args1: trait file
+# args2: bgen prefix
+# args3: range file
+# args4: out prefix
+# args5: extra opts
+
+for chr in `seq 1 22`
+do
+  bash run_prs.sh \
+    $gwas \
+    $bgen_prefix$chr \
+    range_file.txt \
+    $outdir/$TRAIT.chr$chr \
+    "--threads 4 --memory 16000"
+done

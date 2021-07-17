@@ -2,9 +2,9 @@
 #PBS -l walltime=24:00:00
 #PBS -l nodes=1:ppn=4
 #PBS -l mem=16gb
-#PBS -e merge.err
-#PBS -o merge.out
-#PBS -N merge
+#PBS -e merge2.err
+#PBS -o merge2.out
+#PBS -N merge2
 
 
 source ~/.bash_profile
@@ -14,5 +14,5 @@ conda activate r_36
 
 cd ${PBS_O_WORKDIR}
 
-Rscript merge.R /scratch/t.cri.yliang/ptrs-ukb/prs_on_cri /scratch/t.cri.yliang/ptrs-ukb/prs_cri_subset1.tsv.gz
+Rscript merge.R /scratch/t.cri.yliang/ptrs-ukb/prs2_on_cri /scratch/t.cri.yliang/ptrs-ukb/prs_cri_subset1.tsv.gz
 
