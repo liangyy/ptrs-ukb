@@ -215,3 +215,173 @@ order_score = function(p) {
 # my_parser = function(x) {
 #   as.numeric(stringr::str_remove(x, 'pval_'))
 # }
+
+load_hsq = function(fn) {
+  df_h2 = read.delim2(fn)
+  df_h2$h_sq = as.numeric(df_h2$h_sq)
+  df_h2$h_sq_se = as.numeric(df_h2$h_sq_se)
+  df_h2$h_sq[is.na(df_h2$h_sq)] = 0
+  df_h2
+}
+
+order_pop = function(p) {
+  factor(p, levels = c('EUR ref.', 'EUR test', 'EUR', 'S.ASN', 'E.ASN', 'CAR', 'AFR'))
+}
+
+load_perf = function(fn, ref_sample = 'British_valid', is_prs = F, simple = F) {
+  df1 = read.csv(fn)
+  if(isTRUE(is_prs)) {
+    df1$sample[df1$sample == 'British_validation'] = 'British_valid'
+    df1 = df1 %>% group_by(trait, sample, split_label) %>%
+      mutate(model_name = paste0('model_', 0 : (n() - 1))) %>% ungroup()
+  } else {
+    df1 = df1 %>% group_by(trait, sample, split_label, pred_expr_source) %>% 
+      mutate(model_name = paste0('model_', 0 : (n() - 1))) %>% ungroup()
+  }
+  if(isTRUE(simple)) {
+    tmp = df1 %>% filter(sample == ref_sample) %>% filter(!is.na(partial_r2)) 
+  } else {
+    tmp = df1 %>% filter(split_label == 'repeat0_1')  %>% filter(sample == ref_sample) %>% filter(!is.na(partial_r2)) 
+  }
+  
+  kk = list()
+  for(tt in unique(tmp$trait)) {
+    tmp2 = tmp %>% filter(trait == tt)
+    if(nrow(tmp2) > 11) {
+      tmp2 = tmp2[1 : 11, ]
+    }
+    kk[[length(kk) + 1]] = tmp2
+  }
+  tmp2 = do.call(rbind, kk)
+  selected = paste0(tmp2$trait, tmp2$lambda)
+  df1 = df1 %>% filter(paste0(trait, lambda) %in% selected)
+}
+
+get_test_perf_from_splits = function(df) {
+  df = df %>% mutate(grp = unlist(lapply(strsplit(split_label, '_'), function(x) {x[1]})))
+  get_split_r2 = function(clambda, csplit, cr2, tune_grp, eval_grp) {
+    # partial_r2, split_label, lambda
+    dd = data.frame(lambda = clambda, split_label = csplit, partial_r2 = cr2)
+    tmp = dd %>% reshape2::dcast(lambda ~ split_label, value.var = 'partial_r2')
+    x1 = tmp[[tune_grp]]
+    x1[is.na(x1)] = -Inf
+    x2 = tmp[[eval_grp]]
+    x2[is.na(x2)] = -Inf
+    list(value = x2[ which.max(x1)], model_name = tmp[['lambda']][ which.max(x1) ])
+  }
+  kk = df %>% group_by(trait, sample, alpha, grp) %>% 
+    summarize(
+      r2 = get_split_r2(model_name, split_label, partial_r2, tune_grp = paste0(grp[1], '_1'), eval_grp = paste0(grp[1], '_2'))$value, 
+      model_name = get_split_r2(model_name, split_label, partial_r2, tune_grp = paste0(grp[1], '_1'), eval_grp = paste0(grp[1], '_2'))$model_name
+    )
+  kk
+}
+
+summarize_across_grps = function(dd) {
+  dd_s = dd %>% group_by(trait, sample, alpha) %>% summarize(r2_mean = mean(r2), r2_sd = sd(r2), r2_median = median(r2), r2_qse = (quantile(r2, probs = 0.9) - quantile(r2, probs = 0.1)) / 2 / qnorm(0.9), model_name = paste0(unique(model_name), collapse = ',')) %>% ungroup() 
+}
+
+calc_port = function(dd, ref = NULL) {
+  if(is.null(ref)) {
+    ref = dd %>% filter(sample == 'British_valid')
+  }
+  others = dd # %>% filter(sample != 'British_valid')
+  others %>% left_join(ref %>% select(trait, r2_mean, r2_sd), by = 'trait', suffix = c('', '.ref')) %>% mutate(portability = r2_mean / r2_mean.ref)
+}
+
+calc_port_max = function(dd, ref = NULL) {
+  if(is.null(ref)) {
+    ref = dd %>% filter(sample == 'British_valid')
+  }
+  others = dd # %>% filter(sample != 'British_valid')
+  others %>% left_join(ref %>% select(trait, r2_max), by = 'trait', suffix = c('', '.ref')) %>% mutate(portability = r2_max / r2_max.ref)
+}
+
+calc_regu = function(dfh2, dfpve) {
+  df_merge = inner_join(
+    dfpve %>% select(trait, h_sq, h_sq_se),
+    dfh2 %>% select(trait, h_sq, h_sq_se),
+    by = 'trait', suffix = c('.pve', '.h2')
+  )
+  df_merge = df_merge %>% mutate(regu = h_sq.pve / h_sq.h2)
+  ratio = delta_mtd(
+    df_merge$h_sq.pve, df_merge$h_sq_se.pve ^ 2, 
+    df_merge$h_sq.h2, df_merge$h_sq_se.h2 ^ 2
+  )
+  df_merge = df_merge %>% mutate(ratio_mean = ratio$m, ratio_se = sqrt(ratio$v))
+  ratio_fe = meta_fixed(df_merge$ratio_mean, df_merge$ratio_se)
+  list(fe = ratio_fe, raw = df_merge)
+}
+
+# test_afhi_vs_cau = function(scores, traits, labels) {
+#   dd = data.frame(ss = scores, tt = traits, ll = labels) %>% 
+#     reshape2::dcast(tt ~ ll, value.var = 'ss')
+#   res = t.test(dd$AFHI, dd$CAU, paired = T)
+#   diff = res$estimate
+#   diff_95ci_low = res$conf.int[1]
+#   diff_95ci_high = res$conf.int[2]
+#   data.frame(delta_pve = diff, ci_low = diff_95ci_low, ci_high = diff_95ci_high)
+# }
+test_afhi_vs_cau = function(afhi, cau) {
+  res = t.test(afhi, cau, paired = T)
+  diff = res$estimate
+  diff_95ci_low = res$conf.int[1]
+  diff_95ci_high = res$conf.int[2]
+  res2 = wilcox.test(afhi, cau, paired = TRUE)
+  data.frame(delta_pve = diff, ci_low = diff_95ci_low, ci_high = diff_95ci_high, wilcox_stat = res2$statistic, wilcox_pval = res2$p.value)
+}
+
+test_a_vs_b = function(a, b) {
+  res = t.test(a, b, paired = T)
+  diff = res$estimate
+  diff_95ci_low = res$conf.int[1]
+  diff_95ci_high = res$conf.int[2]
+  res2 = wilcox.test(a, b, paired = TRUE)
+  data.frame(delta = diff, ci_low = diff_95ci_low, ci_high = diff_95ci_high, pval = res$p.value, wilcox_stat = res2$statistic, wilcox_pval = res2$p.value)
+}
+
+order_method = function(x) {
+ factor(x, levels = c('PRS', 'PTRS (GTEx EUR)', 'PTRS (MESA EUR)', 'PTRS (MESA AFHI)', 'PTRS (MESA ALL)')) 
+}
+
+load_best = function(fn, desired_tag = NULL, mode = 'ptrs') {
+  if(mode == 'ptrs') {
+    df_en = read.csv(fn)
+    if(!is.null(desired_tag)) {
+      df_en = df_en %>% filter(pred_expr_source == desired_tag)
+    }
+    # add model name
+    df_en = df_en %>% group_by(trait, alpha, sample) %>% 
+      mutate(model_name = paste0('model_', 0 : (n() - 1))) %>% 
+      ungroup()
+    df_en = df_en %>% 
+      filter(!is.na(partial_r2)) %>% 
+      group_by(trait, alpha, sample) %>% 
+      mutate(order = 1 : n()) %>% 
+      ungroup() %>% 
+      filter(order <= 11) %>% 
+      select(-order)
+    best = df_en %>% select(sample, trait, partial_r2, model_name) %>%
+      group_by(trait, sample) %>% 
+      summarize(
+        r2_max = max(partial_r2, na.rm = T), 
+        model_name = model_name[which.max(partial_r2)]
+      ) %>% ungroup()
+  } else if(mode == 'prs') {
+    df_prs = read.table(fn, header = T, sep = '\t', stringsAsFactors = F)
+    df_prs$sample[df_prs$sample == 'British-test-1'] = 'British_test'
+    df_prs$sample[df_prs$sample == 'British-validation-1'] = 'British_valid'
+    df_prs = df_prs %>% rename(prs_cutoff = ptrs_cutoff)
+    df_prs = df_prs %>% arrange(desc(-prs_cutoff))
+    # add model name
+    df_prs = df_prs %>% group_by(trait, sample) %>% 
+      mutate(model_name = paste0('model_', 0 : (n() - 1))) %>% 
+      ungroup()
+    best = df_prs %>% group_by(trait, sample) %>% 
+      summarize(
+        r2_max = max(partial_r2, na.rm = T), 
+        model_name = model_name[which.max(partial_r2)]
+      ) %>% ungroup()
+  }
+  best
+}

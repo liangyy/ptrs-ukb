@@ -148,3 +148,12 @@ Run `hail` with new2 split
 i=Caribbean
 screen -dmS hail-$i-$GENEMODEL bash run_hail_w_gene_list.screen $i $GENEMODEL $OUTDIR $CONFIG
 ```
+
+Run MESA ALL with new split
+```
+mylist=('African' 'British-test-1' 'Indian' 'Chinese')
+for i in "${mylist[@]}"
+do 
+  screen -dmS hail-$i-$GENEMODEL bash run_hail.screen $i $GENEMODEL $OUTDIR
+done
+```
