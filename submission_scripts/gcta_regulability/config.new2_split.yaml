@@ -3,12 +3,12 @@ pred_expr: '/vol/bmd/yanyul/UKB/predicted_expression/predicted_expression.ukb_im
 # gene_model: 'ctimp_Whole_Blood'
 
 # individual list
-indiv_list: '/vol/bmd/yanyul/GitHub/ptrs-ukb/output//{pop_name}.txt'
+indiv_list: '/vol/bmd/yanyul/GitHub/ptrs-ukb/output/new2_data_split/{pop_name}.txt'
 # pop_name: 'British-test-1'
 
 # phenotypes and covariates table
 pheno_covar:
-  table: '/vol/bmd/yanyul/GitHub/ptrs-ukb/output/new2_data_split/new2_query_phenotypes_cleaned_up.csv'
+  table: '/vol/bmd/yanyul/GitHub/ptrs-ukb/output/new2_query_phenotypes_cleaned_up.csv'
   yaml: '/vol/bmd/yanyul/GitHub/ptrs-ukb/misc/gwas_full_pheno_covar.yaml'
 table_name: 'martin_et_al_traits'
 
