@@ -157,3 +157,17 @@ do
   screen -dmS hail-$i-$GENEMODEL bash run_hail.screen $i $GENEMODEL $OUTDIR
 done
 ```
+
+
+Run `hail` with multiple tissues (`naive` mode or `tissue_svd` mode)
+
+```
+CONFIGNAME=ctimp_top10_update
+OUTDIR=/vol/bmd/yanyul/UKB/gcta_regulability/revision
+MODE=tissue_svd
+mylist=('African' 'British-test-1' 'Indian' 'Chinese')
+for i in "${mylist[@]}"
+do 
+  screen -dmS hail-$i-$CONFIGNAME bash run_hail_multi.screen $i $CONFIGNAME $OUTDIR $MODE
+done
+```
