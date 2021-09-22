@@ -53,7 +53,8 @@ done
 Run `hail`
 
 ```
-mylist=('African' 'British-test-1' 'Indian' 'Chinese')
+mylist=('African' 'Indian')
+GENEMODEL=ctimp_Whole_Blood
 for i in "${mylist[@]}"
 do 
   screen -dmS hail-$i-$GENEMODEL bash run_hail.screen $i $GENEMODEL $OUTDIR
@@ -170,10 +171,24 @@ Run `hail` with multiple tissues (`naive` mode or `tissue_svd` mode)
 ```
 CONFIGNAME=ctimp_top10_update
 OUTDIR=/vol/bmd/yanyul/UKB/gcta_regulability/revision
-MODE=tissue_svd
-mylist=('African' 'British-test-1' 'Indian' 'Chinese')
+MODE=tissue_svd_train
+mylist=('African' 'Indian' 'Chinese')
 for i in "${mylist[@]}"
 do 
   screen -dmS hail-$i-$CONFIGNAME bash run_hail_multi.screen $i $CONFIGNAME $OUTDIR $MODE
+done
+```
+
+
+Run `hail`
+
+```
+mylist=('African' 'Indian')
+OUTDIR=/vol/bmd/yanyul/UKB/gcta_regulability/revision
+GENEMODEL=ctimp_Whole_Blood
+CONFIGFILE=config.new_split.yaml
+for i in "${mylist[@]}"
+do 
+  screen -dmS hail-$i-$GENEMODEL bash run_hail.screen $i $GENEMODEL $OUTDIR $CONFIGFILE
 done
 ```

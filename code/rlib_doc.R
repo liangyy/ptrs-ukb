@@ -228,7 +228,7 @@ order_pop = function(p) {
   factor(p, levels = c('EUR ref.', 'EUR test', 'EUR', 'S.ASN', 'E.ASN', 'CAR', 'AFR'))
 }
 
-load_perf = function(fn, ref_sample = 'British_valid', is_prs = F, simple = F) {
+load_perf = function(fn, ref_sample = 'British_valid', is_prs = F, simple = F, max_n = 11) {
   df1 = read.csv(fn)
   if(isTRUE(is_prs)) {
     df1$sample[df1$sample == 'British_validation'] = 'British_valid'
@@ -247,14 +247,15 @@ load_perf = function(fn, ref_sample = 'British_valid', is_prs = F, simple = F) {
   kk = list()
   for(tt in unique(tmp$trait)) {
     tmp2 = tmp %>% filter(trait == tt)
-    if(nrow(tmp2) > 11) {
-      tmp2 = tmp2[1 : 11, ]
+    if(nrow(tmp2) > max_n) {
+      tmp2 = tmp2[1 : max_n, ]
     }
     kk[[length(kk) + 1]] = tmp2
   }
   tmp2 = do.call(rbind, kk)
   selected = paste0(tmp2$trait, tmp2$lambda)
   df1 = df1 %>% filter(paste0(trait, lambda) %in% selected)
+  df1
 }
 
 get_test_perf_from_splits = function(df) {

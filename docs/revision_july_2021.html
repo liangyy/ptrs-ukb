@@ -1,0 +1,1780 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Data analysis for revision (July 2021: without splitting)</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">PTRS UKB</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/liangyy/ptrs-ukb">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Data analysis for revision (July 2021: without splitting)</h1>
+
+</div>
+
+
+<pre class="r"><code>library(ggplot2)
+library(ggrepel)
+library(dplyr)
+library(pander)
+options(stringsAsFactors = F)
+panderOptions(&#39;table.split.table&#39;, Inf)
+source(&#39;../code/rlib_doc.R&#39;)
+source(&#39;https://gist.githubusercontent.com/liangyy/43912b3ecab5d10c89f9d4b2669871c9/raw/3ca651cfa53ffccb8422f432561138a46e93710f/my_ggplot_theme.R&#39;)
+theme_set(theme_bw(base_size = 15))
+o = get_meta_for_supp()
+df_color_category = o$df_color_category
+color_mixer = o$color_mixer
+pop_color_mixer = o$pop_color_mixer
+# type_shape = o$type_shape
+type_shape = c(&#39;PTRS&#39; = 15, &#39;PRS&#39; = 19)
+score_color_code = o$score_color_code
+non_eur_pops = c(&#39;African&#39;, &#39;Chinese&#39;, &#39;Indian&#39;, &#39;Caribbean&#39;)
+pop_map = data.frame(
+  pop = c(&#39;African&#39;, &#39;Chinese&#39;, &#39;Indian&#39;, &#39;Caribbean&#39;, &#39;British_test&#39;),
+  pop2 = c(&#39;AFR&#39;, &#39;E.ASN&#39;, &#39;S.ASN&#39;, &#39;CAR&#39;, &#39;EUR&#39;)
+)
+pop_map2 = data.frame(
+  pop = c(&#39;African&#39;, &#39;Chinese&#39;, &#39;Indian&#39;, &#39;Caribbean&#39;, &#39;British_test&#39;, &#39;British_validation&#39;, &#39;British_valid&#39;),
+  pop2 = c(&#39;AFR&#39;, &#39;E.ASN&#39;, &#39;S.ASN&#39;, &#39;CAR&#39;, &#39;EUR test&#39;, &#39;EUR ref.&#39;, &#39;EUR ref.&#39;)
+)
+pop_color_mixer2 = c(&#39;AFR&#39; = &quot;#E74C3C&quot;, &quot;British_test&quot; = &quot;#28B463&quot;, &quot;British_validation&quot; = &quot;#D4AC0D&quot;,
+                    &#39;E.ASN&#39; = &quot;#3498DB&quot;, &#39;S.ASN&#39; = &quot;#9B59B6&quot;, &#39;CAR&#39; = &quot;#FFFF00&quot;)
+score_color_code = c(&#39;PRS&#39; = &quot;#999999&quot;, &#39;PTRS (GTEx EUR)&#39; = &quot;#E69F00&quot;, &#39;PTRS (MESA EUR)&#39; = &quot;#E69F00&quot;, &#39;PTRS (MESA AFHI)&#39; = &quot;#56B4E9&quot;, &#39;PTRS (MESA ALL)&#39; = &quot;#F633FF&quot;)</code></pre>
+<div id="pve-and-h2" class="section level1">
+<h1><span class="header-section-number">1</span> PVE and h2</h1>
+<div id="gtex-eur-whole-blood-model-and-top-10-models" class="section level2">
+<h2><span class="header-section-number">1.1</span> GTEx EUR whole blood model and top-10 models</h2>
+<pre class="r"><code>df_h2 = load_hsq(&#39;~/Desktop/tmp/ptrs-ukb_misc/hsq.data_split.British-test-1.txt&#39;)
+bad_traits = NULL # df_h2$trait[ is.na(df_h2$h_sq) | df_h2$h_sq &lt; 0.05 ]
+bad_traits_pve = NULL # df_h2$trait[ is.na(df_h2$h_sq) | df_h2$h_sq &lt; 0.05 ]
+
+df_pve = load_hsq(&#39;~/Desktop/tmp/ptrs-ukb_misc/reml_from_hail_martin_et_al_traits_x_ctimp_Whole_Blood_x_British-test-1.tsv&#39;) %&gt;% mutate(pop = &#39;British_test&#39;)
+df_pve = df_pve[ ! df_pve$trait %in% bad_traits_pve, ]
+
+df_pve10 = load_hsq(&#39;~/Desktop/tmp/ptrs-ukb_misc/reml_from_hail-multi-tissue-tissue_svd_x_martin_et_al_traits_x_ctimp_x_British-test-1.tsv&#39;)
+df_pve10 = df_pve10[ ! df_pve10$trait %in% bad_traits_pve, ]</code></pre>
+<pre class="r"><code>df_pve_ma = load_hsq(&#39;~/Desktop/tmp/ptrs-ukb_misc/old/reml_from_hail_martin_et_al_traits_x_ALL_x_British-test-1.tsv&#39;) %&gt;% mutate(pop = &#39;British_test&#39;)
+df_pve_ma = df_pve_ma[ ! df_pve_ma$trait %in% bad_traits_pve, ]
+
+ratio_fe_wb = calc_regu(df_h2, df_pve)
+ratio_fe_ma = calc_regu(df_h2, df_pve_ma)
+ratio_fe_10 = calc_regu(df_h2, df_pve10)
+rbind(
+  as.data.frame(ratio_fe_ma$fe, col.names = c(&#39;ratio_mean&#39;, &#39;ratio_se&#39;)) %&gt;% mutate(tissue = &#39;MESA (ALL) Monocyte&#39;),
+  as.data.frame(ratio_fe_wb$fe, col.names = c(&#39;ratio_mean&#39;, &#39;ratio_se&#39;)) %&gt;% mutate(tissue = &#39;GTEx EUR Whole Blood&#39;),
+  as.data.frame(ratio_fe_10$fe, col.names = c(&#39;ratio_mean&#39;, &#39;ratio_se&#39;)) %&gt;% mutate(tissue = &#39;GTEx EUR Top 10 Tissues&#39;)
+) %&gt;%
+  rename(regulability_mean = ratio_mean, regulability_se = ratio_se) %&gt;% 
+  pander</code></pre>
+<table style="width:89%;">
+<colgroup>
+<col width="27%" />
+<col width="25%" />
+<col width="36%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">regulability_mean</th>
+<th align="center">regulability_se</th>
+<th align="center">tissue</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">0.2176</td>
+<td align="center">0.03079</td>
+<td align="center">MESA (ALL) Monocyte</td>
+</tr>
+<tr class="even">
+<td align="center">0.2285</td>
+<td align="center">0.02939</td>
+<td align="center">GTEx EUR Whole Blood</td>
+</tr>
+<tr class="odd">
+<td align="center">0.3554</td>
+<td align="center">0.04688</td>
+<td align="center">GTEx EUR Top 10 Tissues</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>unstable_traits = df_h2$trait[ is.na(df_h2$h_sq) | df_h2$h_sq &lt; 0.05 ]
+rbind(
+  ratio_fe_wb$raw %&gt;% mutate(tissue = &#39;GTEx EUR Whole blood&#39;), 
+  ratio_fe_ma$raw %&gt;% mutate(tissue = &#39;MESA EUR Monocyte&#39;), 
+  ratio_fe_10$raw %&gt;% mutate(tissue = &#39;GTEx EUR Top 10 tissues&#39;)) %&gt;% 
+  mutate(tissue = factor(tissue, levels = c(&#39;MESA EUR Monocyte&#39;, &#39;GTEx EUR Whole blood&#39;, &#39;GTEx EUR Top 10 tissues&#39;))) %&gt;%
+  filter(! trait %in% unstable_traits) %&gt;% 
+  ggplot() + 
+  geom_violin(aes(x = tissue, y = ratio_mean * 100)) + 
+  geom_boxplot(aes(x = tissue, y = ratio_mean * 100), width = .2) + th + 
+  ylab(&#39;% of heritability explained&#39;)</code></pre>
+<p><img src="revision_july_2021_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p><strong>Takeaway</strong>: Proportion of heritability explained by predicted transcrptome is shown for MESA ALL and MESA EUR models and GTEx 10 tissues combined (using European individuals).</p>
+<pre class="r"><code>ratio_min = ratio_fe_wb$fe$m - 1.96 * ratio_fe_wb$fe$se
+ratio_max = ratio_fe_wb$fe$m + 1.96 * ratio_fe_wb$fe$se
+df_merge = inner_join(
+  df_h2, df_pve %&gt;% filter(pop == &#39;British_test&#39;),
+  by = c(&#39;trait&#39;),
+  suffix = c(&#39;.h2&#39;, &#39;.pve&#39;)
+)
+df_merge %&gt;% left_join(df_color_category, by = &#39;trait&#39;) %&gt;% 
+  ggplot(aes(color = group)) + 
+  geom_abline(slope = ratio_min, intercept = 0) + 
+  geom_abline(slope = ratio_max, intercept = 0) + 
+  geom_errorbar(aes(x = h_sq.h2, ymin = h_sq.pve - 1.96 * h_sq_se.pve, ymax = h_sq.pve + 1.96 * h_sq_se.pve)) + 
+  geom_errorbarh(aes(xmin = h_sq.h2 - 1.96 * h_sq_se.h2, xmax = h_sq.h2 + 1.96 * h_sq_se.h2, y = h_sq.pve)) +
+  geom_point(aes(x = h_sq.h2, y = h_sq.pve)) + th +
+  scale_color_manual(values = color_mixer) + coord_equal() + 
+  theme(
+    legend.position = c(.15, .8), 
+    legend.text = element_text(size = 12), 
+    legend.title = element_blank(),
+    legend.background = element_rect(fill = alpha(&#39;white&#39;, 0))
+  ) + 
+  xlab(&#39;Estimated heritability&#39;) + 
+  ylab(&#39;PVE of predicted transcriptome \n in GTEx whole blood&#39;)</code></pre>
+<pre><code>## Warning: Removed 1 rows containing missing values (geom_errorbarh).</code></pre>
+<p><img src="revision_july_2021_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p><strong>Takeaway</strong>: Comparing heritability vs PTRS PVE (using European individuals).</p>
+</div>
+<div id="mesa-cau-vs-afhi-models" class="section level2">
+<h2><span class="header-section-number">1.2</span> MESA CAU vs AFHI models</h2>
+<pre class="r"><code>df_cau = rbind(
+  load_hsq(&#39;~/Desktop/tmp/ptrs-ukb_misc/new_split/reml_from_hail_martin_et_al_traits_x_CAU_x_African.tsv&#39;) %&gt;%
+    mutate(population = &#39;AFR&#39;),
+  load_hsq(&#39;~/Desktop/tmp/ptrs-ukb_misc/reml_from_hail_martin_et_al_traits_x_CAU_x_British-test-1.tsv&#39;) %&gt;%
+    mutate(population = &#39;EUR&#39;),
+  load_hsq(&#39;~/Desktop/tmp/ptrs-ukb_misc/new_split/reml_from_hail_martin_et_al_traits_x_CAU_x_Indian.tsv&#39;) %&gt;%
+    mutate(population = &#39;S.ASN&#39;),
+  load_hsq(&#39;~/Desktop/tmp/ptrs-ukb_misc/reml_from_hail_martin_et_al_traits_x_CAU_x_Chinese.tsv&#39;) %&gt;%
+    mutate(population = &#39;E.ASN&#39;)
+)
+df_afhi = rbind(
+  load_hsq(&#39;~/Desktop/tmp/ptrs-ukb_misc/new_split/reml_from_hail_martin_et_al_traits_x_AFHI_x_African.tsv&#39;) %&gt;% 
+    mutate(population = &#39;AFR&#39;),
+  load_hsq(&#39;~/Desktop/tmp/ptrs-ukb_misc/reml_from_hail_martin_et_al_traits_x_AFHI_x_British-test-1.tsv&#39;) %&gt;%
+    mutate(population = &#39;EUR&#39;),
+  load_hsq(&#39;~/Desktop/tmp/ptrs-ukb_misc/new_split/reml_from_hail_martin_et_al_traits_x_AFHI_x_Indian.tsv&#39;) %&gt;%
+    mutate(population = &#39;S.ASN&#39;),
+  load_hsq(&#39;~/Desktop/tmp/ptrs-ukb_misc/reml_from_hail_martin_et_al_traits_x_AFHI_x_Chinese.tsv&#39;) %&gt;%
+    mutate(population = &#39;E.ASN&#39;)
+) 
+df_mesa = rbind(
+  df_afhi %&gt;% mutate(model = &#39;AFHI&#39;), df_cau %&gt;% mutate(model = &#39;CAU&#39;)
+)
+df_mesa = df_mesa[ ! df_mesa$trait %in% bad_traits, ]</code></pre>
+<pre class="r"><code>afr = df_mesa[ df_mesa$population == &#39;AFR&#39;, ]
+# t.test(afr$h_sq[afr$model == &#39;AFHI&#39;], afr$h_sq[afr$model == &#39;CAU&#39;], paired = T)
+tmp_m = df_mesa %&gt;% reshape2::dcast(trait + population ~ model, value.var = &#39;h_sq&#39;)
+tmp_se = df_mesa %&gt;% reshape2::dcast(trait + population ~ model, value.var = &#39;h_sq_se&#39;)
+diff = inner_join(tmp_m, tmp_se, by = c(&#39;trait&#39;, &#39;population&#39;), suffix = c(&#39;.mean&#39;, &#39;.se&#39;))
+diff = diff %&gt;% mutate(diff = AFHI.mean - CAU.mean, diff_se = sqrt(AFHI.se ^ 2 + CAU.se ^ 2))
+diff_sum = diff %&gt;% filter(!(is.na(AFHI.se) | is.na(CAU.se))) %&gt;% 
+  group_by(population) %&gt;% do(as.data.frame(meta_fixed(.$diff, .$diff_se)))
+diff_sum = diff %&gt;% filter(!(is.na(AFHI.se) | is.na(CAU.se))) %&gt;% 
+  group_by(population) %&gt;% do(test_afhi_vs_cau(.$AFHI.mean, .$CAU.mean))
+# diff_sum %&gt;% mutate(pop2 = order_pop(population)) %&gt;% ggplot()  + 
+#   geom_hline(yintercept = 0, linetype = 2) + 
+#   geom_errorbar(aes(x = pop2, ymin = m - 1.96 * se, ymax = m + 1.96 * se), width = 0.1) +
+#   geom_point(aes(x = pop2, y = m), size = 5, color = &#39;gray&#39;) +
+#   ylab(&#39;Change in PVE \n (MESA AFHI - MESA EUR)&#39;) +
+#   xlab(&#39;Target population&#39;) + th
+diff_sum %&gt;% mutate(pop2 = order_pop(population)) %&gt;% ggplot()  + 
+  geom_hline(yintercept = 0, linetype = 2) + 
+  geom_errorbar(aes(x = pop2, ymin = ci_low, ymax = ci_high), width = 0.1) +
+  geom_point(aes(x = pop2, y = delta_pve), size = 5, color = &#39;gray&#39;) +
+  ylab(&#39;Change in PVE \n (MESA AFHI - MESA EUR)&#39;) +
+  xlab(&#39;Target population&#39;) + th</code></pre>
+<p><img src="revision_july_2021_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<pre class="r"><code>diff_sum %&gt;% pander(caption = &#39;MESA AFHI PVE vs. MESA EUR PVE&#39;)</code></pre>
+<table>
+<caption>MESA AFHI PVE vs. MESA EUR PVE</caption>
+<colgroup>
+<col width="17%" />
+<col width="15%" />
+<col width="17%" />
+<col width="13%" />
+<col width="18%" />
+<col width="18%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">population</th>
+<th align="center">delta_pve</th>
+<th align="center">ci_low</th>
+<th align="center">ci_high</th>
+<th align="center">wilcox_stat</th>
+<th align="center">wilcox_pval</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">AFR</td>
+<td align="center">0.01128</td>
+<td align="center">-0.0004882</td>
+<td align="center">0.02305</td>
+<td align="center">104</td>
+<td align="center">0.0654</td>
+</tr>
+<tr class="even">
+<td align="center">E.ASN</td>
+<td align="center">0.01687</td>
+<td align="center">-0.01051</td>
+<td align="center">0.04424</td>
+<td align="center">34</td>
+<td align="center">0.2031</td>
+</tr>
+<tr class="odd">
+<td align="center">EUR</td>
+<td align="center">0.003171</td>
+<td align="center">-0.005731</td>
+<td align="center">0.01207</td>
+<td align="center">56</td>
+<td align="center">0.4973</td>
+</tr>
+<tr class="even">
+<td align="center">S.ASN</td>
+<td align="center">0.003004</td>
+<td align="center">-0.005168</td>
+<td align="center">0.01118</td>
+<td align="center">74</td>
+<td align="center">0.4543</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Takeaway</strong>: The PTRS PVE difference between MESA AFHI and EUR models.</p>
+<pre class="r"><code>diff %&gt;% mutate(pop2 = order_pop(population)) %&gt;% left_join(df_color_category, by = &#39;trait&#39;) %&gt;% ggplot() + 
+  geom_abline(slope = 1, intercept = 0) + 
+  geom_point(aes(x = CAU.mean, y = AFHI.mean, color = group)) + 
+  facet_wrap(~pop2, ncol = 5) + coord_equal() +
+  scale_color_manual(values = color_mixer) + 
+  th2 + 
+  theme(legend.position = &#39;none&#39;) +
+  xlab(&#39;PVE of predicted transcriptome \n in MESA EUR monocyte&#39;) + 
+  ylab(&#39;PVE of predicted transcriptome \n in MESA AFHI monocyte&#39;) + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5))</code></pre>
+<p><img src="revision_july_2021_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p><strong>Takeaway</strong>: As a supplementary for the PTRS PVE difference between MESA AFHI and EUR models, we show the PVE of MESA AFHI and EUR models directly.</p>
+</div>
+</div>
+<div id="prediction-performance" class="section level1">
+<h1><span class="header-section-number">2</span> Prediction performance</h1>
+<pre class="r"><code>df1 = load_best(&#39;~/Desktop/tmp/ptrs-tf/from_nucleus/elastic_net_ptrs_gtex_british_updated_indivs_lambda.performance.csv&#39;) %&gt;% filter(!trait %in% bad_traits)
+df1pt = load_best(&#39;~/Desktop/tmp/ptrs-tf/from_nucleus/pt_ptrs_gtex_british_updated_indivs_lambda.performance.csv&#39;) %&gt;% filter(!trait %in% bad_traits)
+df2_cau = load_best(&#39;~/Desktop/tmp/ptrs-tf/from_nucleus/elastic_net_ptrs_mesa_british_updated_lambda.performance.csv&#39;, desired_tag = &#39;train&#39;) %&gt;% filter(!trait %in% bad_traits)
+df2pt_cau = load_best(&#39;~/Desktop/tmp/ptrs-tf/from_nucleus/pt_ptrs_mesa_british_updated_lambda.performance.csv&#39;, desired_tag = &#39;train&#39;) %&gt;% filter(!trait %in% bad_traits)
+df2_afhi = load_best(&#39;~/Desktop/tmp/ptrs-tf/from_nucleus/elastic_net_ptrs_mesa_british_updated_lambda.performance.csv&#39;, desired_tag = &#39;against&#39;) %&gt;% filter(!trait %in% bad_traits)
+df2pt_afhi = load_best(&#39;~/Desktop/tmp/ptrs-tf/from_nucleus/pt_ptrs_mesa_british_updated_lambda.performance.csv&#39;, desired_tag = &#39;against&#39;) %&gt;% filter(!trait %in% bad_traits)
+df3 = load_best(&#39;~/Desktop/tmp/ptrs-tf/from_nucleus/elastic_net_ptrs_mesa_all_british_updated_lambda.performance.csv&#39;) %&gt;% filter(!trait %in% bad_traits)
+df3pt = load_best(&#39;~/Desktop/tmp/ptrs-tf/from_nucleus/pt_ptrs_mesa_all_british_updated_lambda.performance.csv&#39;) %&gt;% filter(!trait %in% bad_traits)
+df4 = load_best(&#39;~/Desktop/tmp/ptrs-tf/from_nucleus/prs_british_updated_indivs_lambda.performance.csv&#39;) %&gt;% filter(!trait %in% bad_traits)
+df4$sample[ df4$sample == &#39;British_validation&#39; ] = &#39;British_valid&#39;</code></pre>
+<div id="prediction-performance-vs-pveh2" class="section level2">
+<h2><span class="header-section-number">2.1</span> Prediction performance vs PVE/h2</h2>
+<pre class="r"><code>prs = inner_join(df4 %&gt;% filter(sample == &#39;British_test&#39;), df_h2, by = &#39;trait&#39;)
+ptrs = inner_join(df1 %&gt;% filter(sample == &#39;British_test&#39;), df_pve %&gt;% filter(pop == &#39;British_test&#39;) %&gt;% select(-pop), by = &#39;trait&#39;)
+rbind(prs %&gt;% mutate(method = &#39;PRS&#39;), ptrs %&gt;% mutate(method = &#39;PTRS&#39;)) %&gt;% 
+  left_join(df_color_category, by = &#39;trait&#39;) %&gt;% 
+  ggplot(aes(color = group)) + 
+  geom_abline(slope = 1, intercept = 0) + 
+  # geom_errorbar(aes(x = h_sq, ymin = r2_mean - 1.96 * r2_sd, ymax = r2_mean + 1.96 * r2_sd)) + 
+  geom_errorbarh(aes(xmin = h_sq - 1.96 * h_sq_se, xmax = h_sq + 1.96 * h_sq_se, y = r2_max)) +
+  geom_point(aes(x = h_sq, y = r2_max, shape = method), size = 3) + 
+  th +
+  scale_color_manual(values = color_mixer) +
+  scale_shape_manual(values = type_shape) + 
+  coord_equal() + 
+  theme(legend.position = &#39;top&#39;, legend.title = element_blank()) + 
+  xlab(&#39;Heritability or PTRS PVE&#39;) +
+  ylab(expression(tilde(R)^2 * &#39;of PRS or PTRS (GTEx EUR)&#39;))</code></pre>
+<pre><code>## Warning: Removed 1 rows containing missing values (geom_errorbarh).</code></pre>
+<p><img src="revision_july_2021_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p><strong>Takeaway</strong>: Comparing heritability vs PRS R2 and PTRS PVE vs PTRS R2 (GTEx EUR) using European individuals.</p>
+<pre class="r"><code># DO IT LATER
+# ptrs = inner_join(df1, df_pve, by = c(&#39;trait&#39;, &#39;sample&#39; = &#39;pop&#39;))
+# ptrs %&gt;%
+#   filter(sample %in% non_eur_pops) %&gt;%
+#   left_join(pop_map, by = c(&#39;sample&#39; = &#39;pop&#39;)) %&gt;%
+#   mutate(pop2 = order_pop(pop2)) %&gt;%
+#   left_join(df_color_category, by = &#39;trait&#39;) %&gt;%
+#   ggplot(aes(color = pop2)) +
+#   geom_abline(slope = 1, intercept = 0) +
+#   # geom_errorbar(aes(x = h_sq, ymin = r2_mean - 1.96 * r2_sd, ymax = r2_mean + 1.96 * r2_sd)) +
+#   # geom_errorbarh(aes(xmin = h_sq - 1.96 * h_sq_se, xmax = h_sq + 1.96 * h_sq_se, y = r2_mean)) +
+#   geom_point(aes(x = h_sq, y = r2_max), size = 3) +
+#   th +
+#   scale_color_manual(values = pop_color_mixer2) +
+#   coord_equal() +
+#   theme(legend.position = &#39;top&#39;, legend.title = element_blank()) +
+#   xlab(&#39;PTRS PVE&#39;) +
+#   ylab(expression(tilde(R)^2 * &#39;of PTRS (GTEx EUR)&#39;))</code></pre>
+<pre class="r"><code>prs = inner_join(df4 %&gt;% filter(sample == &#39;British_test&#39;), df_h2, by = &#39;trait&#39;)
+ptrs = inner_join(df2_cau %&gt;% filter(sample == &#39;British_test&#39;), df_pve_ma %&gt;% filter(pop == &#39;British_test&#39;) %&gt;% select(-pop), by = &#39;trait&#39;)
+rbind(prs %&gt;% mutate(method = &#39;PRS&#39;), ptrs %&gt;% mutate(method = &#39;PTRS&#39;)) %&gt;% 
+  left_join(df_color_category, by = &#39;trait&#39;) %&gt;% 
+  filter(method != &#39;PRS&#39;) %&gt;% 
+  ggplot(aes(color = group)) + 
+  geom_abline(slope = 1, intercept = 0) + 
+  # geom_errorbar(aes(x = h_sq, ymin = r2_mean - 1.96 * r2_sd, ymax = r2_mean + 1.96 * r2_sd)) + 
+  geom_errorbarh(aes(xmin = h_sq - 1.96 * h_sq_se, xmax = h_sq + 1.96 * h_sq_se, y = r2_max)) +
+  geom_point(aes(x = h_sq, y = r2_max, shape = method), size = 3) + 
+  th +
+  scale_color_manual(values = color_mixer) +
+  scale_shape_manual(values = type_shape) + 
+  coord_equal() + 
+  theme(legend.position = &#39;top&#39;, legend.title = element_blank()) + 
+  xlab(&#39;PTRS PVE&#39;) +
+  ylab(expression(tilde(R)^2 * &#39;of PTRS (MESA EUR)&#39;))</code></pre>
+<pre><code>## Warning: Removed 3 rows containing missing values (geom_errorbarh).</code></pre>
+<p><img src="revision_july_2021_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p><strong>Takeaway</strong>: Comparing PTRS PVE vs PTRS R2 (MESA EUR) using European individuals.</p>
+<!-- ```{r, fig.width=4.5, fig.height=2} -->
+<!-- ptrs = inner_join(df1ss, df_pve, by = c('trait', 'sample' = 'pop')) -->
+<!-- ptrs %>% -->
+<!--   filter(sample %in% non_eur_pops) %>%  -->
+<!--   left_join(pop_map, by = c('sample' = 'pop')) %>% -->
+<!--   mutate(pop2 = order_pop(pop2)) %>%  -->
+<!--   left_join(df_color_category, by = 'trait') %>%  -->
+<!--   ggplot(aes(color = pop2)) +  -->
+<!--   geom_abline(slope = 1, intercept = 0) +  -->
+<!--   # geom_errorbar(aes(x = h_sq, ymin = r2_mean - 1.96 * r2_sd, ymax = r2_mean + 1.96 * r2_sd)) +  -->
+<!--   # geom_errorbarh(aes(xmin = h_sq - 1.96 * h_sq_se, xmax = h_sq + 1.96 * h_sq_se, y = r2_mean)) + -->
+<!--   geom_point(aes(x = h_sq, y = r2_mean), size = 3) +  -->
+<!--   th + -->
+<!--   scale_color_manual(values = pop_color_mixer2) + -->
+<!--   coord_equal() +  -->
+<!--   theme(legend.position = 'top', legend.title = element_blank()) +  -->
+<!--   xlab('PTRS PVE') + -->
+<!--   ylab(expression(tilde(R)^2 * 'of PTRS (GTEx EUR)')) -->
+<!-- ``` -->
+</div>
+<div id="prs-vs-ptrs-perdiction-performance" class="section level2">
+<h2><span class="header-section-number">2.2</span> PRS vs PTRS perdiction performance</h2>
+<pre class="r"><code>kk = inner_join(
+  df1 %&gt;% filter(sample == &#39;British_test&#39;), 
+  df4 %&gt;% filter(sample == &#39;British_test&#39;), 
+  by = &#39;trait&#39;, suffix = c(&#39;.ptrs&#39;, &#39;.prs&#39;)
+)
+kk %&gt;% left_join(df_color_category, by = &#39;trait&#39;) %&gt;% ggplot(aes(color = group)) + 
+  geom_abline(slope = 1, intercept = 0) + 
+  geom_point(aes(x = r2_max.prs, y = r2_max.ptrs)) + 
+  # geom_errorbar(aes(x = r2_mean.prs, ymin = r2_mean.ptrs - 1.96 * r2_sd.ptrs, ymax = r2_mean.ptrs + 1.96 * r2_sd.ptrs)) + 
+  # geom_errorbarh(aes(xmin = r2_max.prs - 1.96 * r2_sd.prs, xmax = r2_max.prs + 1.96 * r2_sd.prs, y = r2_mean.ptrs)) +
+  geom_label_repel(aes(x = r2_max.prs, y = r2_max.ptrs, label = trait)) + th + 
+  xlab(&#39;Prediction accuracy of PRS&#39;) + 
+  ylab(&#39;Prediction accuracy of PTRS&#39;) +
+  scale_color_manual(values = color_mixer) + coord_equal() + theme(legend.position = &#39;top&#39;, legend.title = element_blank()) + guides(color = guide_legend(nrow = 2, byrow = TRUE))</code></pre>
+<p><img src="revision_july_2021_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+<p><strong>Takeaway</strong>: R2 comparison: PRS vs PTRS (GTEx EUR) using European individuals.</p>
+<pre class="r"><code>kk = inner_join(
+  df1 %&gt;% filter(sample %in% c(&#39;British_test&#39;, non_eur_pops)), 
+  df4 %&gt;% filter(sample %in% c(&#39;British_test&#39;, non_eur_pops)), 
+  by = c(&#39;trait&#39;, &#39;sample&#39;), suffix = c(&#39;.ptrs&#39;, &#39;.prs&#39;)
+)
+kk %&gt;% left_join(df_color_category, by = &#39;trait&#39;) %&gt;% ggplot(aes(color = group)) + 
+  geom_abline(slope = 1, intercept = 0) + 
+  geom_point(aes(x = r2_max.prs, y = r2_max.ptrs)) + 
+  # geom_errorbar(aes(x = r2_mean.prs, ymin = r2_mean.ptrs - 1.96 * r2_sd.ptrs, ymax = r2_mean.ptrs + 1.96 * r2_sd.ptrs)) + 
+  # geom_errorbarh(aes(xmin = r2_mean.prs - 1.96 * r2_sd.prs, xmax = r2_mean.prs + 1.96 * r2_sd.prs, y = r2_mean.ptrs)) +
+  # geom_label_repel(aes(x = r2_mean.prs, y = r2_mean.ptrs, label = trait)) + th + 
+  xlab(&#39;Prediction accuracy of PRS&#39;) + 
+  ylab(&#39;Prediction accuracy of \n PTRS (GTEx EUR)&#39;) +
+  scale_color_manual(values = color_mixer) + 
+  # coord_equal() + 
+  theme(legend.position = &#39;top&#39;, legend.title = element_blank()) + guides(color = guide_legend(nrow = 2, byrow = TRUE)) + 
+  facet_wrap(~sample, ncol = 5, scales = &#39;free&#39;) + th2 + theme(legend.position = &#39;none&#39;)</code></pre>
+<p><img src="revision_july_2021_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<p><strong>Takeaway</strong>: As a supplementary of PRS vs PTRS R2 comparison, we also show non-European results.</p>
+</div>
+<div id="ptrs-en-vs-pt" class="section level2">
+<h2><span class="header-section-number">2.3</span> PTRS EN vs P+T</h2>
+<pre class="r"><code>kk = inner_join(
+  df1 %&gt;% filter(sample == &#39;British_test&#39;), 
+  df1pt %&gt;% filter(sample == &#39;British_test&#39;), 
+  by = &#39;trait&#39;, suffix = c(&#39;.en&#39;, &#39;.pt&#39;)
+)
+kk %&gt;% left_join(df_color_category, by = &#39;trait&#39;) %&gt;% ggplot(aes(color = group)) + 
+  geom_abline(slope = 1, intercept = 0) + 
+  geom_point(aes(x = r2_max.pt, y = r2_max.en)) + 
+  geom_label_repel(aes(x = r2_max.pt, y = r2_max.en, label = trait)) + th +
+  xlab(&#39;Prediction accuracy of PTRS (P+T)&#39;) + 
+  ylab(&#39;Prediction accuracy of PTRS (EN)&#39;) +
+  scale_color_manual(values = color_mixer) + coord_equal() + theme(legend.position = &#39;top&#39;, legend.title = element_blank()) + guides(color = guide_legend(nrow = 2, byrow = TRUE))</code></pre>
+<p><img src="revision_july_2021_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<p><strong>Takeaway</strong>: Comparing GTEx EUR PTRS R2 for PTRS (EN) and PTRS (P+T) using European individuals.</p>
+<pre class="r"><code>kk = inner_join(
+  df3 %&gt;% filter(sample == &#39;British_test&#39;), 
+  df3pt %&gt;% filter(sample == &#39;British_test&#39;), 
+  by = &#39;trait&#39;, suffix = c(&#39;.en&#39;, &#39;.pt&#39;)
+)
+kk %&gt;% left_join(df_color_category, by = &#39;trait&#39;) %&gt;% ggplot(aes(color = group)) + 
+  geom_abline(slope = 1, intercept = 0) + 
+  geom_point(aes(x = r2_max.pt, y = r2_max.en)) + 
+  geom_label_repel(aes(x = r2_max.pt, y = r2_max.en, label = trait)) + th +
+  xlab(&#39;Prediction accuracy of PTRS (P+T)&#39;) + 
+  ylab(&#39;Prediction accuracy of PTRS (EN)&#39;) +
+  scale_color_manual(values = color_mixer) + coord_equal() + theme(legend.position = &#39;top&#39;, legend.title = element_blank()) + guides(color = guide_legend(nrow = 2, byrow = TRUE))</code></pre>
+<p><img src="revision_july_2021_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+<p><strong>Takeaway</strong>: As a supplementary, we also compare MESA ALL PTRS R2 for PTRS (EN) and PTRS (P+T) using European individuals.</p>
+</div>
+<div id="ptrs-performance-mesa-cau-vs-mesa-afhi" class="section level2">
+<h2><span class="header-section-number">2.4</span> PTRS performance MESA CAU vs MESA AFHI</h2>
+<pre class="r"><code>tmp = inner_join(
+  df2_cau %&gt;% filter(sample %in% c(non_eur_pops, &#39;British_test&#39;)) %&gt;% mutate(model = &#39;MESA EUR&#39;), 
+  df2_afhi %&gt;% filter(sample %in% c(non_eur_pops, &#39;British_test&#39;)) %&gt;% mutate(model = &#39;MESA AFHI&#39;),
+  by = c(&#39;sample&#39;, &#39;trait&#39;), suffix = c(&#39;.eur&#39;, &#39;.afhi&#39;)
+)
+tmp %&gt;% left_join(df_color_category, by = &#39;trait&#39;) %&gt;% left_join(pop_map, by = c(&#39;sample&#39; = &#39;pop&#39;)) %&gt;% 
+  mutate(pop2 = order_pop(pop2)) %&gt;%
+  ggplot(aes(color = group)) + 
+  geom_abline(slope = 1, intercept = 0) + 
+  geom_point(aes(x = r2_max.eur, y = r2_max.afhi)) + 
+  facet_wrap(~pop2, scales = &#39;free&#39;, ncol = 5) + 
+  coord_cartesian() + th2 +
+  scale_color_manual(values = color_mixer) + theme(legend.position = &#39;none&#39;) + 
+  ylab(expression(tilde(R)^2 * &#39;of PTRS (MESA AFHI)&#39;)) + 
+  xlab(expression(tilde(R)^2 * &#39;of PTRS (MESA CAU)&#39;)) + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5))</code></pre>
+<p><img src="revision_july_2021_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
+<pre class="r"><code>diff_sum = tmp %&gt;% group_by(sample) %&gt;% do(test_afhi_vs_cau(.$r2_max.afhi, .$r2_max.eur))</code></pre>
+<pre class="r"><code>diff_sum %&gt;% left_join(pop_map, by = c(&#39;sample&#39; = &#39;pop&#39;)) %&gt;% mutate(pop2 = order_pop(pop2)) %&gt;% ggplot()  + 
+  geom_hline(yintercept = 0, linetype = 2) + 
+  geom_errorbar(aes(x = pop2, ymin = ci_low, ymax = ci_high), width = 0.1) +
+  geom_point(aes(x = pop2, y = delta_pve), size = 5, color = &#39;gray&#39;) +
+  ylab(&#39;Change in accuracy \n (MESA AFHI - MESA EUR)&#39;) +
+  xlab(&#39;Target population&#39;) + th</code></pre>
+<p><img src="revision_july_2021_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
+<pre class="r"><code>diff_sum %&gt;% pander(&#39;Predictive performance MESA AFHI vs MESA EUR&#39;)</code></pre>
+<table>
+<caption>Predictive performance MESA AFHI vs MESA EUR</caption>
+<colgroup>
+<col width="18%" />
+<col width="15%" />
+<col width="16%" />
+<col width="15%" />
+<col width="17%" />
+<col width="17%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">sample</th>
+<th align="center">delta_pve</th>
+<th align="center">ci_low</th>
+<th align="center">ci_high</th>
+<th align="center">wilcox_stat</th>
+<th align="center">wilcox_pval</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">African</td>
+<td align="center">0.0004768</td>
+<td align="center">-0.0006085</td>
+<td align="center">0.001562</td>
+<td align="center">86</td>
+<td align="center">0.6777</td>
+</tr>
+<tr class="even">
+<td align="center">British_test</td>
+<td align="center">-0.00718</td>
+<td align="center">-0.01038</td>
+<td align="center">-0.003977</td>
+<td align="center">0</td>
+<td align="center">1.526e-05</td>
+</tr>
+<tr class="odd">
+<td align="center">Chinese</td>
+<td align="center">-0.002348</td>
+<td align="center">-0.005267</td>
+<td align="center">0.0005703</td>
+<td align="center">44</td>
+<td align="center">0.1324</td>
+</tr>
+<tr class="even">
+<td align="center">Indian</td>
+<td align="center">-0.003565</td>
+<td align="center">-0.00464</td>
+<td align="center">-0.00249</td>
+<td align="center">1</td>
+<td align="center">3.052e-05</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Takeaway</strong>: Comparing PTRS R2 for MESA EUR and MESA AFHI.</p>
+<pre class="r"><code>tmp = inner_join(
+  df2pt_cau %&gt;% filter(sample %in% c(non_eur_pops, &#39;British_test&#39;)) %&gt;% mutate(model = &#39;MESA EUR&#39;), 
+  df2pt_afhi %&gt;% filter(sample %in% c(non_eur_pops, &#39;British_test&#39;)) %&gt;% mutate(model = &#39;MESA AFHI&#39;),
+  by = c(&#39;sample&#39;, &#39;trait&#39;), suffix = c(&#39;.eur&#39;, &#39;.afhi&#39;)
+)
+tmp %&gt;% left_join(df_color_category, by = &#39;trait&#39;) %&gt;% left_join(pop_map, by = c(&#39;sample&#39; = &#39;pop&#39;)) %&gt;% 
+  mutate(pop2 = order_pop(pop2)) %&gt;%
+  ggplot(aes(color = group)) + 
+  geom_abline(slope = 1, intercept = 0) + 
+  geom_point(aes(x = r2_max.eur, y = r2_max.afhi)) + 
+  facet_wrap(~pop2, scales = &#39;free&#39;, ncol = 5) + 
+  coord_cartesian() + th2 +
+  scale_color_manual(values = color_mixer) + theme(legend.position = &#39;none&#39;) + 
+  ylab(expression(tilde(R)^2 * &#39;of PTRS (MESA AFHI)&#39;)) + 
+  xlab(expression(tilde(R)^2 * &#39;of PTRS (MESA CAU)&#39;)) + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5))</code></pre>
+<p><img src="revision_july_2021_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
+<pre class="r"><code>diff_sum = tmp %&gt;% group_by(sample) %&gt;% do(test_afhi_vs_cau(.$r2_max.afhi, .$r2_max.eur))</code></pre>
+<pre class="r"><code>diff_sum %&gt;% left_join(pop_map, by = c(&#39;sample&#39; = &#39;pop&#39;)) %&gt;% mutate(pop2 = order_pop(pop2)) %&gt;% ggplot()  + 
+  geom_hline(yintercept = 0, linetype = 2) + 
+  geom_errorbar(aes(x = pop2, ymin = ci_low, ymax = ci_high), width = 0.1) +
+  geom_point(aes(x = pop2, y = delta_pve), size = 5, color = &#39;gray&#39;) +
+  ylab(&#39;Change in accuracy \n (MESA AFHI - MESA EUR)&#39;) +
+  xlab(&#39;Target population&#39;) + th</code></pre>
+<p><img src="revision_july_2021_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
+<pre class="r"><code>diff_sum %&gt;% pander(&#39;Predictive performance MESA AFHI vs MESA EUR&#39;)</code></pre>
+<table>
+<caption>Predictive performance MESA AFHI vs MESA EUR</caption>
+<colgroup>
+<col width="18%" />
+<col width="16%" />
+<col width="15%" />
+<col width="15%" />
+<col width="17%" />
+<col width="17%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">sample</th>
+<th align="center">delta_pve</th>
+<th align="center">ci_low</th>
+<th align="center">ci_high</th>
+<th align="center">wilcox_stat</th>
+<th align="center">wilcox_pval</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">African</td>
+<td align="center">-0.0005255</td>
+<td align="center">-0.001392</td>
+<td align="center">0.0003406</td>
+<td align="center">49</td>
+<td align="center">0.2069</td>
+</tr>
+<tr class="even">
+<td align="center">British_test</td>
+<td align="center">-0.006546</td>
+<td align="center">-0.008901</td>
+<td align="center">-0.004191</td>
+<td align="center">0</td>
+<td align="center">1.526e-05</td>
+</tr>
+<tr class="odd">
+<td align="center">Chinese</td>
+<td align="center">-0.003234</td>
+<td align="center">-0.005262</td>
+<td align="center">-0.001207</td>
+<td align="center">20</td>
+<td align="center">0.005569</td>
+</tr>
+<tr class="even">
+<td align="center">Indian</td>
+<td align="center">-0.004591</td>
+<td align="center">-0.006102</td>
+<td align="center">-0.003079</td>
+<td align="center">0</td>
+<td align="center">1.526e-05</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Takeaway</strong>: As a supplementary, we also compare PTRS (P+T) R2 for MESA EUR and MESA AFHI.</p>
+</div>
+</div>
+<div id="portability" class="section level1">
+<h1><span class="header-section-number">3</span> Portability</h1>
+<pre class="r"><code>df1p = calc_port_max(df1)
+df1ptp = calc_port_max(df1pt)
+ref_mesa = df2_cau %&gt;% filter(sample == &#39;British_valid&#39;)
+df2p_cau = calc_port_max(df2_cau)
+df2p_afhi = calc_port_max(df2_afhi, ref_mesa)
+df2ptp_cau = calc_port_max(df2pt_cau)
+df2ptp_afhi = calc_port_max(df2pt_afhi, ref_mesa)
+df3p = calc_port_max(df3)
+df3ptp = calc_port_max(df3pt)
+df4p = calc_port_max(df4)</code></pre>
+<pre class="r"><code>tmp = rbind(
+  df1p %&gt;% mutate(method = &#39;PTRS (GTEx EUR)&#39;),
+  df4p %&gt;% mutate(method = &#39;PRS&#39;)
+) %&gt;% filter(sample != &#39;British_insample&#39;) 
+tmp %&gt;% 
+  left_join(pop_map2, by = c(&#39;sample&#39; = &#39;pop&#39;)) %&gt;% mutate(pop2 = order_pop(pop2)) %&gt;%
+  ggplot() +
+  geom_violin(aes(x = pop2, y = portability, color = method), position = position_dodge(0.65)) +
+  geom_boxplot(aes(x = pop2, y = portability, color = method), width = 0.1, position = position_dodge(0.65)) + th + scale_color_manual(values = score_color_code) + 
+  theme(legend.position = c(0.8, 0.8), legend.title = element_blank())</code></pre>
+<p><img src="revision_july_2021_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
+<pre class="r"><code>tmp %&gt;% 
+  reshape2::dcast(trait + sample ~ method, value.var = &#39;portability&#39;) %&gt;% 
+  group_by(sample) %&gt;% 
+  do(test_a_vs_b(.$PRS, .$`PTRS (GTEx EUR)`)) %&gt;% 
+  pander(&#39;Portability: GTEx EUR whole blood&#39;)</code></pre>
+<pre><code>## Warning in wilcox.test.default(a, b, paired = TRUE): cannot compute exact
+## p-value with zeroes</code></pre>
+<table>
+<caption>Portability: GTEx EUR whole blood</caption>
+<colgroup>
+<col width="18%" />
+<col width="12%" />
+<col width="11%" />
+<col width="12%" />
+<col width="12%" />
+<col width="16%" />
+<col width="16%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">sample</th>
+<th align="center">delta</th>
+<th align="center">ci_low</th>
+<th align="center">ci_high</th>
+<th align="center">pval</th>
+<th align="center">wilcox_stat</th>
+<th align="center">wilcox_pval</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">African</td>
+<td align="center">-0.09734</td>
+<td align="center">-0.1647</td>
+<td align="center">-0.02995</td>
+<td align="center">0.007447</td>
+<td align="center">24</td>
+<td align="center">0.01099</td>
+</tr>
+<tr class="even">
+<td align="center">British_test</td>
+<td align="center">-0.1061</td>
+<td align="center">-0.336</td>
+<td align="center">0.1238</td>
+<td align="center">0.3423</td>
+<td align="center">70</td>
+<td align="center">0.7819</td>
+</tr>
+<tr class="odd">
+<td align="center">British_valid</td>
+<td align="center">0</td>
+<td align="center">NA</td>
+<td align="center">NA</td>
+<td align="center">NA</td>
+<td align="center">0</td>
+<td align="center">NA</td>
+</tr>
+<tr class="even">
+<td align="center">Chinese</td>
+<td align="center">0.05609</td>
+<td align="center">-0.1889</td>
+<td align="center">0.3011</td>
+<td align="center">0.634</td>
+<td align="center">97</td>
+<td align="center">0.3529</td>
+</tr>
+<tr class="odd">
+<td align="center">Indian</td>
+<td align="center">0.02279</td>
+<td align="center">-0.1603</td>
+<td align="center">0.2059</td>
+<td align="center">0.7953</td>
+<td align="center">94</td>
+<td align="center">0.4307</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Takeaway</strong>: GTEx EUR PTRS portability</p>
+<pre class="r"><code>tmp = rbind(
+  df1ptp %&gt;% mutate(method = &#39;PTRS (GTEx EUR)&#39;),
+  df4p %&gt;% mutate(method = &#39;PRS&#39;)
+) %&gt;% filter(sample != &#39;British_insample&#39;) 
+tmp %&gt;% 
+  left_join(pop_map2, by = c(&#39;sample&#39; = &#39;pop&#39;)) %&gt;% mutate(pop2 = order_pop(pop2)) %&gt;%
+  ggplot() +
+  geom_violin(aes(x = pop2, y = portability, color = method), position = position_dodge(0.65)) +
+  geom_boxplot(aes(x = pop2, y = portability, color = method), width = 0.1, position = position_dodge(0.65)) + th + scale_color_manual(values = score_color_code) + 
+  theme(legend.position = c(0.8, 0.8), legend.title = element_blank())</code></pre>
+<p><img src="revision_july_2021_files/figure-html/unnamed-chunk-22-1.png" width="672" /></p>
+<pre class="r"><code>tmp %&gt;% 
+  reshape2::dcast(trait + sample ~ method, value.var = &#39;portability&#39;) %&gt;% 
+  group_by(sample) %&gt;% 
+  do(test_a_vs_b(.$PRS, .$`PTRS (GTEx EUR)`)) %&gt;% 
+  pander(&#39;Portability: GTEx EUR whole blood&#39;)</code></pre>
+<pre><code>## Warning in wilcox.test.default(a, b, paired = TRUE): cannot compute exact
+## p-value with zeroes</code></pre>
+<table>
+<caption>Portability: GTEx EUR whole blood</caption>
+<colgroup>
+<col width="18%" />
+<col width="12%" />
+<col width="12%" />
+<col width="12%" />
+<col width="10%" />
+<col width="16%" />
+<col width="16%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">sample</th>
+<th align="center">delta</th>
+<th align="center">ci_low</th>
+<th align="center">ci_high</th>
+<th align="center">pval</th>
+<th align="center">wilcox_stat</th>
+<th align="center">wilcox_pval</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">African</td>
+<td align="center">-0.09622</td>
+<td align="center">-0.1591</td>
+<td align="center">-0.03331</td>
+<td align="center">0.0051</td>
+<td align="center">27</td>
+<td align="center">0.01743</td>
+</tr>
+<tr class="even">
+<td align="center">British_test</td>
+<td align="center">-0.07947</td>
+<td align="center">-0.2143</td>
+<td align="center">0.05541</td>
+<td align="center">0.2296</td>
+<td align="center">61</td>
+<td align="center">0.4874</td>
+</tr>
+<tr class="odd">
+<td align="center">British_valid</td>
+<td align="center">0</td>
+<td align="center">NA</td>
+<td align="center">NA</td>
+<td align="center">NA</td>
+<td align="center">0</td>
+<td align="center">NA</td>
+</tr>
+<tr class="even">
+<td align="center">Chinese</td>
+<td align="center">0.1429</td>
+<td align="center">-0.05519</td>
+<td align="center">0.3409</td>
+<td align="center">0.1458</td>
+<td align="center">113</td>
+<td align="center">0.08865</td>
+</tr>
+<tr class="odd">
+<td align="center">Indian</td>
+<td align="center">0.04915</td>
+<td align="center">-0.08561</td>
+<td align="center">0.1839</td>
+<td align="center">0.4507</td>
+<td align="center">98</td>
+<td align="center">0.3289</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Takeaway</strong>: GTEx EUR PTRS (P+T) portability</p>
+<pre class="r"><code>tmp = rbind(
+  df3p %&gt;% mutate(method = &#39;PTRS (MESA ALL)&#39;),
+  df4p %&gt;% mutate(method = &#39;PRS&#39;)
+) %&gt;% filter(sample != &#39;British_insample&#39;) 
+# tmp %&gt;% 
+#   left_join(pop_map2, by = c(&#39;sample&#39; = &#39;pop&#39;)) %&gt;% mutate(pop2 = order_pop(pop2)) %&gt;%
+#   ggplot() +
+#   geom_violin(aes(x = pop2, y = portability, color = method), position = position_dodge(0.65)) +
+#   geom_boxplot(aes(x = pop2, y = portability, color = method), width = 0.1, position = position_dodge(0.65)) + th + scale_color_manual(values = score_color_code) + 
+#   theme(legend.position = c(0.8, 0.8), legend.title = element_blank())
+# tmp %&gt;% reshape2::dcast(trait + sample ~ method, value.var = &#39;portability&#39;) %&gt;% group_by(sample) %&gt;% do(test_a_vs_b(.$PRS, .$`PTRS (MESA ALL)`)) %&gt;% 
+#   pander(&#39;Portability: MESA ALL&#39;)
+opops = c(&#39;Caribbean&#39;, &#39;African&#39;)
+outlier = tmp %&gt;% filter(sample %in% opops, portability &gt; 0.5)
+tmp %&gt;% filter((!sample %in% opops) | (!trait %in% outlier$trait)) %&gt;% 
+  reshape2::dcast(trait + sample ~ method, value.var = &#39;portability&#39;) %&gt;% 
+  group_by(sample) %&gt;% 
+  do(test_a_vs_b(.$PRS, .$`PTRS (MESA ALL)`)) %&gt;% 
+  pander(&#39;Portability: MESA ALL (remove outlier)&#39;)</code></pre>
+<pre><code>## Warning in wilcox.test.default(a, b, paired = TRUE): cannot compute exact
+## p-value with zeroes</code></pre>
+<table>
+<caption>Portability: MESA ALL (remove outlier)</caption>
+<colgroup>
+<col width="18%" />
+<col width="12%" />
+<col width="13%" />
+<col width="11%" />
+<col width="11%" />
+<col width="16%" />
+<col width="16%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">sample</th>
+<th align="center">delta</th>
+<th align="center">ci_low</th>
+<th align="center">ci_high</th>
+<th align="center">pval</th>
+<th align="center">wilcox_stat</th>
+<th align="center">wilcox_pval</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">African</td>
+<td align="center">-0.03247</td>
+<td align="center">-0.0946</td>
+<td align="center">0.02967</td>
+<td align="center">0.2829</td>
+<td align="center">55</td>
+<td align="center">0.5282</td>
+</tr>
+<tr class="even">
+<td align="center">British_test</td>
+<td align="center">-0.03034</td>
+<td align="center">-0.1432</td>
+<td align="center">0.08251</td>
+<td align="center">0.5766</td>
+<td align="center">75</td>
+<td align="center">0.9632</td>
+</tr>
+<tr class="odd">
+<td align="center">British_valid</td>
+<td align="center">0</td>
+<td align="center">NA</td>
+<td align="center">NA</td>
+<td align="center">NA</td>
+<td align="center">0</td>
+<td align="center">NA</td>
+</tr>
+<tr class="even">
+<td align="center">Chinese</td>
+<td align="center">0.1888</td>
+<td align="center">-0.02222</td>
+<td align="center">0.3998</td>
+<td align="center">0.07608</td>
+<td align="center">120</td>
+<td align="center">0.03954</td>
+</tr>
+<tr class="odd">
+<td align="center">Indian</td>
+<td align="center">0.07757</td>
+<td align="center">-0.008981</td>
+<td align="center">0.1641</td>
+<td align="center">0.07562</td>
+<td align="center">112</td>
+<td align="center">0.09837</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>tmp %&gt;% filter((!sample %in% opops) | (!trait %in% outlier$trait)) %&gt;%
+  left_join(pop_map2, by = c(&#39;sample&#39; = &#39;pop&#39;)) %&gt;% mutate(pop2 = order_pop(pop2)) %&gt;%
+  ggplot() +
+  geom_violin(aes(x = pop2, y = portability, color = method), position = position_dodge(0.65)) +
+  geom_boxplot(aes(x = pop2, y = portability, color = method), width = 0.1, position = position_dodge(0.65)) + th + scale_color_manual(values = score_color_code) + 
+  theme(legend.position = c(0.8, 0.8), legend.title = element_blank()) + 
+  theme(axis.title.x = element_blank())</code></pre>
+<p><img src="revision_july_2021_files/figure-html/unnamed-chunk-23-1.png" width="672" /></p>
+<p><strong>Takeaway</strong>: MESA ALL PTRS portability (removed outliers)</p>
+<pre class="r"><code>tmp = rbind(
+  df3ptp %&gt;% mutate(method = &#39;PTRS (MESA ALL)&#39;),
+  df4p %&gt;% mutate(method = &#39;PRS&#39;)
+) %&gt;% filter(sample != &#39;British_insample&#39;) 
+tmp %&gt;%
+  left_join(pop_map2, by = c(&#39;sample&#39; = &#39;pop&#39;)) %&gt;% mutate(pop2 = order_pop(pop2)) %&gt;%
+  ggplot() +
+  geom_violin(aes(x = pop2, y = portability, color = method), position = position_dodge(0.65)) +
+  geom_boxplot(aes(x = pop2, y = portability, color = method), width = 0.1, position = position_dodge(0.65)) + th + scale_color_manual(values = score_color_code) +
+  theme(legend.position = c(0.8, 0.8), legend.title = element_blank())</code></pre>
+<p><img src="revision_july_2021_files/figure-html/unnamed-chunk-24-1.png" width="672" /></p>
+<pre class="r"><code>tmp %&gt;% reshape2::dcast(trait + sample ~ method, value.var = &#39;portability&#39;) %&gt;% group_by(sample) %&gt;% do(test_a_vs_b(.$PRS, .$`PTRS (MESA ALL)`)) %&gt;%
+  pander(&#39;Portability: MESA ALL&#39;)</code></pre>
+<pre><code>## Warning in wilcox.test.default(a, b, paired = TRUE): cannot compute exact
+## p-value with zeroes</code></pre>
+<table>
+<caption>Portability: MESA ALL</caption>
+<colgroup>
+<col width="18%" />
+<col width="12%" />
+<col width="12%" />
+<col width="11%" />
+<col width="11%" />
+<col width="16%" />
+<col width="16%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">sample</th>
+<th align="center">delta</th>
+<th align="center">ci_low</th>
+<th align="center">ci_high</th>
+<th align="center">pval</th>
+<th align="center">wilcox_stat</th>
+<th align="center">wilcox_pval</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">African</td>
+<td align="center">0.005371</td>
+<td align="center">-0.05576</td>
+<td align="center">0.0665</td>
+<td align="center">0.8546</td>
+<td align="center">88</td>
+<td align="center">0.6112</td>
+</tr>
+<tr class="even">
+<td align="center">British_test</td>
+<td align="center">0.02336</td>
+<td align="center">-0.07121</td>
+<td align="center">0.1179</td>
+<td align="center">0.6076</td>
+<td align="center">88</td>
+<td align="center">0.6112</td>
+</tr>
+<tr class="odd">
+<td align="center">British_valid</td>
+<td align="center">0</td>
+<td align="center">NA</td>
+<td align="center">NA</td>
+<td align="center">NA</td>
+<td align="center">0</td>
+<td align="center">NA</td>
+</tr>
+<tr class="even">
+<td align="center">Chinese</td>
+<td align="center">0.185</td>
+<td align="center">-0.02036</td>
+<td align="center">0.3903</td>
+<td align="center">0.07427</td>
+<td align="center">118</td>
+<td align="center">0.05054</td>
+</tr>
+<tr class="odd">
+<td align="center">Indian</td>
+<td align="center">0.1246</td>
+<td align="center">-0.00587</td>
+<td align="center">0.255</td>
+<td align="center">0.05994</td>
+<td align="center">124</td>
+<td align="center">0.02322</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># opops = c(&#39;Caribbean&#39;, &#39;African&#39;)
+# outlier = tmp %&gt;% filter(sample %in% opops, portability &gt; 0.5)
+# tmp %&gt;% filter((!sample %in% opops) | (!trait %in% outlier$trait)) %&gt;% 
+#   reshape2::dcast(trait + sample ~ method, value.var = &#39;portability&#39;) %&gt;% 
+#   group_by(sample) %&gt;% 
+#   do(test_a_vs_b(.$PRS, .$`PTRS (MESA ALL)`)) %&gt;% 
+#   pander(&#39;Portability: MESA ALL (remove outlier)&#39;)
+# tmp %&gt;% filter((!sample %in% opops) | (!trait %in% outlier$trait)) %&gt;%
+#   left_join(pop_map2, by = c(&#39;sample&#39; = &#39;pop&#39;)) %&gt;% mutate(pop2 = order_pop(pop2)) %&gt;%
+#   ggplot() +
+#   geom_violin(aes(x = pop2, y = portability, color = method), position = position_dodge(0.65)) +
+#   geom_boxplot(aes(x = pop2, y = portability, color = method), width = 0.1, position = position_dodge(0.65)) + th + scale_color_manual(values = score_color_code) + 
+#   theme(legend.position = c(0.8, 0.8), legend.title = element_blank()) + 
+#   theme(axis.title.x = element_blank())</code></pre>
+<p><strong>Takeaway</strong>: MESA ALL PTRS (P+T) portability</p>
+<pre class="r"><code>tmp = rbind(
+  df2p_cau %&gt;% mutate(method = &#39;PTRS (MESA EUR)&#39;),
+  df4p %&gt;% mutate(method = &#39;PRS&#39;)
+) %&gt;% filter(sample != &#39;British_insample&#39;) 
+tmp %&gt;% 
+  left_join(pop_map2, by = c(&#39;sample&#39; = &#39;pop&#39;)) %&gt;% mutate(pop2 = order_pop(pop2)) %&gt;%
+  ggplot() +
+  geom_violin(aes(x = pop2, y = portability, color = method), position = position_dodge(0.65)) +
+  geom_boxplot(aes(x = pop2, y = portability, color = method), width = 0.1, position = position_dodge(0.65)) + th + scale_color_manual(values = score_color_code) + 
+  theme(legend.position = c(0.8, 0.8), legend.title = element_blank())</code></pre>
+<p><img src="revision_july_2021_files/figure-html/unnamed-chunk-25-1.png" width="672" /></p>
+<pre class="r"><code>tmp %&gt;% reshape2::dcast(trait + sample ~ method, value.var = &#39;portability&#39;) %&gt;% group_by(sample) %&gt;% do(test_a_vs_b(.$PRS, .$`PTRS (MESA EUR)`)) %&gt;% 
+  pander(&#39;Portability: MESA EUR&#39;)</code></pre>
+<pre><code>## Warning in wilcox.test.default(a, b, paired = TRUE): cannot compute exact
+## p-value with zeroes</code></pre>
+<table>
+<caption>Portability: MESA EUR</caption>
+<colgroup>
+<col width="18%" />
+<col width="13%" />
+<col width="12%" />
+<col width="11%" />
+<col width="10%" />
+<col width="16%" />
+<col width="16%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">sample</th>
+<th align="center">delta</th>
+<th align="center">ci_low</th>
+<th align="center">ci_high</th>
+<th align="center">pval</th>
+<th align="center">wilcox_stat</th>
+<th align="center">wilcox_pval</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">African</td>
+<td align="center">-0.02218</td>
+<td align="center">-0.07387</td>
+<td align="center">0.02951</td>
+<td align="center">0.3765</td>
+<td align="center">58</td>
+<td align="center">0.4038</td>
+</tr>
+<tr class="even">
+<td align="center">British_test</td>
+<td align="center">-0.005655</td>
+<td align="center">-0.1703</td>
+<td align="center">0.159</td>
+<td align="center">0.9429</td>
+<td align="center">84</td>
+<td align="center">0.7467</td>
+</tr>
+<tr class="odd">
+<td align="center">British_valid</td>
+<td align="center">0</td>
+<td align="center">NA</td>
+<td align="center">NA</td>
+<td align="center">NA</td>
+<td align="center">0</td>
+<td align="center">NA</td>
+</tr>
+<tr class="even">
+<td align="center">Chinese</td>
+<td align="center">0.08961</td>
+<td align="center">-0.1082</td>
+<td align="center">0.2874</td>
+<td align="center">0.3511</td>
+<td align="center">102</td>
+<td align="center">0.2435</td>
+</tr>
+<tr class="odd">
+<td align="center">Indian</td>
+<td align="center">0.1303</td>
+<td align="center">-0.04619</td>
+<td align="center">0.3069</td>
+<td align="center">0.1371</td>
+<td align="center">112</td>
+<td align="center">0.09837</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>opops = c(&#39;Caribbean&#39;, &#39;African&#39;)
+# outlier = tmp %&gt;% filter(sample %in% opops, portability &gt; 0.5)
+# tmp %&gt;% filter((!sample %in% opops) | (!trait %in% outlier$trait)) %&gt;% 
+#   reshape2::dcast(trait + sample ~ method, value.var = &#39;portability&#39;) %&gt;% 
+#   group_by(sample) %&gt;% do(test_a_vs_b(.$PRS, .$`PTRS (MESA EUR)`)) %&gt;% 
+#   pander(&#39;Portability: MESA EUR (remove outlier)&#39;)
+# tmp %&gt;% filter((!sample %in% opops) | (!trait %in% outlier$trait)) %&gt;%
+#   left_join(pop_map2, by = c(&#39;sample&#39; = &#39;pop&#39;)) %&gt;% mutate(pop2 = order_pop(pop2)) %&gt;%
+#   ggplot() +
+#   geom_violin(aes(x = pop2, y = portability, color = method), position = position_dodge(0.65)) +
+#   geom_boxplot(aes(x = pop2, y = portability, color = method), width = 0.1, position = position_dodge(0.65)) + th + scale_color_manual(values = score_color_code) + 
+#   theme(legend.position = c(0.8, 0.8), legend.title = element_blank()) + 
+#   theme(axis.title.x = element_blank())</code></pre>
+<p><strong>Takeaway</strong>: MESA EUR PTRS portability</p>
+<pre class="r"><code>tmp = rbind(
+  df2ptp_cau %&gt;% mutate(method = &#39;PTRS (MESA EUR)&#39;),
+  df4p %&gt;% mutate(method = &#39;PRS&#39;)
+) %&gt;% filter(sample != &#39;British_insample&#39;) 
+tmp %&gt;% 
+  left_join(pop_map2, by = c(&#39;sample&#39; = &#39;pop&#39;)) %&gt;% mutate(pop2 = order_pop(pop2)) %&gt;%
+  ggplot() +
+  geom_violin(aes(x = pop2, y = portability, color = method), position = position_dodge(0.65)) +
+  geom_boxplot(aes(x = pop2, y = portability, color = method), width = 0.1, position = position_dodge(0.65)) + th + scale_color_manual(values = score_color_code) + 
+  theme(legend.position = c(0.8, 0.8), legend.title = element_blank())</code></pre>
+<p><img src="revision_july_2021_files/figure-html/unnamed-chunk-26-1.png" width="672" /></p>
+<pre class="r"><code>tmp %&gt;% reshape2::dcast(trait + sample ~ method, value.var = &#39;portability&#39;) %&gt;% group_by(sample) %&gt;% do(test_a_vs_b(.$PRS, .$`PTRS (MESA EUR)`)) %&gt;% 
+  pander(&#39;Portability: MESA EUR&#39;)</code></pre>
+<pre><code>## Warning in wilcox.test.default(a, b, paired = TRUE): cannot compute exact
+## p-value with zeroes</code></pre>
+<table>
+<caption>Portability: MESA EUR</caption>
+<colgroup>
+<col width="18%" />
+<col width="12%" />
+<col width="12%" />
+<col width="11%" />
+<col width="11%" />
+<col width="16%" />
+<col width="16%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">sample</th>
+<th align="center">delta</th>
+<th align="center">ci_low</th>
+<th align="center">ci_high</th>
+<th align="center">pval</th>
+<th align="center">wilcox_stat</th>
+<th align="center">wilcox_pval</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">African</td>
+<td align="center">-0.01252</td>
+<td align="center">-0.07119</td>
+<td align="center">0.04615</td>
+<td align="center">0.657</td>
+<td align="center">77</td>
+<td align="center">1</td>
+</tr>
+<tr class="even">
+<td align="center">British_test</td>
+<td align="center">0.05953</td>
+<td align="center">-0.06504</td>
+<td align="center">0.1841</td>
+<td align="center">0.3261</td>
+<td align="center">94</td>
+<td align="center">0.4307</td>
+</tr>
+<tr class="odd">
+<td align="center">British_valid</td>
+<td align="center">0</td>
+<td align="center">NA</td>
+<td align="center">NA</td>
+<td align="center">NA</td>
+<td align="center">0</td>
+<td align="center">NA</td>
+</tr>
+<tr class="even">
+<td align="center">Chinese</td>
+<td align="center">0.04772</td>
+<td align="center">-0.1249</td>
+<td align="center">0.2203</td>
+<td align="center">0.5659</td>
+<td align="center">91</td>
+<td align="center">0.5171</td>
+</tr>
+<tr class="odd">
+<td align="center">Indian</td>
+<td align="center">0.1367</td>
+<td align="center">-0.02054</td>
+<td align="center">0.2939</td>
+<td align="center">0.08395</td>
+<td align="center">121</td>
+<td align="center">0.03479</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>opops = c(&#39;Caribbean&#39;, &#39;African&#39;)
+# outlier = tmp %&gt;% filter(sample %in% opops, portability &gt; 0.5)
+# tmp %&gt;% filter((!sample %in% opops) | (!trait %in% outlier$trait)) %&gt;% 
+#   reshape2::dcast(trait + sample ~ method, value.var = &#39;portability&#39;) %&gt;% 
+#   group_by(sample) %&gt;% do(test_a_vs_b(.$PRS, .$`PTRS (MESA EUR)`)) %&gt;% 
+#   pander(&#39;Portability: MESA EUR (remove outlier)&#39;)
+# tmp %&gt;% filter((!sample %in% opops) | (!trait %in% outlier$trait)) %&gt;%
+#   left_join(pop_map2, by = c(&#39;sample&#39; = &#39;pop&#39;)) %&gt;% mutate(pop2 = order_pop(pop2)) %&gt;%
+#   ggplot() +
+#   geom_violin(aes(x = pop2, y = portability, color = method), position = position_dodge(0.65)) +
+#   geom_boxplot(aes(x = pop2, y = portability, color = method), width = 0.1, position = position_dodge(0.65)) + th + scale_color_manual(values = score_color_code) + 
+#   theme(legend.position = c(0.8, 0.8), legend.title = element_blank()) + 
+#   theme(axis.title.x = element_blank())</code></pre>
+<p><strong>Takeaway</strong>: MESA EUR PTRS (P+T) portability</p>
+<pre class="r"><code>tmp2 = rbind(
+  df2p_afhi %&gt;% mutate(method = &#39;PTRS (MESA AFHI)&#39;) %&gt;% filter(sample != &#39;British_insample&#39;, sample != &#39;British_test&#39;),
+  df4p %&gt;% mutate(method = &#39;PRS&#39;),
+  df2p_cau %&gt;% mutate(method = &#39;PTRS (MESA EUR)&#39;)
+)
+outlier = tmp %&gt;% filter(sample == &#39;African&#39;, portability &gt; 0.5)
+# tmp2 %&gt;% filter(sample == &#39;African&#39;) %&gt;% 
+#   mutate(method = order_method(method)) %&gt;% 
+#   ggplot() +
+#   geom_violin(aes(x = sample, y = portability, color = method), position = position_dodge(0.5)) +
+#   geom_boxplot(aes(x = sample, y = portability, color = method), width = 0.1, position = position_dodge(0.5)) + 
+#   scale_color_manual(values = score_color_code) + th
+
+tmp2 %&gt;% filter(sample == &#39;African&#39; &amp; (!trait %in% outlier$trait)) %&gt;% 
+  mutate(method = order_method(method)) %&gt;% 
+  ggplot() +
+  geom_violin(aes(x = sample, y = portability, color = method), position = position_dodge(0.5)) +
+  geom_boxplot(aes(x = sample, y = portability, color = method), width = 0.1, position = position_dodge(0.5)) + 
+  scale_color_manual(values = score_color_code) + th</code></pre>
+<p><img src="revision_july_2021_files/figure-html/unnamed-chunk-27-1.png" width="672" /></p>
+<pre class="r"><code>res1 = tmp2 %&gt;% filter((sample == &#39;African&#39;) &amp; (!trait %in% outlier$trait)) %&gt;% 
+  reshape2::dcast(trait + sample ~ method, value.var = &#39;portability&#39;) %&gt;% 
+  do(test_a_vs_b(.$PRS, .$`PTRS (MESA EUR)`))
+rownames(res1) = NULL
+res2 = tmp2 %&gt;% filter((sample == &#39;African&#39;) &amp; (!trait %in% outlier$trait)) %&gt;% 
+  reshape2::dcast(trait + sample ~ method, value.var = &#39;portability&#39;) %&gt;% 
+  do(test_a_vs_b(.$`PTRS (MESA EUR)`, .$`PTRS (MESA AFHI)`))
+rownames(res2) = NULL
+rbind(
+  res1 %&gt;% mutate(type = &#39;PRS vs MESA EUR&#39;), 
+  res2 %&gt;% mutate(type = &#39;MESA EUR vs MESA AFHI&#39;)
+) %&gt;% pander</code></pre>
+<table>
+<colgroup>
+<col width="11%" />
+<col width="11%" />
+<col width="10%" />
+<col width="9%" />
+<col width="15%" />
+<col width="15%" />
+<col width="25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">delta</th>
+<th align="center">ci_low</th>
+<th align="center">ci_high</th>
+<th align="center">pval</th>
+<th align="center">wilcox_stat</th>
+<th align="center">wilcox_pval</th>
+<th align="center">type</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">-0.02218</td>
+<td align="center">-0.07387</td>
+<td align="center">0.02951</td>
+<td align="center">0.3765</td>
+<td align="center">58</td>
+<td align="center">0.4038</td>
+<td align="center">PRS vs MESA EUR</td>
+</tr>
+<tr class="even">
+<td align="center">-0.03581</td>
+<td align="center">-0.09475</td>
+<td align="center">0.02313</td>
+<td align="center">0.2161</td>
+<td align="center">59</td>
+<td align="center">0.4307</td>
+<td align="center">MESA EUR vs MESA AFHI</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># tmp2 %&gt;% filter((sample != &#39;African&#39;) | (!trait %in% outlier$trait)) %&gt;% reshape2::dcast(trait + sample ~ method, value.var = &#39;portability&#39;) %&gt;% do(test_a_vs_b(.$PRS, .$`PTRS (MESA EUR)`))
+# tmp2 %&gt;% filter((sample != &#39;African&#39;) | (!trait %in% outlier$trait)) %&gt;% reshape2::dcast(trait + sample ~ method, value.var = &#39;portability&#39;) %&gt;% do(test_a_vs_b(.$`PTRS (MESA EUR)`, .$`PTRS (MESA AFHI)`))</code></pre>
+<p><strong>Takeaway</strong>: Comparing the portabilities of MESA EUR and AFHI PTRS in AFR individuals.</p>
+<pre class="r"><code>tmp2 = rbind(
+  df2ptp_afhi %&gt;% mutate(method = &#39;PTRS (MESA AFHI)&#39;) %&gt;% filter(sample != &#39;British_insample&#39;, sample != &#39;British_test&#39;),
+  df4p %&gt;% mutate(method = &#39;PRS&#39;),
+  df2ptp_cau %&gt;% mutate(method = &#39;PTRS (MESA EUR)&#39;)
+)
+outlier = tmp %&gt;% filter(sample == &#39;African&#39;, portability &gt; 0.5)
+# tmp2 %&gt;% filter(sample == &#39;African&#39;) %&gt;% 
+#   mutate(method = order_method(method)) %&gt;% 
+#   ggplot() +
+#   geom_violin(aes(x = sample, y = portability, color = method), position = position_dodge(0.5)) +
+#   geom_boxplot(aes(x = sample, y = portability, color = method), width = 0.1, position = position_dodge(0.5)) + 
+#   scale_color_manual(values = score_color_code) + th
+
+tmp2 %&gt;% filter(sample == &#39;African&#39; &amp; (!trait %in% outlier$trait)) %&gt;% 
+  mutate(method = order_method(method)) %&gt;% 
+  ggplot() +
+  geom_violin(aes(x = sample, y = portability, color = method), position = position_dodge(0.5)) +
+  geom_boxplot(aes(x = sample, y = portability, color = method), width = 0.1, position = position_dodge(0.5)) + 
+  scale_color_manual(values = score_color_code) + th</code></pre>
+<p><img src="revision_july_2021_files/figure-html/unnamed-chunk-28-1.png" width="672" /></p>
+<pre class="r"><code>res1 = tmp2 %&gt;% filter((sample == &#39;African&#39;) &amp; (!trait %in% outlier$trait)) %&gt;% 
+  reshape2::dcast(trait + sample ~ method, value.var = &#39;portability&#39;) %&gt;% 
+  do(test_a_vs_b(.$PRS, .$`PTRS (MESA EUR)`))
+rownames(res1) = NULL
+res2 = tmp2 %&gt;% filter((sample == &#39;African&#39;) &amp; (!trait %in% outlier$trait)) %&gt;% 
+  reshape2::dcast(trait + sample ~ method, value.var = &#39;portability&#39;) %&gt;% 
+  do(test_a_vs_b(.$`PTRS (MESA EUR)`, .$`PTRS (MESA AFHI)`))
+rownames(res2) = NULL
+rbind(
+  res1 %&gt;% mutate(type = &#39;PRS vs MESA EUR&#39;), 
+  res2 %&gt;% mutate(type = &#39;MESA EUR vs MESA AFHI&#39;)
+) %&gt;% pander</code></pre>
+<table>
+<colgroup>
+<col width="11%" />
+<col width="11%" />
+<col width="10%" />
+<col width="9%" />
+<col width="15%" />
+<col width="15%" />
+<col width="25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">delta</th>
+<th align="center">ci_low</th>
+<th align="center">ci_high</th>
+<th align="center">pval</th>
+<th align="center">wilcox_stat</th>
+<th align="center">wilcox_pval</th>
+<th align="center">type</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">-0.01252</td>
+<td align="center">-0.07119</td>
+<td align="center">0.04615</td>
+<td align="center">0.657</td>
+<td align="center">77</td>
+<td align="center">1</td>
+<td align="center">PRS vs MESA EUR</td>
+</tr>
+<tr class="even">
+<td align="center">0.01566</td>
+<td align="center">-0.03042</td>
+<td align="center">0.06174</td>
+<td align="center">0.4816</td>
+<td align="center">108</td>
+<td align="center">0.1454</td>
+<td align="center">MESA EUR vs MESA AFHI</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># tmp2 %&gt;% filter((sample != &#39;African&#39;) | (!trait %in% outlier$trait)) %&gt;% reshape2::dcast(trait + sample ~ method, value.var = &#39;portability&#39;) %&gt;% do(test_a_vs_b(.$PRS, .$`PTRS (MESA EUR)`))
+# tmp2 %&gt;% filter((sample != &#39;African&#39;) | (!trait %in% outlier$trait)) %&gt;% reshape2::dcast(trait + sample ~ method, value.var = &#39;portability&#39;) %&gt;% do(test_a_vs_b(.$`PTRS (MESA EUR)`, .$`PTRS (MESA AFHI)`))</code></pre>
+<p><strong>Takeaway</strong>: As a supplementary, we also compare the PTRS (P+T) portabilities of MESA EUR and AFHI PTRS in AFR individuals.</p>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

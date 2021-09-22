@@ -1,0 +1,1192 @@
+---
+title: "Data analysis for revision (July 2021: without splitting)"
+---
+
+```{r setup}
+library(ggplot2)
+library(ggrepel)
+library(dplyr)
+library(pander)
+options(stringsAsFactors = F)
+panderOptions('table.split.table', Inf)
+source('../code/rlib_doc.R')
+source('https://gist.githubusercontent.com/liangyy/43912b3ecab5d10c89f9d4b2669871c9/raw/3ca651cfa53ffccb8422f432561138a46e93710f/my_ggplot_theme.R')
+theme_set(theme_bw(base_size = 15))
+o = get_meta_for_supp()
+df_color_category = o$df_color_category
+color_mixer = o$color_mixer
+pop_color_mixer = o$pop_color_mixer
+# type_shape = o$type_shape
+type_shape = c('PTRS' = 15, 'PRS' = 19)
+score_color_code = o$score_color_code
+non_eur_pops = c('African', 'Chinese', 'Indian', 'Caribbean')
+pop_map = data.frame(
+  pop = c('African', 'Chinese', 'Indian', 'Caribbean', 'British_test'),
+  pop2 = c('AFR', 'E.ASN', 'S.ASN', 'CAR', 'EUR')
+)
+pop_map2 = data.frame(
+  pop = c('African', 'Chinese', 'Indian', 'Caribbean', 'British_test', 'British_validation', 'British_valid'),
+  pop2 = c('AFR', 'E.ASN', 'S.ASN', 'CAR', 'EUR test', 'EUR ref.', 'EUR ref.')
+)
+pop_color_mixer2 = c('AFR' = "#E74C3C", "British_test" = "#28B463", "British_validation" = "#D4AC0D",
+                    'E.ASN' = "#3498DB", 'S.ASN' = "#9B59B6", 'CAR' = "#FFFF00")
+score_color_code = c('PRS' = "#999999", 'PTRS (GTEx EUR)' = "#E69F00", 'PTRS (MESA EUR)' = "#E69F00", 'PTRS (MESA AFHI)' = "#56B4E9", 'PTRS (MESA ALL)' = "#F633FF")
+```
+
+# PVE and h2
+
+## GTEx EUR whole blood model and top-10 models
+
+```{r}
+df_h2 = load_hsq('~/Desktop/tmp/ptrs-ukb_misc/hsq.data_split.British-test-1.txt')
+bad_traits = NULL # df_h2$trait[ is.na(df_h2$h_sq) | df_h2$h_sq < 0.05 ]
+bad_traits_pve = NULL # df_h2$trait[ is.na(df_h2$h_sq) | df_h2$h_sq < 0.05 ]
+
+df_pve = load_hsq('~/Desktop/tmp/ptrs-ukb_misc/reml_from_hail_martin_et_al_traits_x_ctimp_Whole_Blood_x_British-test-1.tsv') %>% mutate(pop = 'British_test')
+df_pve = df_pve[ ! df_pve$trait %in% bad_traits_pve, ]
+
+df_pve10 = load_hsq('~/Desktop/tmp/ptrs-ukb_misc/reml_from_hail-multi-tissue-tissue_svd_x_martin_et_al_traits_x_ctimp_x_British-test-1.tsv')
+df_pve10 = df_pve10[ ! df_pve10$trait %in% bad_traits_pve, ]
+```
+
+```{r}
+df_pve_ma = load_hsq('~/Desktop/tmp/ptrs-ukb_misc/old/reml_from_hail_martin_et_al_traits_x_ALL_x_British-test-1.tsv') %>% mutate(pop = 'British_test')
+df_pve_ma = df_pve_ma[ ! df_pve_ma$trait %in% bad_traits_pve, ]
+
+unstable_traits = df_h2$trait[ is.na(df_h2$h_sq) | df_h2$h_sq < 0.05 ]
+
+ratio_fe_wb = calc_regu(df_h2 %>% filter(! trait %in% unstable_traits), df_pve)
+ratio_fe_ma = calc_regu(df_h2 %>% filter(! trait %in% unstable_traits), df_pve_ma)
+ratio_fe_10 = calc_regu(df_h2 %>% filter(! trait %in% unstable_traits), df_pve10)
+
+rbind(
+  as.data.frame(ratio_fe_ma$fe, col.names = c('ratio_mean', 'ratio_se')) %>% mutate(tissue = 'MESA (ALL) Monocyte'),
+  as.data.frame(ratio_fe_wb$fe, col.names = c('ratio_mean', 'ratio_se')) %>% mutate(tissue = 'GTEx EUR Whole Blood'),
+  as.data.frame(ratio_fe_10$fe, col.names = c('ratio_mean', 'ratio_se')) %>% mutate(tissue = 'GTEx EUR Top 10 Tissues')
+) %>%
+  rename(regulability_mean = ratio_mean, regulability_se = ratio_se) %>% 
+  pander
+
+merge_eur = inner_join(df_pve10, df_pve, by = 'trait', suffix = c('.combined', '.whole_blood'))
+tmp = delta_mtd(merge_eur$h_sq.combined, merge_eur$h_sq_se.combined ^ 2, merge_eur$h_sq.whole_blood, merge_eur$h_sq_se.whole_blood ^ 2)
+merge_eur$ratio = tmp$m
+merge_eur$ratio_se = sqrt(tmp$v)
+data.frame(meta_fixed(merge_eur$ratio, merge_eur$ratio_se)) %>% pander(caption = 'PVE in multi-tissue (SVD approach) over PVE in whole blood')
+```
+
+```{r}
+rbind(
+  ratio_fe_wb$raw %>% mutate(tissue = 'GTEx EUR Whole blood'), 
+  ratio_fe_ma$raw %>% mutate(tissue = 'MESA EUR Monocyte'), 
+  ratio_fe_10$raw %>% mutate(tissue = 'GTEx EUR Top 10 tissues')) %>% 
+  mutate(tissue = factor(tissue, levels = c('MESA EUR Monocyte', 'GTEx EUR Whole blood', 'GTEx EUR Top 10 tissues'))) %>%
+  filter(! trait %in% unstable_traits) %>% 
+  ggplot() + 
+  geom_violin(aes(x = tissue, y = ratio_mean * 100)) + 
+  geom_boxplot(aes(x = tissue, y = ratio_mean * 100), width = .2) + th + 
+  ylab('% of heritability explained')
+```
+
+**Takeaway**: Proportion of heritability explained by predicted transcrptome is shown for MESA ALL and MESA EUR models and GTEx 10 tissues combined (using European individuals). 
+
+```{r}
+ratio_min = ratio_fe_wb$fe$m - 1.96 * ratio_fe_wb$fe$se
+ratio_max = ratio_fe_wb$fe$m + 1.96 * ratio_fe_wb$fe$se
+df_merge = inner_join(
+  df_h2, df_pve %>% filter(pop == 'British_test'),
+  by = c('trait'),
+  suffix = c('.h2', '.pve')
+)
+df_merge %>% left_join(df_color_category, by = 'trait') %>% 
+  ggplot(aes(color = group)) + 
+  geom_abline(slope = ratio_min, intercept = 0) + 
+  geom_abline(slope = ratio_max, intercept = 0) + 
+  geom_errorbar(aes(x = h_sq.h2, ymin = h_sq.pve - 1.96 * h_sq_se.pve, ymax = h_sq.pve + 1.96 * h_sq_se.pve)) + 
+  geom_errorbarh(aes(xmin = h_sq.h2 - 1.96 * h_sq_se.h2, xmax = h_sq.h2 + 1.96 * h_sq_se.h2, y = h_sq.pve)) +
+  geom_point(aes(x = h_sq.h2, y = h_sq.pve)) + th +
+  scale_color_manual(values = color_mixer) + coord_equal() + 
+  theme(
+    legend.position = c(.15, .8), 
+    legend.text = element_text(size = 12), 
+    legend.title = element_blank(),
+    legend.background = element_rect(fill = alpha('white', 0))
+  ) + 
+  xlab('Estimated heritability') + 
+  ylab('PVE of predicted transcriptome \n in GTEx whole blood')
+```
+
+**Takeaway**: Comparing heritability vs PTRS PVE (using European individuals).
+
+
+## MESA CAU vs AFHI models
+
+```{r}
+df_cau = rbind(
+  load_hsq('~/Desktop/tmp/ptrs-ukb_misc/new_split/reml_from_hail_martin_et_al_traits_x_CAU_x_African.tsv') %>%
+    mutate(population = 'AFR'),
+  load_hsq('~/Desktop/tmp/ptrs-ukb_misc/reml_from_hail_martin_et_al_traits_x_CAU_x_British-test-1.tsv') %>%
+    mutate(population = 'EUR'),
+  load_hsq('~/Desktop/tmp/ptrs-ukb_misc/new_split/reml_from_hail_martin_et_al_traits_x_CAU_x_Indian.tsv') %>%
+    mutate(population = 'S.ASN'),
+  load_hsq('~/Desktop/tmp/ptrs-ukb_misc/reml_from_hail_martin_et_al_traits_x_CAU_x_Chinese.tsv') %>%
+    mutate(population = 'E.ASN')
+)
+df_afhi = rbind(
+  load_hsq('~/Desktop/tmp/ptrs-ukb_misc/new_split/reml_from_hail_martin_et_al_traits_x_AFHI_x_African.tsv') %>% 
+    mutate(population = 'AFR'),
+  load_hsq('~/Desktop/tmp/ptrs-ukb_misc/reml_from_hail_martin_et_al_traits_x_AFHI_x_British-test-1.tsv') %>%
+    mutate(population = 'EUR'),
+  load_hsq('~/Desktop/tmp/ptrs-ukb_misc/new_split/reml_from_hail_martin_et_al_traits_x_AFHI_x_Indian.tsv') %>%
+    mutate(population = 'S.ASN'),
+  load_hsq('~/Desktop/tmp/ptrs-ukb_misc/reml_from_hail_martin_et_al_traits_x_AFHI_x_Chinese.tsv') %>%
+    mutate(population = 'E.ASN')
+) 
+df_mesa = rbind(
+  df_afhi %>% mutate(model = 'AFHI'), df_cau %>% mutate(model = 'CAU')
+)
+df_mesa = df_mesa[ ! df_mesa$trait %in% bad_traits, ]
+```
+
+
+```{r}
+afr = df_mesa[ df_mesa$population == 'AFR', ]
+# t.test(afr$h_sq[afr$model == 'AFHI'], afr$h_sq[afr$model == 'CAU'], paired = T)
+tmp_m = df_mesa %>% reshape2::dcast(trait + population ~ model, value.var = 'h_sq')
+tmp_se = df_mesa %>% reshape2::dcast(trait + population ~ model, value.var = 'h_sq_se')
+diff = inner_join(tmp_m, tmp_se, by = c('trait', 'population'), suffix = c('.mean', '.se'))
+diff = diff %>% mutate(diff = AFHI.mean - CAU.mean, diff_se = sqrt(AFHI.se ^ 2 + CAU.se ^ 2))
+diff_sum = diff %>% filter(!(is.na(AFHI.se) | is.na(CAU.se))) %>% 
+  group_by(population) %>% do(as.data.frame(meta_fixed(.$diff, .$diff_se)))
+diff_sum = diff %>% filter(!(is.na(AFHI.se) | is.na(CAU.se))) %>% 
+  group_by(population) %>% do(test_afhi_vs_cau(.$AFHI.mean, .$CAU.mean))
+# diff_sum %>% mutate(pop2 = order_pop(population)) %>% ggplot()  + 
+#   geom_hline(yintercept = 0, linetype = 2) + 
+#   geom_errorbar(aes(x = pop2, ymin = m - 1.96 * se, ymax = m + 1.96 * se), width = 0.1) +
+#   geom_point(aes(x = pop2, y = m), size = 5, color = 'gray') +
+#   ylab('Change in PVE \n (MESA AFHI - MESA EUR)') +
+#   xlab('Target population') + th
+diff_sum %>% mutate(pop2 = order_pop(population)) %>% ggplot()  + 
+  geom_hline(yintercept = 0, linetype = 2) + 
+  geom_errorbar(aes(x = pop2, ymin = ci_low, ymax = ci_high), width = 0.1) +
+  geom_point(aes(x = pop2, y = delta_pve), size = 5, color = 'gray') +
+  ylab('Change in PVE \n (MESA AFHI - MESA EUR)') +
+  xlab('Target population') + th
+diff_sum %>% pander(caption = 'MESA AFHI PVE vs. MESA EUR PVE')
+```
+
+**Takeaway**: The PTRS PVE difference between MESA AFHI and EUR models. 
+
+```{r}
+p = diff %>% mutate(pop2 = order_pop(population)) %>% left_join(df_color_category, by = 'trait') %>% ggplot() + 
+  geom_abline(slope = 1, intercept = 0) + 
+  geom_point(aes(x = CAU.mean, y = AFHI.mean)) + 
+  facet_wrap(~pop2, ncol = 5) + coord_equal() +
+  # scale_color_manual(values = color_mixer) + 
+  th2 + 
+  theme(legend.position = 'none') +
+  xlab('PVE of predicted transcriptome \n in MESA EUR monocyte') + 
+  ylab('PVE of predicted transcriptome \n in MESA AFHI monocyte') + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
+ggsave('../analysis_output/cau_vs_afhi_mesa_pve.png', p, width = 10, height = 3.5); p
+```
+
+**Takeaway**: As a supplementary for the PTRS PVE difference between MESA AFHI and EUR models, we show the PVE of MESA AFHI and EUR models directly. 
+
+# Prediction performance
+
+```{r}
+df1 = load_best('~/Desktop/tmp/ptrs-tf/from_nucleus/elastic_net_ptrs_gtex_british_updated_indivs_lambda.performance.csv') %>% filter(!trait %in% bad_traits)
+df1pt = load_best('~/Desktop/tmp/ptrs-tf/from_nucleus/pt_ptrs_gtex_british_updated_indivs_lambda.performance.csv') %>% filter(!trait %in% bad_traits)
+df2_cau = load_best('~/Desktop/tmp/ptrs-tf/from_nucleus/elastic_net_ptrs_mesa_british_updated_lambda.performance.csv', desired_tag = 'train') %>% filter(!trait %in% bad_traits)
+df2pt_cau = load_best('~/Desktop/tmp/ptrs-tf/from_nucleus/pt_ptrs_mesa_british_updated_lambda.performance.csv', desired_tag = 'train') %>% filter(!trait %in% bad_traits)
+df2_afhi = load_best('~/Desktop/tmp/ptrs-tf/from_nucleus/elastic_net_ptrs_mesa_british_updated_lambda.performance.csv', desired_tag = 'against') %>% filter(!trait %in% bad_traits)
+df2pt_afhi = load_best('~/Desktop/tmp/ptrs-tf/from_nucleus/pt_ptrs_mesa_british_updated_lambda.performance.csv', desired_tag = 'against') %>% filter(!trait %in% bad_traits)
+df3 = load_best('~/Desktop/tmp/ptrs-tf/from_nucleus/elastic_net_ptrs_mesa_all_british_updated_lambda.performance.csv') %>% filter(!trait %in% bad_traits)
+df3pt = load_best('~/Desktop/tmp/ptrs-tf/from_nucleus/pt_ptrs_mesa_all_british_updated_lambda.performance.csv') %>% filter(!trait %in% bad_traits)
+df4 = load_best('~/Desktop/tmp/ptrs-tf/from_nucleus/prs_british_updated_indivs_lambda.performance.csv') %>% filter(!trait %in% bad_traits)
+df4$sample[ df4$sample == 'British_validation' ] = 'British_valid'
+```
+
+## Prediction performance vs PVE/h2
+
+```{r}
+prs = inner_join(df4 %>% filter(sample == 'British_test'), df_h2, by = 'trait')
+ptrs = inner_join(df1 %>% filter(sample == 'British_test'), df_pve %>% filter(pop == 'British_test') %>% select(-pop), by = 'trait')
+rbind(prs %>% mutate(method = 'PRS'), ptrs %>% mutate(method = 'PTRS')) %>% 
+  left_join(df_color_category, by = 'trait') %>% 
+  ggplot(aes(color = group)) + 
+  geom_abline(slope = 1, intercept = 0) + 
+  # geom_errorbar(aes(x = h_sq, ymin = r2_mean - 1.96 * r2_sd, ymax = r2_mean + 1.96 * r2_sd)) + 
+  geom_errorbarh(aes(xmin = h_sq - 1.96 * h_sq_se, xmax = h_sq + 1.96 * h_sq_se, y = r2_max)) +
+  geom_point(aes(x = h_sq, y = r2_max, shape = method), size = 3) + 
+  th +
+  scale_color_manual(values = color_mixer) +
+  scale_shape_manual(values = type_shape) + 
+  coord_equal() + 
+  theme(legend.position = 'top', legend.title = element_blank()) + 
+  xlab('Heritability or PTRS PVE') +
+  ylab(expression(tilde(R)^2 * 'of PRS or PTRS (GTEx EUR)'))
+```
+
+**Takeaway**: Comparing heritability vs PRS R2 and PTRS PVE vs PTRS R2 (GTEx EUR) using European individuals.
+
+```{r}
+# DO IT LATER
+# ptrs = inner_join(df1, df_pve, by = c('trait', 'sample' = 'pop'))
+# ptrs %>%
+#   filter(sample %in% non_eur_pops) %>%
+#   left_join(pop_map, by = c('sample' = 'pop')) %>%
+#   mutate(pop2 = order_pop(pop2)) %>%
+#   left_join(df_color_category, by = 'trait') %>%
+#   ggplot(aes(color = pop2)) +
+#   geom_abline(slope = 1, intercept = 0) +
+#   # geom_errorbar(aes(x = h_sq, ymin = r2_mean - 1.96 * r2_sd, ymax = r2_mean + 1.96 * r2_sd)) +
+#   # geom_errorbarh(aes(xmin = h_sq - 1.96 * h_sq_se, xmax = h_sq + 1.96 * h_sq_se, y = r2_mean)) +
+#   geom_point(aes(x = h_sq, y = r2_max), size = 3) +
+#   th +
+#   scale_color_manual(values = pop_color_mixer2) +
+#   coord_equal() +
+#   theme(legend.position = 'top', legend.title = element_blank()) +
+#   xlab('PTRS PVE') +
+#   ylab(expression(tilde(R)^2 * 'of PTRS (GTEx EUR)'))
+```
+
+```{r}
+prs = inner_join(df4 %>% filter(sample == 'British_test'), df_h2, by = 'trait')
+ptrs = inner_join(df2_cau %>% filter(sample == 'British_test'), df_pve_ma %>% filter(pop == 'British_test') %>% select(-pop), by = 'trait')
+rbind(prs %>% mutate(method = 'PRS'), ptrs %>% mutate(method = 'PTRS')) %>% 
+  left_join(df_color_category, by = 'trait') %>% 
+  filter(method != 'PRS') %>% 
+  ggplot(aes(color = group)) + 
+  geom_abline(slope = 1, intercept = 0) + 
+  # geom_errorbar(aes(x = h_sq, ymin = r2_mean - 1.96 * r2_sd, ymax = r2_mean + 1.96 * r2_sd)) + 
+  geom_errorbarh(aes(xmin = h_sq - 1.96 * h_sq_se, xmax = h_sq + 1.96 * h_sq_se, y = r2_max)) +
+  geom_point(aes(x = h_sq, y = r2_max, shape = method), size = 3) + 
+  th +
+  scale_color_manual(values = color_mixer) +
+  scale_shape_manual(values = type_shape) + 
+  coord_equal() + 
+  theme(legend.position = 'top', legend.title = element_blank()) + 
+  xlab('PTRS PVE') +
+  ylab(expression(tilde(R)^2 * 'of PTRS (MESA EUR)'))
+```
+
+**Takeaway**: Comparing PTRS PVE vs PTRS R2 (MESA EUR) using European individuals.
+
+<!-- ```{r, fig.width=4.5, fig.height=2} -->
+<!-- ptrs = inner_join(df1ss, df_pve, by = c('trait', 'sample' = 'pop')) -->
+<!-- ptrs %>% -->
+<!--   filter(sample %in% non_eur_pops) %>%  -->
+<!--   left_join(pop_map, by = c('sample' = 'pop')) %>% -->
+<!--   mutate(pop2 = order_pop(pop2)) %>%  -->
+<!--   left_join(df_color_category, by = 'trait') %>%  -->
+<!--   ggplot(aes(color = pop2)) +  -->
+<!--   geom_abline(slope = 1, intercept = 0) +  -->
+<!--   # geom_errorbar(aes(x = h_sq, ymin = r2_mean - 1.96 * r2_sd, ymax = r2_mean + 1.96 * r2_sd)) +  -->
+<!--   # geom_errorbarh(aes(xmin = h_sq - 1.96 * h_sq_se, xmax = h_sq + 1.96 * h_sq_se, y = r2_mean)) + -->
+<!--   geom_point(aes(x = h_sq, y = r2_mean), size = 3) +  -->
+<!--   th + -->
+<!--   scale_color_manual(values = pop_color_mixer2) + -->
+<!--   coord_equal() +  -->
+<!--   theme(legend.position = 'top', legend.title = element_blank()) +  -->
+<!--   xlab('PTRS PVE') + -->
+<!--   ylab(expression(tilde(R)^2 * 'of PTRS (GTEx EUR)')) -->
+<!-- ``` -->
+
+
+
+## PRS vs PTRS perdiction performance
+
+```{r}
+kk = inner_join(
+  df1 %>% filter(sample == 'British_test'), 
+  df4 %>% filter(sample == 'British_test'), 
+  by = 'trait', suffix = c('.ptrs', '.prs')
+)
+kk %>% left_join(df_color_category, by = 'trait') %>% ggplot(aes(color = group)) + 
+  geom_abline(slope = 1, intercept = 0) + 
+  geom_point(aes(x = r2_max.prs, y = r2_max.ptrs)) + 
+  # geom_errorbar(aes(x = r2_mean.prs, ymin = r2_mean.ptrs - 1.96 * r2_sd.ptrs, ymax = r2_mean.ptrs + 1.96 * r2_sd.ptrs)) + 
+  # geom_errorbarh(aes(xmin = r2_max.prs - 1.96 * r2_sd.prs, xmax = r2_max.prs + 1.96 * r2_sd.prs, y = r2_mean.ptrs)) +
+  geom_label_repel(aes(x = r2_max.prs, y = r2_max.ptrs, label = trait)) + th + 
+  xlab('Prediction accuracy of PRS') + 
+  ylab('Prediction accuracy of PTRS') +
+  scale_color_manual(values = color_mixer) + coord_equal() + theme(legend.position = 'top', legend.title = element_blank()) + guides(color = guide_legend(nrow = 2, byrow = TRUE))
+```
+
+**Takeaway**: R2 comparison: PRS vs PTRS (GTEx EUR) using European individuals.
+
+```{r}
+kk = inner_join(
+  df1 %>% filter(sample %in% c('British_test', non_eur_pops)), 
+  df4 %>% filter(sample %in% c('British_test', non_eur_pops)), 
+  by = c('trait', 'sample'), suffix = c('.ptrs', '.prs')
+)
+kk %>% left_join(df_color_category, by = 'trait') %>% ggplot(aes(color = group)) + 
+  geom_abline(slope = 1, intercept = 0) + 
+  geom_point(aes(x = r2_max.prs, y = r2_max.ptrs)) + 
+  # geom_errorbar(aes(x = r2_mean.prs, ymin = r2_mean.ptrs - 1.96 * r2_sd.ptrs, ymax = r2_mean.ptrs + 1.96 * r2_sd.ptrs)) + 
+  # geom_errorbarh(aes(xmin = r2_mean.prs - 1.96 * r2_sd.prs, xmax = r2_mean.prs + 1.96 * r2_sd.prs, y = r2_mean.ptrs)) +
+  # geom_label_repel(aes(x = r2_mean.prs, y = r2_mean.ptrs, label = trait)) + th + 
+  xlab('Prediction accuracy of PRS') + 
+  ylab('Prediction accuracy of \n PTRS (GTEx EUR)') +
+  scale_color_manual(values = color_mixer) + 
+  # coord_equal() + 
+  theme(legend.position = 'top', legend.title = element_blank()) + guides(color = guide_legend(nrow = 2, byrow = TRUE)) + 
+  facet_wrap(~sample, ncol = 5, scales = 'free') + th2 + theme(legend.position = 'none')
+```
+
+**Takeaway**: As a supplementary of PRS vs PTRS R2 comparison, we also show non-European results.  
+
+## PTRS EN vs P+T
+
+```{r}
+kk = inner_join(
+  df1 %>% filter(sample == 'British_test'), 
+  df1pt %>% filter(sample == 'British_test'), 
+  by = 'trait', suffix = c('.en', '.pt')
+)
+kk %>% left_join(df_color_category, by = 'trait') %>% ggplot(aes(color = group)) + 
+  geom_abline(slope = 1, intercept = 0) + 
+  geom_point(aes(x = r2_max.pt, y = r2_max.en)) + 
+  geom_label_repel(aes(x = r2_max.pt, y = r2_max.en, label = trait)) + th +
+  xlab('Prediction accuracy of PTRS (P+T)') + 
+  ylab('Prediction accuracy of PTRS (EN)') +
+  scale_color_manual(values = color_mixer) + coord_equal() + theme(legend.position = 'top', legend.title = element_blank()) + guides(color = guide_legend(nrow = 2, byrow = TRUE))
+```
+
+**Takeaway**: Comparing GTEx EUR PTRS R2 for PTRS (EN) and PTRS (P+T) using European individuals.
+
+```{r}
+kk = inner_join(
+  df3 %>% filter(sample == 'British_test'), 
+  df3pt %>% filter(sample == 'British_test'), 
+  by = 'trait', suffix = c('.en', '.pt')
+)
+kk %>% left_join(df_color_category, by = 'trait') %>% ggplot(aes(color = group)) + 
+  geom_abline(slope = 1, intercept = 0) + 
+  geom_point(aes(x = r2_max.pt, y = r2_max.en)) + 
+  geom_label_repel(aes(x = r2_max.pt, y = r2_max.en, label = trait)) + th +
+  xlab('Prediction accuracy of PTRS (P+T)') + 
+  ylab('Prediction accuracy of PTRS (EN)') +
+  scale_color_manual(values = color_mixer) + coord_equal() + theme(legend.position = 'top', legend.title = element_blank()) + guides(color = guide_legend(nrow = 2, byrow = TRUE))
+```
+
+**Takeaway**: As a supplementary, we also compare MESA ALL PTRS R2 for PTRS (EN) and PTRS (P+T) using European individuals.
+
+## PTRS performance MESA CAU vs MESA AFHI
+
+```{r}
+tmp = inner_join(
+  df2_cau %>% filter(sample %in% c(non_eur_pops, 'British_test')) %>% mutate(model = 'MESA EUR'), 
+  df2_afhi %>% filter(sample %in% c(non_eur_pops, 'British_test')) %>% mutate(model = 'MESA AFHI'),
+  by = c('sample', 'trait'), suffix = c('.eur', '.afhi')
+)
+tmp %>% left_join(df_color_category, by = 'trait') %>% left_join(pop_map, by = c('sample' = 'pop')) %>% 
+  mutate(pop2 = order_pop(pop2)) %>%
+  ggplot(aes(color = group)) + 
+  geom_abline(slope = 1, intercept = 0) + 
+  geom_point(aes(x = r2_max.eur, y = r2_max.afhi)) + 
+  facet_wrap(~pop2, scales = 'free', ncol = 5) + 
+  coord_cartesian() + th2 +
+  scale_color_manual(values = color_mixer) + theme(legend.position = 'none') + 
+  ylab(expression(tilde(R)^2 * 'of PTRS (MESA AFHI)')) + 
+  xlab(expression(tilde(R)^2 * 'of PTRS (MESA CAU)')) + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
+diff_sum = tmp %>% group_by(sample) %>% do(test_afhi_vs_cau(.$r2_max.afhi, .$r2_max.eur))
+```
+
+```{r}
+diff_sum %>% left_join(pop_map, by = c('sample' = 'pop')) %>% mutate(pop2 = order_pop(pop2)) %>% ggplot()  + 
+  geom_hline(yintercept = 0, linetype = 2) + 
+  geom_errorbar(aes(x = pop2, ymin = ci_low, ymax = ci_high), width = 0.1) +
+  geom_point(aes(x = pop2, y = delta_pve), size = 5, color = 'gray') +
+  ylab('Change in accuracy \n (MESA AFHI - MESA EUR)') +
+  xlab('Target population') + th
+diff_sum %>% pander('Predictive performance MESA AFHI vs MESA EUR')
+```
+
+**Takeaway**: Comparing PTRS R2 for MESA EUR and MESA AFHI. 
+
+```{r}
+tmp = inner_join(
+  df2pt_cau %>% filter(sample %in% c(non_eur_pops, 'British_test')) %>% mutate(model = 'MESA EUR'), 
+  df2pt_afhi %>% filter(sample %in% c(non_eur_pops, 'British_test')) %>% mutate(model = 'MESA AFHI'),
+  by = c('sample', 'trait'), suffix = c('.eur', '.afhi')
+)
+tmp %>% left_join(df_color_category, by = 'trait') %>% left_join(pop_map, by = c('sample' = 'pop')) %>% 
+  mutate(pop2 = order_pop(pop2)) %>%
+  ggplot(aes(color = group)) + 
+  geom_abline(slope = 1, intercept = 0) + 
+  geom_point(aes(x = r2_max.eur, y = r2_max.afhi)) + 
+  facet_wrap(~pop2, scales = 'free', ncol = 5) + 
+  coord_cartesian() + th2 +
+  scale_color_manual(values = color_mixer) + theme(legend.position = 'none') + 
+  ylab(expression(tilde(R)^2 * 'of PTRS (MESA AFHI)')) + 
+  xlab(expression(tilde(R)^2 * 'of PTRS (MESA CAU)')) + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
+diff_sum = tmp %>% group_by(sample) %>% do(test_afhi_vs_cau(.$r2_max.afhi, .$r2_max.eur))
+```
+
+```{r}
+diff_sum %>% left_join(pop_map, by = c('sample' = 'pop')) %>% mutate(pop2 = order_pop(pop2)) %>% ggplot()  + 
+  geom_hline(yintercept = 0, linetype = 2) + 
+  geom_errorbar(aes(x = pop2, ymin = ci_low, ymax = ci_high), width = 0.1) +
+  geom_point(aes(x = pop2, y = delta_pve), size = 5, color = 'gray') +
+  ylab('Change in accuracy \n (MESA AFHI - MESA EUR)') +
+  xlab('Target population') + th
+diff_sum %>% pander('Predictive performance MESA AFHI vs MESA EUR')
+```
+
+**Takeaway**: As a supplementary, we also compare PTRS (P+T) R2 for MESA EUR and MESA AFHI.
+
+# Portability
+
+```{r}
+df1p = calc_port_max(df1)
+df1ptp = calc_port_max(df1pt)
+ref_mesa = df2_cau %>% filter(sample == 'British_valid')
+df2p_cau = calc_port_max(df2_cau)
+df2p_afhi = calc_port_max(df2_afhi, ref_mesa)
+df2ptp_cau = calc_port_max(df2pt_cau)
+df2ptp_afhi = calc_port_max(df2pt_afhi, ref_mesa)
+df3p = calc_port_max(df3)
+df3ptp = calc_port_max(df3pt)
+df4p = calc_port_max(df4)
+```
+
+```{r}
+tmp = rbind(
+  df1p %>% mutate(method = 'PTRS (GTEx EUR)'),
+  df4p %>% mutate(method = 'PRS')
+) %>% filter(sample != 'British_insample') 
+tmp %>% 
+  left_join(pop_map2, by = c('sample' = 'pop')) %>% mutate(pop2 = order_pop(pop2)) %>%
+  ggplot() +
+  geom_violin(aes(x = pop2, y = portability, color = method), position = position_dodge(0.65)) +
+  geom_boxplot(aes(x = pop2, y = portability, color = method), width = 0.1, position = position_dodge(0.65)) + th + scale_color_manual(values = score_color_code) + 
+  theme(legend.position = c(0.8, 0.8), legend.title = element_blank())
+tmp %>% 
+  reshape2::dcast(trait + sample ~ method, value.var = 'portability') %>% 
+  group_by(sample) %>% 
+  do(test_a_vs_b(.$PRS, .$`PTRS (GTEx EUR)`)) %>% 
+  pander('Portability: GTEx EUR whole blood')
+```
+
+**Takeaway**: GTEx EUR PTRS portability
+
+```{r}
+tmp = rbind(
+  df1ptp %>% mutate(method = 'PTRS (GTEx EUR)'),
+  df4p %>% mutate(method = 'PRS')
+) %>% filter(sample != 'British_insample') 
+tmp %>% 
+  left_join(pop_map2, by = c('sample' = 'pop')) %>% mutate(pop2 = order_pop(pop2)) %>%
+  ggplot() +
+  geom_violin(aes(x = pop2, y = portability, color = method), position = position_dodge(0.65)) +
+  geom_boxplot(aes(x = pop2, y = portability, color = method), width = 0.1, position = position_dodge(0.65)) + th + scale_color_manual(values = score_color_code) + 
+  theme(legend.position = c(0.8, 0.8), legend.title = element_blank())
+tmp %>% 
+  reshape2::dcast(trait + sample ~ method, value.var = 'portability') %>% 
+  group_by(sample) %>% 
+  do(test_a_vs_b(.$PRS, .$`PTRS (GTEx EUR)`)) %>% 
+  pander('Portability: GTEx EUR whole blood')
+
+```
+
+**Takeaway**: GTEx EUR PTRS (P+T) portability
+
+```{r}
+tmp = rbind(
+  df3p %>% mutate(method = 'PTRS (MESA ALL)'),
+  df4p %>% mutate(method = 'PRS')
+) %>% filter(sample != 'British_insample') 
+# tmp %>% 
+#   left_join(pop_map2, by = c('sample' = 'pop')) %>% mutate(pop2 = order_pop(pop2)) %>%
+#   ggplot() +
+#   geom_violin(aes(x = pop2, y = portability, color = method), position = position_dodge(0.65)) +
+#   geom_boxplot(aes(x = pop2, y = portability, color = method), width = 0.1, position = position_dodge(0.65)) + th + scale_color_manual(values = score_color_code) + 
+#   theme(legend.position = c(0.8, 0.8), legend.title = element_blank())
+# tmp %>% reshape2::dcast(trait + sample ~ method, value.var = 'portability') %>% group_by(sample) %>% do(test_a_vs_b(.$PRS, .$`PTRS (MESA ALL)`)) %>% 
+#   pander('Portability: MESA ALL')
+opops = c('Caribbean', 'African')
+outlier = tmp %>% filter(sample %in% opops, portability > 0.5)
+tmp %>% filter((!sample %in% opops) | (!trait %in% outlier$trait)) %>% 
+  reshape2::dcast(trait + sample ~ method, value.var = 'portability') %>% 
+  group_by(sample) %>% 
+  do(test_a_vs_b(.$PRS, .$`PTRS (MESA ALL)`)) %>% 
+  pander('Portability: MESA ALL (remove outlier)')
+tmp %>% filter((!sample %in% opops) | (!trait %in% outlier$trait)) %>%
+  left_join(pop_map2, by = c('sample' = 'pop')) %>% mutate(pop2 = order_pop(pop2)) %>%
+  ggplot() +
+  geom_violin(aes(x = pop2, y = portability, color = method), position = position_dodge(0.65)) +
+  geom_boxplot(aes(x = pop2, y = portability, color = method), width = 0.1, position = position_dodge(0.65)) + th + scale_color_manual(values = score_color_code) + 
+  theme(legend.position = c(0.8, 0.8), legend.title = element_blank()) + 
+  theme(axis.title.x = element_blank())
+```
+
+**Takeaway**: MESA ALL PTRS portability (removed outliers)
+
+```{r}
+tmp = rbind(
+  df3ptp %>% mutate(method = 'PTRS (MESA ALL)'),
+  df4p %>% mutate(method = 'PRS')
+) %>% filter(sample != 'British_insample') 
+tmp %>%
+  left_join(pop_map2, by = c('sample' = 'pop')) %>% mutate(pop2 = order_pop(pop2)) %>%
+  ggplot() +
+  geom_violin(aes(x = pop2, y = portability, color = method), position = position_dodge(0.65)) +
+  geom_boxplot(aes(x = pop2, y = portability, color = method), width = 0.1, position = position_dodge(0.65)) + th + scale_color_manual(values = score_color_code) +
+  theme(legend.position = c(0.8, 0.8), legend.title = element_blank())
+tmp %>% reshape2::dcast(trait + sample ~ method, value.var = 'portability') %>% group_by(sample) %>% do(test_a_vs_b(.$PRS, .$`PTRS (MESA ALL)`)) %>%
+  pander('Portability: MESA ALL')
+# opops = c('Caribbean', 'African')
+# outlier = tmp %>% filter(sample %in% opops, portability > 0.5)
+# tmp %>% filter((!sample %in% opops) | (!trait %in% outlier$trait)) %>% 
+#   reshape2::dcast(trait + sample ~ method, value.var = 'portability') %>% 
+#   group_by(sample) %>% 
+#   do(test_a_vs_b(.$PRS, .$`PTRS (MESA ALL)`)) %>% 
+#   pander('Portability: MESA ALL (remove outlier)')
+# tmp %>% filter((!sample %in% opops) | (!trait %in% outlier$trait)) %>%
+#   left_join(pop_map2, by = c('sample' = 'pop')) %>% mutate(pop2 = order_pop(pop2)) %>%
+#   ggplot() +
+#   geom_violin(aes(x = pop2, y = portability, color = method), position = position_dodge(0.65)) +
+#   geom_boxplot(aes(x = pop2, y = portability, color = method), width = 0.1, position = position_dodge(0.65)) + th + scale_color_manual(values = score_color_code) + 
+#   theme(legend.position = c(0.8, 0.8), legend.title = element_blank()) + 
+#   theme(axis.title.x = element_blank())
+```
+
+**Takeaway**: MESA ALL PTRS (P+T) portability
+
+```{r}
+tmp = rbind(
+  df2p_cau %>% mutate(method = 'PTRS (MESA EUR)'),
+  df4p %>% mutate(method = 'PRS')
+) %>% filter(sample != 'British_insample') 
+tmp %>% 
+  left_join(pop_map2, by = c('sample' = 'pop')) %>% mutate(pop2 = order_pop(pop2)) %>%
+  ggplot() +
+  geom_violin(aes(x = pop2, y = portability, color = method), position = position_dodge(0.65)) +
+  geom_boxplot(aes(x = pop2, y = portability, color = method), width = 0.1, position = position_dodge(0.65)) + th + scale_color_manual(values = score_color_code) + 
+  theme(legend.position = c(0.8, 0.8), legend.title = element_blank())
+tmp %>% reshape2::dcast(trait + sample ~ method, value.var = 'portability') %>% group_by(sample) %>% do(test_a_vs_b(.$PRS, .$`PTRS (MESA EUR)`)) %>% 
+  pander('Portability: MESA EUR')
+opops = c('Caribbean', 'African')
+# outlier = tmp %>% filter(sample %in% opops, portability > 0.5)
+# tmp %>% filter((!sample %in% opops) | (!trait %in% outlier$trait)) %>% 
+#   reshape2::dcast(trait + sample ~ method, value.var = 'portability') %>% 
+#   group_by(sample) %>% do(test_a_vs_b(.$PRS, .$`PTRS (MESA EUR)`)) %>% 
+#   pander('Portability: MESA EUR (remove outlier)')
+# tmp %>% filter((!sample %in% opops) | (!trait %in% outlier$trait)) %>%
+#   left_join(pop_map2, by = c('sample' = 'pop')) %>% mutate(pop2 = order_pop(pop2)) %>%
+#   ggplot() +
+#   geom_violin(aes(x = pop2, y = portability, color = method), position = position_dodge(0.65)) +
+#   geom_boxplot(aes(x = pop2, y = portability, color = method), width = 0.1, position = position_dodge(0.65)) + th + scale_color_manual(values = score_color_code) + 
+#   theme(legend.position = c(0.8, 0.8), legend.title = element_blank()) + 
+#   theme(axis.title.x = element_blank())
+```
+
+**Takeaway**: MESA EUR PTRS portability
+
+```{r}
+tmp = rbind(
+  df2ptp_cau %>% mutate(method = 'PTRS (MESA EUR)'),
+  df4p %>% mutate(method = 'PRS')
+) %>% filter(sample != 'British_insample') 
+tmp %>% 
+  left_join(pop_map2, by = c('sample' = 'pop')) %>% mutate(pop2 = order_pop(pop2)) %>%
+  ggplot() +
+  geom_violin(aes(x = pop2, y = portability, color = method), position = position_dodge(0.65)) +
+  geom_boxplot(aes(x = pop2, y = portability, color = method), width = 0.1, position = position_dodge(0.65)) + th + scale_color_manual(values = score_color_code) + 
+  theme(legend.position = c(0.8, 0.8), legend.title = element_blank())
+tmp %>% reshape2::dcast(trait + sample ~ method, value.var = 'portability') %>% group_by(sample) %>% do(test_a_vs_b(.$PRS, .$`PTRS (MESA EUR)`)) %>% 
+  pander('Portability: MESA EUR')
+opops = c('Caribbean', 'African')
+# outlier = tmp %>% filter(sample %in% opops, portability > 0.5)
+# tmp %>% filter((!sample %in% opops) | (!trait %in% outlier$trait)) %>% 
+#   reshape2::dcast(trait + sample ~ method, value.var = 'portability') %>% 
+#   group_by(sample) %>% do(test_a_vs_b(.$PRS, .$`PTRS (MESA EUR)`)) %>% 
+#   pander('Portability: MESA EUR (remove outlier)')
+# tmp %>% filter((!sample %in% opops) | (!trait %in% outlier$trait)) %>%
+#   left_join(pop_map2, by = c('sample' = 'pop')) %>% mutate(pop2 = order_pop(pop2)) %>%
+#   ggplot() +
+#   geom_violin(aes(x = pop2, y = portability, color = method), position = position_dodge(0.65)) +
+#   geom_boxplot(aes(x = pop2, y = portability, color = method), width = 0.1, position = position_dodge(0.65)) + th + scale_color_manual(values = score_color_code) + 
+#   theme(legend.position = c(0.8, 0.8), legend.title = element_blank()) + 
+#   theme(axis.title.x = element_blank())
+```
+
+**Takeaway**: MESA EUR PTRS (P+T) portability
+
+```{r}
+tmp2 = rbind(
+  df2p_afhi %>% mutate(method = 'PTRS (MESA AFHI)') %>% filter(sample != 'British_insample', sample != 'British_test'),
+  df4p %>% mutate(method = 'PRS'),
+  df2p_cau %>% mutate(method = 'PTRS (MESA EUR)')
+)
+outlier = tmp %>% filter(sample == 'African', portability > 0.5)
+# tmp2 %>% filter(sample == 'African') %>% 
+#   mutate(method = order_method(method)) %>% 
+#   ggplot() +
+#   geom_violin(aes(x = sample, y = portability, color = method), position = position_dodge(0.5)) +
+#   geom_boxplot(aes(x = sample, y = portability, color = method), width = 0.1, position = position_dodge(0.5)) + 
+#   scale_color_manual(values = score_color_code) + th
+
+tmp2 %>% filter(sample == 'African' & (!trait %in% outlier$trait)) %>% 
+  mutate(method = order_method(method)) %>% 
+  ggplot() +
+  geom_violin(aes(x = sample, y = portability, color = method), position = position_dodge(0.5)) +
+  geom_boxplot(aes(x = sample, y = portability, color = method), width = 0.1, position = position_dodge(0.5)) + 
+  scale_color_manual(values = score_color_code) + th
+
+res1 = tmp2 %>% filter((sample == 'African') & (!trait %in% outlier$trait)) %>% 
+  reshape2::dcast(trait + sample ~ method, value.var = 'portability') %>% 
+  do(test_a_vs_b(.$PRS, .$`PTRS (MESA EUR)`))
+rownames(res1) = NULL
+res2 = tmp2 %>% filter((sample == 'African') & (!trait %in% outlier$trait)) %>% 
+  reshape2::dcast(trait + sample ~ method, value.var = 'portability') %>% 
+  do(test_a_vs_b(.$`PTRS (MESA EUR)`, .$`PTRS (MESA AFHI)`))
+rownames(res2) = NULL
+rbind(
+  res1 %>% mutate(type = 'PRS vs MESA EUR'), 
+  res2 %>% mutate(type = 'MESA EUR vs MESA AFHI')
+) %>% pander
+
+# tmp2 %>% filter((sample != 'African') | (!trait %in% outlier$trait)) %>% reshape2::dcast(trait + sample ~ method, value.var = 'portability') %>% do(test_a_vs_b(.$PRS, .$`PTRS (MESA EUR)`))
+# tmp2 %>% filter((sample != 'African') | (!trait %in% outlier$trait)) %>% reshape2::dcast(trait + sample ~ method, value.var = 'portability') %>% do(test_a_vs_b(.$`PTRS (MESA EUR)`, .$`PTRS (MESA AFHI)`))
+```
+
+**Takeaway**: Comparing the portabilities of MESA EUR and AFHI PTRS in AFR individuals.
+
+```{r}
+tmp2 = rbind(
+  df2ptp_afhi %>% mutate(method = 'PTRS (MESA AFHI)') %>% filter(sample != 'British_insample', sample != 'British_test'),
+  df4p %>% mutate(method = 'PRS'),
+  df2ptp_cau %>% mutate(method = 'PTRS (MESA EUR)')
+)
+outlier = tmp %>% filter(sample == 'African', portability > 0.5)
+# tmp2 %>% filter(sample == 'African') %>% 
+#   mutate(method = order_method(method)) %>% 
+#   ggplot() +
+#   geom_violin(aes(x = sample, y = portability, color = method), position = position_dodge(0.5)) +
+#   geom_boxplot(aes(x = sample, y = portability, color = method), width = 0.1, position = position_dodge(0.5)) + 
+#   scale_color_manual(values = score_color_code) + th
+
+tmp2 %>% filter(sample == 'African' & (!trait %in% outlier$trait)) %>% 
+  mutate(method = order_method(method)) %>% 
+  ggplot() +
+  geom_violin(aes(x = sample, y = portability, color = method), position = position_dodge(0.5)) +
+  geom_boxplot(aes(x = sample, y = portability, color = method), width = 0.1, position = position_dodge(0.5)) + 
+  scale_color_manual(values = score_color_code) + th
+
+res1 = tmp2 %>% filter((sample == 'African') & (!trait %in% outlier$trait)) %>% 
+  reshape2::dcast(trait + sample ~ method, value.var = 'portability') %>% 
+  do(test_a_vs_b(.$PRS, .$`PTRS (MESA EUR)`))
+rownames(res1) = NULL
+res2 = tmp2 %>% filter((sample == 'African') & (!trait %in% outlier$trait)) %>% 
+  reshape2::dcast(trait + sample ~ method, value.var = 'portability') %>% 
+  do(test_a_vs_b(.$`PTRS (MESA EUR)`, .$`PTRS (MESA AFHI)`))
+rownames(res2) = NULL
+rbind(
+  res1 %>% mutate(type = 'PRS vs MESA EUR'), 
+  res2 %>% mutate(type = 'MESA EUR vs MESA AFHI')
+) %>% pander
+
+# tmp2 %>% filter((sample != 'African') | (!trait %in% outlier$trait)) %>% reshape2::dcast(trait + sample ~ method, value.var = 'portability') %>% do(test_a_vs_b(.$PRS, .$`PTRS (MESA EUR)`))
+# tmp2 %>% filter((sample != 'African') | (!trait %in% outlier$trait)) %>% reshape2::dcast(trait + sample ~ method, value.var = 'portability') %>% do(test_a_vs_b(.$`PTRS (MESA EUR)`, .$`PTRS (MESA AFHI)`))
+```
+
+**Takeaway**: As a supplementary, we also compare the PTRS (P+T) portabilities of MESA EUR and AFHI PTRS in AFR individuals.
+
+# Results from obtaining hyperparameters using validation set
+
+```{r}
+# bad_traits = NULL
+df1_split = load_perf('~/Desktop/tmp/ptrs-tf/from_nucleus/elastic_net_ptrs_gtex_british_updated_indivs_w_split_lambda.performance.csv') %>% filter(!trait %in% bad_traits)
+df1pt_split = load_perf('~/Desktop/tmp/ptrs-tf/from_nucleus/pt_ptrs_gtex_british_updated_indivs_w_split_lambda.performance.csv') %>% filter(!trait %in% bad_traits)
+df1s_split = get_test_perf_from_splits(df1_split)
+df1spt_split = get_test_perf_from_splits(df1pt_split)
+
+df2_split = load_perf('~/Desktop/tmp/ptrs-tf/from_nucleus/elastic_net_ptrs_mesa_british_updated_w_split_lambda.performance.csv') %>% filter(!trait %in% bad_traits)
+df2s_cau_split = get_test_perf_from_splits(df2_split %>% filter(pred_expr_source == 'train')) 
+df2s_afhi_split = get_test_perf_from_splits(df2_split %>% filter(pred_expr_source == 'against'))
+
+
+df4_split = load_perf('~/Desktop/tmp/ptrs-tf/from_nucleus/prs_british_updated_indivs_w_split_lambda.performance.csv', is_prs = T) %>% filter(!trait %in% bad_traits)
+df4s_split = get_test_perf_from_splits(df4_split)
+df4ss_split = summarize_across_grps(df4s_split)
+
+df1ss_split = summarize_across_grps(df1s_split)
+df1sspt_split = summarize_across_grps(df1spt_split)
+
+df2ss_cau_split = summarize_across_grps(df2s_cau_split)
+df2ss_afhi_split = summarize_across_grps(df2s_afhi_split)
+
+
+df1ssp_split = calc_port(df1ss_split)
+df4ssp_split = calc_port(df4ss_split)
+df1ssppt_split = calc_port(df1sspt_split)
+df2ssp_cau_split = calc_port(df2ss_cau_split)
+df2ssp_afhi_split = calc_port(df2ss_afhi_split)
+
+```
+
+```{r}
+tmp = rbind(
+  df1ssp_split %>% mutate(method = 'PTRS (GTEx EUR)'),
+  df4ssp_split %>% mutate(method = 'PRS')
+) %>% filter(sample != 'British_insample') 
+tmp_test = tmp %>% 
+  reshape2::dcast(trait + sample ~ method, value.var = 'portability') %>% 
+  group_by(sample) %>% 
+  do(test_a_vs_b(.$PRS, .$`PTRS (GTEx EUR)`)) 
+tmp_test %>% 
+  pander('Portability: GTEx EUR whole blood')
+tmp %>% 
+  left_join(pop_map2, by = c('sample' = 'pop')) %>% mutate(pop2 = order_pop(pop2)) %>%
+  ggplot() +
+  geom_violin(aes(x = pop2, y = portability, color = method), position = position_dodge(0.65)) +
+  geom_boxplot(aes(x = pop2, y = portability, color = method), width = 0.1, position = position_dodge(0.65)) + th + scale_color_manual(values = score_color_code) + 
+  theme(legend.position = c(0.17, 0.8), legend.title = element_blank())
+
+tmp %>% 
+  left_join(pop_map2, by = c('sample' = 'pop')) %>% mutate(pop2 = order_pop(pop2)) %>%
+  filter(pop2 != 'EUR ref.') %>%
+  ggplot() + 
+  geom_point(aes(x = r2_mean, y = portability, color = method)) + 
+  facet_wrap(~pop2, scales = 'free') + th2 +
+  xlab(expression(tilde(R)^2 * 'of PTRS or PRS')) + 
+  ylab('Portability') +
+  scale_color_manual(values = score_color_code)
+# outlier = tmp %>% filter(sample == 'African', portability > 0.5)
+# tmp %>% filter((sample != 'African') | (!trait %in% outlier$trait)) %>% 
+#   reshape2::dcast(trait + sample ~ method, value.var = 'portability') %>% 
+#   group_by(sample) %>% 
+#   do(test_a_vs_b(.$PRS, .$`PTRS (GTEx EUR)`)) %>% 
+#   pander('Portability: GTEx EUR whole blood (remove outlier)')
+# tmp %>% filter((sample != 'African') | (!trait %in% outlier$trait)) %>%
+#   left_join(pop_map2, by = c('sample' = 'pop')) %>% mutate(pop2 = order_pop(pop2)) %>%
+#   ggplot() +
+#   geom_violin(aes(x = pop2, y = portability, color = method), position = position_dodge(0.65)) +
+#   geom_boxplot(aes(x = pop2, y = portability, color = method), width = 0.1, position = position_dodge(0.65)) + th + scale_color_manual(values = score_color_code) + 
+#   theme(legend.position = c(0.8, 0.8), legend.title = element_blank()) + 
+#   theme(axis.title.x = element_blank())
+tmp %>% 
+  left_join(pop_map2, by = c('sample' = 'pop')) %>% mutate(pop2 = order_pop(pop2)) %>%
+  filter(pop2 == 'EUR test') %>% summarize(max_port = max(portability), min_port = min(portability))
+
+
+
+tmp2 = tmp %>% group_by(sample) %>% summarize(ypos = min(portability), ypos2 = max(portability)) %>% ungroup() %>% left_join(pop_map2, by = c('sample' = 'pop')) %>% mutate(pop2 = order_pop(pop2))
+shift = 0.1
+tmp2$yy = tmp2$ypos - shift
+tmp2$yy[tmp2$ypos < 0.05] = tmp2$ypos2[tmp2$ypos < 0.05] + shift
+tmp2 = inner_join(tmp2, tmp_test, by = 'sample')
+tmp22 = tmp2 %>% mutate(pval = paste0(signif(wilcox_pval, digits = 2))) %>% filter(pop2 != 'EUR ref.')
+# tmp22 = rbind(
+#   tmp2 %>% mutate(pval = paste0(signif(pval, digits = 2))), 
+#   inner_join(
+#     tmp2 %>% mutate(yy = yy + 0.15) %>% select(-pval), 
+#     data.frame(pval = tmp_test$wilcox_pval, sample = tmp_test$sample) %>% mutate(pval = paste0(signif(pval, digits = 2), '*')), 
+#     by = 'sample'
+#   )
+# )
+p3 = tmp %>% 
+  filter(sample != 'British_insample') %>% 
+  left_join(pop_map2, by = c('sample' = 'pop')) %>% mutate(pop2 = order_pop(pop2)) %>% 
+  ggplot() + 
+  geom_violin(aes(x = pop2, y = portability, color = method), position = position_dodge(width = 0.7)) + 
+  geom_boxplot(aes(x = pop2, y = portability, color = method), position = position_dodge(width = 0.7), width = 0.1) + 
+  th + 
+  theme(legend.position = c(0.8, 0.9), legend.title = element_blank(), axis.title.x = element_blank()) + 
+  scale_color_manual(values = score_color_code) +
+  theme(axis.text.x = element_text(size = 12)) +
+  ylab('Portability') +
+  xlab('Population')
+p3 = p3 + geom_label(data = tmp22, aes(x = pop2, y = yy, label = paste0('pval = ', pval))) # signif(pval, digits = 2))))
+p3
+ggsave('../analysis_output/revision_fig4.png', p3, width = 5.5, height = 4)
+```
+
+
+Comparing R2 with/without splitting
+
+```{r, fig.height=2, fig.width=4}
+tmp = inner_join(
+  df1p %>% select(trait, sample, r2_max) %>% rename(r2 = r2_max), 
+  df1ssp_split %>% select(trait, sample, r2_mean) %>% rename(r2 = r2_mean), 
+  by = c('trait', 'sample'),
+  suffix = c('.max', '.w_split'))
+tmp2 = inner_join(
+  df4p %>% select(trait, sample, r2_max) %>% rename(r2 = r2_max), 
+  df4ssp_split %>% select(trait, sample, r2_mean) %>% rename(r2 = r2_mean), 
+  by = c('trait', 'sample'),
+  suffix = c('.max', '.w_split')
+)
+tmp = rbind(tmp %>% mutate(model = 'PTRS'), tmp2 %>% mutate(model = 'PRS'))
+tmp %>% 
+  inner_join(pop_map2, by = c('sample' = 'pop')) %>% 
+  mutate(pop2 = order_pop(pop2)) %>% 
+  ggplot() +
+  geom_abline(slope = 1, intercept = 0, color = 'gray') +
+  geom_point(aes(x = r2.max, y = r2.w_split), alpha = 0.5) +
+  facet_grid(model ~ pop2, scales = 'free') + th2 + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
+  xlab('R2_previous') + 
+  ylab('R2_new')
+```
+
+
+```{r}
+kk = inner_join(
+  df1ss_split %>% filter(sample == 'British_test'), 
+  df1sspt_split %>% filter(sample == 'British_test'), 
+  by = 'trait', suffix = c('.en', '.pt')
+)
+kk %>% left_join(df_color_category, by = 'trait') %>% ggplot(aes(color = group)) + 
+  geom_abline(slope = 1, intercept = 0) + 
+  geom_point(aes(x = r2_mean.pt, y = r2_mean.en)) + 
+  geom_label_repel(aes(x = r2_mean.pt, y = r2_mean.en, label = trait)) + th +
+  xlab('Prediction accuracy of PTRS (P+T)') + 
+  ylab('Prediction accuracy of PTRS (EN)') +
+  scale_color_manual(values = color_mixer) + coord_equal() + theme(legend.position = 'top', legend.title = element_blank()) + guides(color = guide_legend(nrow = 2, byrow = TRUE))
+```
+
+```{r}
+prs = inner_join(df4ss_split %>% filter(sample == 'British_test'), df_h2, by = 'trait')
+ptrs = inner_join(df1ss_split %>% filter(sample == 'British_test'), df_pve %>% filter(pop == 'British_test') %>% select(-pop), by = 'trait')
+p = rbind(prs %>% mutate(method = 'PRS'), ptrs %>% mutate(method = 'PTRS (GTEx EUR)')) %>% 
+  left_join(df_color_category, by = 'trait') %>% 
+  ggplot(aes(color = method)) + 
+  geom_abline(slope = 1, intercept = 0) + 
+  # geom_errorbar(aes(x = h_sq, ymin = r2_mean - 1.96 * r2_sd, ymax = r2_mean + 1.96 * r2_sd)) + 
+  geom_errorbarh(aes(xmin = h_sq - 1.96 * h_sq_se, xmax = h_sq + 1.96 * h_sq_se, y = r2_mean)) +
+  geom_point(aes(x = h_sq, y = r2_mean), size = 3, alpha = 0.5) + 
+  th +
+  scale_color_manual(values = score_color_code) +
+  coord_equal() + 
+  theme(legend.position = 'top', legend.title = element_blank()) + 
+  xlab('PVE or heritability') +
+  ylab(expression(tilde(R)^2 * 'of PTRS or PRS'))
+p
+ggsave('../analysis_output/revision_fig3b.png', p, width = 6, height = 3)
+```
+
+```{r}
+df_info = read.csv('../external_data/martin_et_al_2019ng_table_s6.csv') %>% mutate(trait = tolower(Trait))
+class(df_info$UKBB.code) = 'character'
+df_ldsc = read.delim2('~/Downloads/ukb31063_h2_topline.02Oct2019.tsv.gz') %>% mutate(ukbb_code = unlist(lapply(strsplit(phenotype, '_'), function(x){x[1]}))) %>% filter(ukbb_code %in% df_info$UKBB.code)
+class(df_ldsc$h2_observed) = 'numeric'
+class(df_ldsc$h2_observed_se) = 'numeric'
+df_ldsc = df_ldsc %>% inner_join(df_info %>% select(UKBB.code, trait), by = c('ukbb_code' = 'UKBB.code'))
+tmp = inner_join(df_h2, df_ldsc %>% select(trait, h2_observed, h2_observed_se), by = 'trait')
+tmp %>% ggplot() +
+  geom_abline(slope = 1, intercept = 0, color = 'gray') +
+  geom_point(aes(x = h2_observed, y = h_sq)) + th +
+  geom_errorbar(aes(x = h2_observed, ymin = h_sq - 1.96 * h_sq_se, ymax = h_sq + 1.96 * h_sq_se)) +
+  geom_errorbarh(aes(xmin = h2_observed - 1.96 * h2_observed_se, xmax = h2_observed + 1.96 * h2_observed_se, y = h_sq)) + 
+  coord_equal() +
+  xlab('Heritability from LDSC') +
+  ylab('Heritability from REML')
+```
+
+```{r}
+unstable_traits = df_h2$trait[ is.na(df_h2$h_sq) | df_h2$h_sq < 0.05 ]
+p = rbind(
+  ratio_fe_wb$raw %>% mutate(tissue = 'Whole blood'), 
+  # ratio_fe_ma$raw %>% mutate(tissue = 'MESA EUR Monocyte'), 
+  ratio_fe_10$raw %>% mutate(tissue = 'Top 10 tissues')) %>% 
+  mutate(tissue = factor(tissue, levels = c('MESA EUR Monocyte', 'Whole blood', 'Top 10 tissues'))) %>%
+  filter(! trait %in% unstable_traits) %>% 
+  ggplot() + 
+  geom_violin(aes(x = tissue, y = ratio_mean * 100)) + 
+  geom_boxplot(aes(x = tissue, y = ratio_mean * 100), width = .2) + th + 
+  ylab('% of heritability explained') +
+  xlab('Tissue')
+ggsave('../analysis_output/revision_fig2a.png', p, width = 4, height = 4)
+```
+
+PTRS performance MESA CAU vs MESA AFHI
+
+```{r, fig.width=10, fig.height=5}
+tmp = inner_join(
+  df2ss_cau_split %>% filter(sample %in% c(non_eur_pops, 'British_test')) %>% mutate(model = 'MESA EUR'), 
+  df2ss_afhi_split %>% filter(sample %in% c(non_eur_pops, 'British_test')) %>% mutate(model = 'MESA AFHI'),
+  by = c('sample', 'trait'), suffix = c('.eur', '.afhi')
+)
+p = tmp %>% left_join(df_color_category, by = 'trait') %>% left_join(pop_map, by = c('sample' = 'pop')) %>% 
+  mutate(pop2 = order_pop(pop2)) %>%
+  ggplot() + 
+  geom_abline(slope = 1, intercept = 0) + 
+  geom_point(aes(x = r2_mean.eur, y = r2_mean.afhi)) + 
+  facet_wrap(~pop2, scales = 'free', ncol = 5) + 
+  coord_cartesian() + th2 +
+  # scale_color_manual(values = color_mixer) + 
+  theme(legend.position = 'none') + 
+  ylab(expression(tilde(R)^2 * 'of PTRS (MESA AFHI)')) + 
+  xlab(expression(tilde(R)^2 * 'of PTRS (MESA EUR)')) + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
+diff_sum = tmp %>% group_by(sample) %>% do(test_afhi_vs_cau(.$r2_mean.afhi, .$r2_mean.eur))
+ggsave('../analysis_output/revision_fig3c.png', p, width = 10, height = 3.5)
+```
+
+```{r}
+diff_sum %>% left_join(pop_map, by = c('sample' = 'pop')) %>% mutate(pop2 = order_pop(pop2)) %>% ggplot()  + 
+  geom_hline(yintercept = 0, linetype = 2) + 
+  geom_errorbar(aes(x = pop2, ymin = ci_low, ymax = ci_high), width = 0.1) +
+  geom_point(aes(x = pop2, y = delta_pve), size = 5, color = 'gray') +
+  ylab('Change in accuracy \n (MESA AFHI - MESA EUR)') +
+  xlab('Target population') + th
+diff_sum %>% pander('Predictive performance MESA AFHI vs MESA EUR')
+```
+
+PRS vs PTRS perdiction performance
+
+```{r}
+kk = inner_join(
+  df1ss_split %>% filter(sample == 'British_test'), 
+  df4ss_split %>% filter(sample == 'British_test'), 
+  by = 'trait', suffix = c('.ptrs', '.prs')
+)
+p = kk %>% left_join(df_color_category, by = 'trait') %>% ggplot() + 
+  geom_abline(slope = 1, intercept = 0) + 
+  geom_point(aes(x = r2_mean.prs, y = r2_mean.ptrs)) + 
+  # geom_errorbar(aes(x = r2_mean.prs, ymin = r2_mean.ptrs - 1.96 * r2_sd.ptrs, ymax = r2_mean.ptrs + 1.96 * r2_sd.ptrs)) + 
+  # geom_errorbarh(aes(xmin = r2_max.prs - 1.96 * r2_sd.prs, xmax = r2_max.prs + 1.96 * r2_sd.prs, y = r2_mean.ptrs)) +
+  geom_label_repel(aes(x = r2_mean.prs, y = r2_mean.ptrs, label = trait), color = 'gray') + th + 
+  xlab('Prediction accuracy of PRS') + 
+  ylab('Prediction accuracy of PTRS') +
+  # scale_color_manual(values = color_mixer) + 
+  coord_equal() # + 
+  # theme(legend.position = 'top', legend.title = element_blank()) + 
+  # guides(color = guide_legend(nrow = 2, byrow = TRUE))
+ggsave('../analysis_output/revision_fig3a.png', p, width = 6, height = 3.5)
+```
+
+
+# Supplementary figures/tables
+
+Save results
+
+```{r}
+saveRDS(
+  list(GTEx = df1ss_split, PRS = df4ss_split),
+  '../analysis_output/revision_july_2021.r2.rds'
+)
+```
+
+```{r}
+df_pheno = data.table::fread('../output/new_query_phenotypes_cleaned_up.csv', data.table = F, sep = ',')
+```
+
+## Heritability
+
+```{r}
+df_h2 %>% select(trait, h_sq, h_sq_se) %>% 
+  rename(chip_h2 = h_sq, chip_h2_se = h_sq_se) %>% 
+  write.csv('../analysis_output/revision_heritability.csv')
+```
+
+## PTRS PVE
+
+```{r}
+rbind(
+  df_pve %>% select(trait, num_predictors, h_sq, h_sq_se) %>% 
+    mutate(population = 'EUR', train_population = 'EUR', training_data = 'GTEx', tissue = 'Whole Blood') %>% 
+    rename(num_genes = num_predictors, pve = h_sq, pve_se = h_sq_se),
+  df_pve10 %>% select(trait, num_predictors, h_sq, h_sq_se) %>% 
+    mutate(population = 'EUR', train_population = 'EUR', training_data = 'GTEx', tissue = '10 Tissues') %>% 
+    rename(num_genes = num_predictors, pve = h_sq, pve_se = h_sq_se),
+  df_cau %>% select(trait, num_predictors, h_sq, h_sq_se, population) %>% 
+    mutate(train_population = 'EUR', training_data = 'MESA', tissue = 'Monocyte') %>% 
+    rename(num_genes = num_predictors, pve = h_sq, pve_se = h_sq_se),
+  df_afhi %>% select(trait, num_predictors, h_sq, h_sq_se, population) %>% 
+    mutate(train_population = 'AFHI', training_data = 'MESA', tissue = 'Monocyte') %>% 
+    rename(num_genes = num_predictors, pve = h_sq, pve_se = h_sq_se)
+) %>% 
+  write.csv('../analysis_output/revision_ptrs_pve.csv')
+```
+
+## PRS R2
+
+```{r}
+df4ss_split %>% left_join(pop_map2, by = c('sample' = 'pop')) %>% mutate(pop2 = order_pop(pop2)) %>% 
+  arrange(pop2, trait) %>% select(trait, pop2, r2_mean) %>% 
+  rename(population = pop2, partial_R2 = r2_mean) %>% 
+  write.csv('../analysis_output/revision_prs_r2.csv')
+```
+
+## PTRS R2
+
+```{r}
+pop_map3 = pop_map2
+pop_map3 = rbind(pop_map3, data.frame(pop = 'British_insample', pop2 = 'EUR'))
+rbind(
+ df1ss_split %>% left_join(pop_map3, by = c('sample' = 'pop')) %>% mutate(pop2 = order_pop(pop2)) %>% 
+   arrange(pop2, trait) %>% select(trait, pop2, r2_mean) %>% 
+   rename(population = pop2, partial_R2 = r2_mean) %>% 
+   mutate(train_population = 'EUR', training_data = 'GTEx', tissue = 'Whole Blood'),
+ df2ss_afhi_split %>% left_join(pop_map3, by = c('sample' = 'pop')) %>% mutate(pop2 = order_pop(pop2)) %>% 
+   arrange(pop2, trait) %>% select(trait, pop2, r2_mean) %>% 
+   rename(population = pop2, partial_R2 = r2_mean) %>% 
+   mutate(train_population = 'AFHI', training_data = 'MESA', tissue = 'Monocyte'),
+ df2ss_cau_split %>% left_join(pop_map3, by = c('sample' = 'pop')) %>% mutate(pop2 = order_pop(pop2)) %>% 
+   arrange(pop2, trait) %>% select(trait, pop2, r2_mean) %>% 
+   rename(population = pop2, partial_R2 = r2_mean) %>% 
+   mutate(train_population = 'AFHI', training_data = 'MESA', tissue = 'Monocyte')
+) %>% 
+  write.csv('../analysis_output/revision_ptrs_r2.csv')
+```
+
+
+
+(P+T)
+
+```{r}
+tmp = rbind(
+  df1ssppt_split %>% mutate(method = 'PTRS (GTEx EUR)'),
+  df4ssp_split %>% mutate(method = 'PRS')
+) %>% filter(sample != 'British_insample') 
+tmp_test = tmp %>% 
+  reshape2::dcast(trait + sample ~ method, value.var = 'portability') %>% 
+  group_by(sample) %>% 
+  do(test_a_vs_b(.$PRS, .$`PTRS (GTEx EUR)`)) 
+tmp_test %>% 
+  pander('Portability: GTEx EUR whole blood')
+tmp %>% 
+  left_join(pop_map2, by = c('sample' = 'pop')) %>% mutate(pop2 = order_pop(pop2)) %>%
+  ggplot() +
+  geom_violin(aes(x = pop2, y = portability, color = method), position = position_dodge(0.65)) +
+  geom_boxplot(aes(x = pop2, y = portability, color = method), width = 0.1, position = position_dodge(0.65)) + th + scale_color_manual(values = score_color_code) + 
+  theme(legend.position = c(0.17, 0.8), legend.title = element_blank())
+
+tmp %>% 
+  left_join(pop_map2, by = c('sample' = 'pop')) %>% mutate(pop2 = order_pop(pop2)) %>%
+  filter(pop2 != 'EUR ref.') %>%
+  ggplot() + 
+  geom_point(aes(x = r2_mean, y = portability, color = method)) + 
+  facet_wrap(~pop2, scales = 'free') + th2 +
+  xlab(expression(tilde(R)^2 * 'of PTRS or PRS')) + 
+  ylab('Portability') +
+  scale_color_manual(values = score_color_code)
+# outlier = tmp %>% filter(sample == 'African', portability > 0.5)
+# tmp %>% filter((sample != 'African') | (!trait %in% outlier$trait)) %>% 
+#   reshape2::dcast(trait + sample ~ method, value.var = 'portability') %>% 
+#   group_by(sample) %>% 
+#   do(test_a_vs_b(.$PRS, .$`PTRS (GTEx EUR)`)) %>% 
+#   pander('Portability: GTEx EUR whole blood (remove outlier)')
+# tmp %>% filter((sample != 'African') | (!trait %in% outlier$trait)) %>%
+#   left_join(pop_map2, by = c('sample' = 'pop')) %>% mutate(pop2 = order_pop(pop2)) %>%
+#   ggplot() +
+#   geom_violin(aes(x = pop2, y = portability, color = method), position = position_dodge(0.65)) +
+#   geom_boxplot(aes(x = pop2, y = portability, color = method), width = 0.1, position = position_dodge(0.65)) + th + scale_color_manual(values = score_color_code) + 
+#   theme(legend.position = c(0.8, 0.8), legend.title = element_blank()) + 
+#   theme(axis.title.x = element_blank())
+tmp %>% 
+  left_join(pop_map2, by = c('sample' = 'pop')) %>% mutate(pop2 = order_pop(pop2)) %>%
+  filter(pop2 == 'EUR test') %>% summarize(max_port = max(portability), min_port = min(portability))
+
+
+
+tmp2 = tmp %>% group_by(sample) %>% summarize(ypos = min(portability), ypos2 = max(portability)) %>% ungroup() %>% left_join(pop_map2, by = c('sample' = 'pop')) %>% mutate(pop2 = order_pop(pop2))
+shift = 0.1
+tmp2$yy = tmp2$ypos - shift
+tmp2$yy[tmp2$ypos < 0.05] = tmp2$ypos2[tmp2$ypos < 0.05] + shift
+tmp2 = inner_join(tmp2, tmp_test, by = 'sample')
+tmp22 = tmp2 %>% mutate(pval = paste0(signif(wilcox_pval, digits = 2))) %>% filter(pop2 != 'EUR ref.')
+# tmp22 = rbind(
+#   tmp2 %>% mutate(pval = paste0(signif(pval, digits = 2))), 
+#   inner_join(
+#     tmp2 %>% mutate(yy = yy + 0.15) %>% select(-pval), 
+#     data.frame(pval = tmp_test$wilcox_pval, sample = tmp_test$sample) %>% mutate(pval = paste0(signif(pval, digits = 2), '*')), 
+#     by = 'sample'
+#   )
+# )
+p3 = tmp %>% 
+  filter(sample != 'British_insample') %>% 
+  left_join(pop_map2, by = c('sample' = 'pop')) %>% mutate(pop2 = order_pop(pop2)) %>% 
+  ggplot() + 
+  geom_violin(aes(x = pop2, y = portability, color = method), position = position_dodge(width = 0.7)) + 
+  geom_boxplot(aes(x = pop2, y = portability, color = method), position = position_dodge(width = 0.7), width = 0.1) + 
+  th + 
+  theme(legend.position = c(0.8, 0.9), legend.title = element_blank(), axis.title.x = element_blank()) + 
+  scale_color_manual(values = score_color_code) +
+  theme(axis.text.x = element_text(size = 12)) +
+  ylab('Portability') +
+  xlab('Population')
+p3 = p3 + geom_label(data = tmp22, aes(x = pop2, y = yy, label = paste0('pval = ', pval))) # signif(pval, digits = 2))))
+p3
+ggsave('../analysis_output/revision_portability_ptrs_pt.png', p3, width = 5.5, height = 4)
+```
+
+(R2 PTRS vs PRS in all populations)
+
+PRS vs PTRS perdiction performance
+
+```{r}
+kk = inner_join(
+  df1ss_split, 
+  df4ss_split, 
+  by = c('trait', 'sample'), suffix = c('.ptrs', '.prs')
+)
+p = kk %>% 
+  left_join(pop_map2, by = c('sample' = 'pop')) %>% 
+  mutate(pop2 = order_pop(pop2)) %>% 
+  left_join(df_color_category, by = 'trait') %>% ggplot() + 
+  geom_abline(slope = 1, intercept = 0) + 
+  geom_point(aes(x = r2_mean.prs, y = r2_mean.ptrs)) + 
+  # geom_errorbar(aes(x = r2_mean.prs, ymin = r2_mean.ptrs - 1.96 * r2_sd.ptrs, ymax = r2_mean.ptrs + 1.96 * r2_sd.ptrs)) + 
+  # geom_errorbarh(aes(xmin = r2_max.prs - 1.96 * r2_sd.prs, xmax = r2_max.prs + 1.96 * r2_sd.prs, y = r2_mean.ptrs)) +
+  # geom_label_repel(aes(x = r2_mean.prs, y = r2_mean.ptrs, label = trait), color = 'gray') + th + 
+  xlab('Prediction accuracy of PRS') + 
+  ylab('Prediction accuracy of PTRS') +
+  # scale_color_manual(values = color_mixer) + 
+  # coord_equal() +
+  facet_wrap(~pop2, scales = 'free') +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
+  th2; p # + 
+  # theme(legend.position = 'top', legend.title = element_blank()) + 
+  # guides(color = guide_legend(nrow = 2, byrow = TRUE))
+ggsave('../analysis_output/revision_ptrs_prs_r2_all_pop.png', p, width = 6, height = 4.5)
+```
+
+Portability vs R2 (PTRS)
+
+```{r}
+tmp = rbind(
+  df1ssp_split %>% mutate(method = 'PTRS (GTEx EUR)'),
+  df4ssp_split %>% mutate(method = 'PRS')
+) %>% filter(sample != 'British_insample') 
+p = tmp %>% 
+  left_join(pop_map2, by = c('sample' = 'pop')) %>% mutate(pop2 = order_pop(pop2)) %>%
+  filter(pop2 != 'EUR ref.') %>%
+  ggplot() + 
+  geom_point(aes(x = r2_mean, y = portability, color = method)) + 
+  facet_wrap(~pop2, scales = 'free') + th2 +
+  xlab(expression(tilde(R)^2 * 'of PTRS or PRS')) + 
+  ylab('Portability') +
+  scale_color_manual(values = score_color_code) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+ggsave('../analysis_output/revision_portability_vs_r2_for_ptrs.png', p, width = 6, height = 4.5)
+```
+
+R2 PTRS EN vs PTRS P+T
+
+```{r}
+kk = inner_join(
+  df1ss_split %>% filter(sample == 'British_test'), 
+  df1sspt_split %>% filter(sample == 'British_test'), 
+  by = 'trait', suffix = c('.en', '.pt')
+)
+p = kk %>% left_join(df_color_category, by = 'trait') %>% ggplot() + 
+  geom_abline(slope = 1, intercept = 0) + 
+  geom_point(aes(x = r2_mean.pt, y = r2_mean.en)) + 
+  geom_label_repel(aes(x = r2_mean.pt, y = r2_mean.en, label = trait)) + th +
+  xlab('Prediction accuracy of PTRS \n (LD clumping and p-value thresholding)') + 
+  ylab('Prediction accuracy of PTRS \n (elastic net)') +
+  # scale_color_manual(values = color_mixer) + 
+  coord_equal() 
+ggsave('../analysis_output/revision_r2_en_vs_pt.png', p, width = 5, height = 5)
+  # theme(legend.position = 'top', legend.title = element_blank()) + guides(color = guide_legend(nrow = 2, byrow = TRUE))
+p
+```
