@@ -6,6 +6,10 @@ source('code/rlib_doc.R')
 source('https://gist.githubusercontent.com/liangyy/43912b3ecab5d10c89f9d4b2669871c9/raw/3ca651cfa53ffccb8422f432561138a46e93710f/my_ggplot_theme.R')
 score_color_code = c('PRS' = "#999999", 'PTRS (GTEx EUR)' = "#E69F00", 'PTRS (MESA EUR)' = "#E69F00", 'PTRS (MESA AFHI)' = "#56B4E9", 'PTRS (MESA ALL)' = "#F633FF", 'PTRS+PRS' = '#0072B2', 'PTRS' = "#E69F00")
 
+pop_map2 = data.frame(
+  pop = c('African', 'Chinese', 'Indian', 'Caribbean', 'British_test', 'British_validation', 'British_valid'),
+  pop2 = c('AFR', 'E.ASN', 'S.ASN', 'CAR', 'EUR test', 'EUR ref.', 'EUR ref.')
+)
 gen_pval_df = function(kk, kk2) {
   tmp2 = kk2 %>% group_by(pop2) %>% summarize(ypos = min(portability), ypos2 = max(portability)) %>% ungroup()
   tmp2$yy = tmp2$ypos - shift
@@ -25,7 +29,7 @@ gen_pval_df_r2 = function(kk, kk2, m1, n1, n2, yfrac = 0.9) {
   tmp22 = tmp2 %>% mutate(pval = paste0(signif(wilcox_pval, digits = 2)))
   tmp22
 }
-
+bad_traits = NULL
 df1 = load_perf('~/Desktop/tmp/ptrs-tf/from_nucleus/elastic_net_ptrs_gtex_british_updated_indivs_w_split_lambda.performance.csv') %>% filter(!trait %in% bad_traits)
 df1pt = load_perf('~/Desktop/tmp/ptrs-tf/from_nucleus/pt_ptrs_gtex_british_updated_indivs_w_split_lambda.performance.csv') %>% filter(!trait %in% bad_traits)
 df2 = load_perf('~/Desktop/tmp/ptrs-tf/from_nucleus/elastic_net_ptrs_mesa_british_updated_w_split_lambda.performance.csv') %>% filter(!trait %in% bad_traits)
@@ -83,6 +87,22 @@ tmp_mesa = rbind(
   fig5_dir = 'analysis_output/combine_ptrs_prs/'
   dir.create(fig5_dir)
   
+  tmp %>% 
+    reshape2::dcast(trait + sample ~ method, value.var = 'r2_mean') %>% 
+    left_join(pop_map2, by = c('sample' = 'pop')) %>% 
+    mutate(pop2 = order_pop(pop2)) %>% 
+    rename(
+      `(EN) PTRS` = PTRS,
+      `(CT) PTRS` = `(PT) PTRS`,
+      `(CT) PTRS+PRS` = `(PT) PTRS+PRS`,
+      population = pop2) %>% 
+    select(
+      trait, population, 
+      PRS, 
+      `(EN) PTRS`, `(EN) PTRS+PRS`, 
+      `(CT) PTRS`, `(CT) PTRS+PRS`) %>% 
+    write.csv(paste0(fig5_dir, 'combine_ptrs_and_prs.raw_r2.csv'))
+  
   kk = tmp %>% 
     reshape2::dcast(trait + sample ~ method, value.var = 'r2_mean') %>% 
     group_by(sample) %>% 
@@ -111,7 +131,7 @@ tmp_mesa = rbind(
     geom_abline(slope = 1, intercept = 0) +
     ylab('PTRS only/combine') + th2 +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
-    scale_color_manual(values = score_color_code) +
+    scale_color_manual(values = score_color_code, limits = force) +
     geom_label(data = tmp22, aes(x = x, y = y, label = paste0('PRS vs PTRS+PRS \n pval = ', pval))) + 
     facet_wrap(~pop2, scales = 'free')
   ggsave(paste0(fig5_dir, 'combine_ptrs_and_prs_en_r2.pdf'), p, width = 11, height = 7)
@@ -127,7 +147,7 @@ tmp_mesa = rbind(
     ylab('PTRS only/combine') + th2 +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
     theme(legend.title = element_blank(), legend.position = 'bottom') +
-    scale_color_manual(values = score_color_code) +
+    scale_color_manual(values = score_color_code, limits = force) +
     geom_label(data = tmp22 %>% 
                  filter(pop2 != 'EUR ref.') %>%
                  mutate(pop2 = recode(pop2, 'EUR test' = 'EUR')), 
@@ -166,7 +186,7 @@ tmp_mesa = rbind(
     geom_abline(slope = 1, intercept = 0) +
     ylab('PTRS only/combine') + th2 +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
-    scale_color_manual(values = score_color_code) +
+    scale_color_manual(values = score_color_code, limits = force) +
     geom_label(data = tmp22, aes(x = x, y = y, label = paste0('PRS vs PTRS+PRS \n pval = ', pval)))
   ggsave(paste0(fig5_dir, 'combine_ptrs_and_prs_pt_r2.pdf'), p, width = 11, height = 7)
   
@@ -181,7 +201,7 @@ tmp_mesa = rbind(
     ylab('PTRS only/combine') + th2 +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
     theme(legend.title = element_blank(), legend.position = 'bottom') +
-    scale_color_manual(values = score_color_code) +
+    scale_color_manual(values = score_color_code, limits = force) +
     geom_label(data = tmp22 %>% 
                  filter(pop2 != 'EUR ref.') %>%
                  mutate(pop2 = recode(pop2, 'EUR test' = 'EUR')), 
@@ -218,7 +238,7 @@ tmp_mesa = rbind(
     geom_boxplot(aes(x = pop2, y = portability, color = method), width = 0.1, position = position_dodge(0.65)) + th + 
     theme(legend.position = c(0.85, 0.85), legend.title = element_blank()) +
     theme(axis.title.x = element_blank()) +
-    scale_color_manual(values = score_color_code) +
+    scale_color_manual(values = score_color_code, limits = force) +
     geom_label(data = tmp22, aes(x = pop2, y = yy, label = paste0('pval = ', pval)), size = 6)
   ggsave(paste0(fig5_dir, 'combine_ptrs_and_prs_en_portability.pdf'), p, width = 7.7, height = 5)
   
@@ -231,7 +251,7 @@ tmp_mesa = rbind(
     geom_boxplot(aes(x = method, y = portability, color = method), width = 0.2, position = position_dodge(1)) + th + 
     theme(legend.position = 'none', legend.title = element_blank()) +
     theme(axis.title.x = element_blank()) +
-    scale_color_manual(values = score_color_code); p
+    scale_color_manual(values = score_color_code, limits = force); p
   ggsave(paste0(fig5_dir, 'combine_ptrs_and_prs_en_portability_zoom.pdf'), p, width = 4, height = 4)
   
   kk = tmp %>% 
@@ -264,7 +284,7 @@ tmp_mesa = rbind(
     geom_boxplot(aes(x = pop2, y = portability, color = method), width = 0.1, position = position_dodge(0.65)) + th + 
     theme(legend.position = c(0.85, 0.85), legend.title = element_blank()) +
     theme(axis.title.x = element_blank()) +
-    scale_color_manual(values = score_color_code) +
+    scale_color_manual(values = score_color_code, limits = force) +
     geom_label(data = tmp22, aes(x = pop2, y = yy, label = paste0('pval = ', pval)), size = 6)
   ggsave(paste0(fig5_dir, 'combine_ptrs_and_prs_pt_portability.pdf'), p, width = 7.2, height = 5)
   
@@ -277,7 +297,7 @@ tmp_mesa = rbind(
     geom_boxplot(aes(x = method, y = portability, color = method), width = 0.2, position = position_dodge(1)) + th + 
     theme(legend.position = 'none', legend.title = element_blank()) +
     theme(axis.title.x = element_blank()) +
-    scale_color_manual(values = score_color_code) +
+    scale_color_manual(values = score_color_code, limits = force)
   ggsave(paste0(fig5_dir, 'combine_ptrs_and_prs_pt_portability_zoom.pdf'), p, width = 4, height = 4)
   
   
@@ -288,6 +308,19 @@ tmp_mesa = rbind(
 
 ## mesa
 {
+  tmp_mesa %>% 
+    filter(sample != 'British_insample') %>%
+    reshape2::dcast(trait + sample ~ method, value.var = 'r2_mean') %>% 
+    left_join(pop_map2, by = c('sample' = 'pop')) %>% 
+    mutate(pop2 = order_pop(pop2)) %>% 
+    rename(population = pop2) %>% 
+    select(
+      trait, population, 
+      PRS, 
+      `PTRS (MESA EUR)`, `PTRS (MESA AFHI)`, 
+      `PTRS (MESA ALL)`) %>% 
+    select(-PRS) %>%
+    write.csv(paste0(fig5_dir, 'mesa.combine_ptrs_and_prs.raw_r2.csv'))
   outlier = tmp_mesa %>% filter(sample == 'African', portability > 1)
   p = tmp_mesa %>% filter((!sample %in% 'African') | (!trait %in% outlier$trait)) %>% 
     filter(sample == 'African') %>% 
@@ -296,7 +329,7 @@ tmp_mesa = rbind(
     geom_violin(aes(x = pop2, y = portability, color = method), position = position_dodge(0.65)) +
     geom_boxplot(aes(x = pop2, y = portability, color = method), width = 0.1, position = position_dodge(0.65)) + th + 
     theme(legend.position = 'bottom', legend.title = element_blank()) +
-    scale_color_manual(values = score_color_code) +
+    scale_color_manual(values = score_color_code, limits = force) +
     theme(axis.title.x = element_blank()) +
     guides(color=guide_legend(ncol=2))
   ggsave('analysis_output/mesa_port.pdf', p, width = 6, height = 6)
@@ -310,7 +343,7 @@ tmp_mesa = rbind(
     theme(legend.position = 'bottom', legend.title = element_blank()) +
     guides(color=guide_legend(ncol=2)) +
     theme(axis.title.x = element_blank()) +
-    scale_color_manual(values = score_color_code)
+    scale_color_manual(values = score_color_code, limits = force)
   ggsave('analysis_output/mesa_port_all_pop.pdf', p, width = 8, height = 6)
 }
 ## end ##
@@ -369,7 +402,7 @@ tmp_mesa %>% filter((!sample %in% 'African') | (!trait %in% outlier$trait)) %>%
   geom_violin(aes(x = pop2, y = portability, color = method), position = position_dodge(0.65)) +
   geom_boxplot(aes(x = pop2, y = portability, color = method), width = 0.1, position = position_dodge(0.65)) + th + 
   theme(legend.position = c(0.17, 0.8), legend.title = element_blank()) +
-  scale_color_manual(values = score_color_code)
+  scale_color_manual(values = score_color_code, limits = force)
 
 tmp_mesa %>% filter((!sample %in% 'African') | (!trait %in% outlier$trait)) %>% 
   filter(!sample %in% c('British_insample', 'British_valid')) %>% 
@@ -378,7 +411,7 @@ tmp_mesa %>% filter((!sample %in% 'African') | (!trait %in% outlier$trait)) %>%
   geom_violin(aes(x = pop2, y = portability, color = method), position = position_dodge(0.65)) +
   geom_boxplot(aes(x = pop2, y = portability, color = method), width = 0.1, position = position_dodge(0.65)) + th + 
   theme(legend.position = c(0.85, 0.8), legend.title = element_blank()) +
-  scale_color_manual(values = score_color_code)
+  scale_color_manual(values = score_color_code, limits = force)
 
 kk = rbind(
   tmp_mesa %>% filter((!sample %in% 'African') | (!trait %in% outlier$trait)) %>% 
