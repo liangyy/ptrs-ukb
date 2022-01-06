@@ -863,11 +863,12 @@ p = rbind(prs %>% mutate(method = 'PRS'), ptrs %>% mutate(method = 'PTRS (GTEx E
   geom_errorbarh(aes(xmin = h_sq - 1.96 * h_sq_se, xmax = h_sq + 1.96 * h_sq_se, y = r2_mean)) +
   geom_point(aes(x = h_sq, y = r2_mean), size = 3, alpha = 0.5) + 
   th +
-  scale_color_manual(values = score_color_code) +
+  scale_color_manual(values = score_color_code, limits = force) +
   coord_equal() + 
   theme(legend.position = 'top', legend.title = element_blank()) + 
   xlab('PVE or heritability') +
-  ylab(expression(tilde(R)^2 * 'of PTRS or PRS'))
+  ylab(expression(tilde(R)^2 * 'of PTRS or PRS')) + 
+  theme(text = element_text(size = 20))
 p
 ggsave('../analysis_output/revision_fig3b.png', p, width = 6, height = 3)
 ```
