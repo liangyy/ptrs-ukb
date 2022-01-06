@@ -953,7 +953,7 @@ p = kk %>% left_join(df_color_category, by = 'trait') %>% ggplot() +
   geom_point(aes(x = r2_mean.prs, y = r2_mean.ptrs)) + 
   # geom_errorbar(aes(x = r2_mean.prs, ymin = r2_mean.ptrs - 1.96 * r2_sd.ptrs, ymax = r2_mean.ptrs + 1.96 * r2_sd.ptrs)) + 
   # geom_errorbarh(aes(xmin = r2_max.prs - 1.96 * r2_sd.prs, xmax = r2_max.prs + 1.96 * r2_sd.prs, y = r2_mean.ptrs)) +
-  geom_label_repel(aes(x = r2_mean.prs, y = r2_mean.ptrs, label = trait), color = 'gray') + th + 
+  geom_label_repel(aes(x = r2_mean.prs, y = r2_mean.ptrs, label = trait), color = 'black') + th + 
   xlab('Prediction accuracy of PRS') + 
   ylab('Prediction accuracy of PTRS') +
   # scale_color_manual(values = color_mixer) + 
